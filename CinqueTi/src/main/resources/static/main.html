@@ -1,0 +1,27 @@
+<div class="col-lg-5">
+	<div class="panel panel-default">
+		<div class="panel-heading">Urban Lines</div>
+		<!--
+		<div class="panel-body">
+		</div>
+		-->
+
+		<div class="pre-scrollable lines">
+			<table class="table table-hover table-striped">
+			    <tr>
+			        <th>Line</th>
+			        <th>Description</th>
+			    </tr>
+
+			    <tr ng-class="{active: ctrl.lineID == line.line}" ng-repeat="line in ctrl.lines" ng-click="ctrl.goToLink(line)">
+			    	<td>{{line.line}}</td>
+			        <td>{{line.desc}}</td>
+			    </tr>
+			</table>
+		</div>
+	</div>
+</div>
+
+<div class="col-lg-7">
+    <leaflet lf-center="center" bounds="bounds" paths="paths" markers="markers" height="480px"></leaflet>
+</div>

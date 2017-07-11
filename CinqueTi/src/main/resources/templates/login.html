@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8"/>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <meta name="description" content=""/>
+    <meta name="author" content=""/>
+    <!-- <link rel="shortcut icon" th:href="@{/resources/ico/favicon.png}"/>  -->
+
+    <title>Login</title>
+
+	 <!-- Bootstrap core CSS -->
+    <link th:href="@{/css/bootstrap.css}" rel="stylesheet"/>
+    <link th:href="@{/css/custom-bootstrap.css}" rel="stylesheet"/>
+    <link th:href="@{/css/sticky-footer-navbar.css}" rel="stylesheet"/>
+    <script src="/webjars/jquery/jquery.js"></script>
+
+    <!-- Custom styles for this template -->
+    <link th:href="@{/css/signin.css}" rel="stylesheet"/>
+</head>
+
+<body>
+	<div id="wrap">
+	    <div th:replace="fragments/navbar (showLogin='false')"></div>
+	
+	    <div class="container">
+	    
+	        <form class="form-signin" role="form" method="POST" th:action="@{/login}">
+	            <div class="alert alert-danger" th:if="${param.error}">
+	                <p th:text="#{login.error.invalid}">Invalid Credentials.</p>
+	            </div>
+	
+	            <h2 class="form-signin-heading">Please sign in</h2>
+	            
+	            <div class="form-group">
+	                <input type="text" class="form-control" placeholder="Email address" name="username" required="true" autofocus="true"/>
+	            </div>
+	            
+	            <div class="form-group">
+	                <input type="password" class="form-control" placeholder="Password" name="password" required="true"/>
+	            </div>
+	            
+	            <button class="btn btn-lg btn-primary btn-block" type="submit">Sign in</button>
+	        </form>
+	        
+	    </div>
+	</div>
+	
+	<div th:replace="fragments/footer"></div>
+</body>
+</html>

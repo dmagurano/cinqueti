@@ -1,0 +1,55 @@
+<div class="col-lg-5">
+    <h3>Insert search parameter</h3>
+
+    <div>
+        <form id="search-form">
+            <div class="input-group">
+                <span class="input-group-addon">Source</span>
+                <input ng-model="ctrl.source" type="text" class="form-control" placeholder="Source" aria-describedby="basic-addon1">
+            </div>
+            <br>
+            <div class="input-group">
+                <span class="input-group-addon">Destination</span>
+                <input ng-model="ctrl.destination" type="text" class="form-control" placeholder="Destination" aria-describedby="basic-addon1">
+            </div>
+            <br>
+            <button ng-click="ctrl.calculate()" type="button" class="btn btn-default btn-block">Search</button>
+        </form>
+
+        <div style="margin-top: 20px" class="panel panel-default" ng-hide="pathDetailsVisibility">
+            <div class="panel-heading">
+                <h3 style="text-align: center" class="panel-title" >Path details</h3>
+            </div>
+            <div class="panel-body">
+                <table class="table table-hover table-striped" id="path">
+                    <tbody>
+                    <tr ng-repeat="path in pathDetails"><td>{{path.cost}} m</td><td ng-if="path.mode">Walking</td><td ng-if="!path.mode">{{path.edgeLine}}</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    <!-- <i class="material-icons">directions_walk</i>
+        <i class="fa fa-bus"></i>
+    -->
+
+    <br><br>
+
+    <div class="hidden" id="results-table">
+        <div class="panel panel-default">
+          <div class="panel-heading">
+            <h3 class="panel-title">Info</h3>
+          </div>
+          <div class="panel-body">
+            <!-- Table -->
+            <table class="table">
+                table content
+            </table>
+          </div>
+        </div>                
+    </div>
+</div>
+
+<div class="col-lg-7">
+    <leaflet lf-center="turin" paths="paths" bounds="bounds" height="480px"></leaflet>
+</div>

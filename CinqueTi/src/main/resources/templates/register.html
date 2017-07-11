@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Registration</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <!-- Bootstrap -->
+    <link th:href="@{/css/bootstrap.min.css}" rel="stylesheet"/>
+    <link th:href="@{/css/custom-bootstrap.css}" rel="stylesheet"/>
+    <link th:href="@{/css/sticky-footer-navbar.css}" rel="stylesheet"/>
+</head>
+<body>
+	<div id="wrap">
+	    <div th:replace="fragments/navbar"></div>
+	
+	    <div class="container">
+			<form id="form" class="form-narrow form-horizontal" method="post" th:action="@{/register}" th:object="${user}" th:fragment="signupForm" enctype="multipart/form-data">
+			    <!--/* Show general error message when form contains errors */-->
+			    <th:block th:if="${#fields.hasErrors('${user.*}')}">
+			        <div th:replace="fragments/alert :: alert (type='danger', message='Form contains errors. Please try again.')">Alert</div>
+			    </th:block>
+			    <fieldset>
+			        <legend>Please Sign Up</legend>
+			        
+			        <div class="form-group" th:classappend="${#fields.hasErrors('email')}? 'has-error'">
+			            <label for="email" class="col-lg-2 control-label">Email</label>
+			            <div class="col-lg-10">
+			                <input type="text" class="form-control" id="email" placeholder="Email address" th:field="*{email}" />
+			                <span class="help-block" th:if="${#fields.hasErrors('email')}" th:errors="*{email}">Incorrect email</span>
+			            </div>
+			        </div>
+			        
+			        <div class="form-group" th:classappend="${#fields.hasErrors('password') || #fields.hasErrors('global')}? 'has-error'">
+			            <label for="password" class="col-lg-2 control-label">Password</label>
+			            <div class="col-lg-10">
+			                <input type="password" class="form-control" id="password" placeholder="Password" th:field="*{password}"/>
+			                <span class="help-block" th:if="${#fields.hasErrors('password')}" th:errors="*{password}">Incorrect password</span>
+			            </div>
+			        </div>
+			        
+			        <div class="form-group" th:classappend="${#fields.hasErrors('password') || #fields.hasErrors('global')}? 'has-error'">
+			            <label for="passwordConfirm" class="col-lg-2 control-label">Confirm password</label>
+			            <div class="col-lg-10">
+			                <input type="password" class="form-control" id="passwordConfirm" placeholder="Password" th:field="*{passwordConfirm}"/>
+			                <span class="help-block" th:if="${#fields.hasErrors('password')}" th:errors="*{password}">Incorrect password</span>
+			                <span class="help-block" th:each="err : ${#fields.errors('global')}" th:text="${err}">Input is incorrect</span>
+			            </div>
+			        </div>
+			        
+			        <div class="form-group" th:classappend="${#fields.hasErrors('nickname')}? 'has-error'">
+			            <label for="nickname" class="col-lg-2 control-label">Nickname</label>
+			            <div class="col-lg-10">
+			                <input type="text" class="form-control" id="nickname" placeholder="Nickname" th:field="*{nickname}"/>
+			                <span class="help-block" th:if="${#fields.hasErrors('nickname')}" th:errors="*{nickname}">Wrong or empty nickname chosen</span>
+			            </div>
+			        </div>
+			        
+			        <div class="form-group" th:classappend="${#fields.hasErrors('gender')}? 'has-error'">
+			            <label for="gender" class="col-lg-2 control-label">Gender</label>
+			            <div class="col-lg-3">
+			                <select class="form-control" id="gender" th:field="*{gender}">
+			                	<option value="" style="display:none"></option>
+							    <option value="male">M</option>
+							    <option value="female">F</option>
+							    <option value="other">Other</option>
+							</select>
+			                <span class="help-block" th:if="${#fields.hasErrors('gender')}" th:errors="*{gender}">No gender selected</span>
+			            </div>
+			        </div>
+			        
+			        <div class="form-group" th:classappend="${#fields.hasErrors('age')}? 'has-error'">
+			            <label for="age" class="col-lg-2 control-label">Age</label>
+			            <div class="col-lg-3">
+			                <input type="number" class="form-control" id="age" min="1" max="200" th:field="*{age}"/>
+			                <span class="help-block" th:if="${#fields.hasErrors('age')}" th:errors="*{age}">Invalid number</span>
+			            </div>
+			        </div>
+			        
+			        <div class="file-wrapper">
+			        	<div class="form-group">
+		                    <label for="file" class="control-label col-lg-2">Profile picture</label>
+		                    <!--
+		                    <span class="placeholder" data-placeholder="Choose an image...">Choose an image...</span>
+		                     -->
+		                    <div class="col-lg-10">
+		                    	<input type="file" id="file" name="file" accept="image/x-png,image/gif,image/jpeg"/>
+	                    	</div>
+	                    </div>
+		        	</div>
+		        	
+			        <div class="form-group" th:classappend="${#fields.hasErrors('education')}? 'has-error'">
+			            <label for="education" class="col-lg-2 control-label">Education level</label>
+			            <div class="col-lg-10">
+			                <select class="form-control" id="education" th:field="*{education}">
+			                	<option value="" style="display:none"></option>
+			                	
+							    <option th:each="educationLevel : ${educationLevels}" th:value="${educationLevel}">
+							    	<th:block th:text="${educationLevel}"></th:block>
+							    </option>
+							    <!-- 
+							    <option value="A">Level A</option>
+							    <option value="B">Level B</option>
+							    <option value="C">Level C</option>
+							     -->
+							</select>
+			                <span class="help-block" th:if="${#fields.hasErrors('education')}" th:errors="*{education}">Invalid level selected</span>
+			            </div>
+			        </div>
+			        
+			        <div class="form-group" th:classappend="${#fields.hasErrors('job')}? 'has-error'">
+			            <label for="job" class="col-lg-2 control-label">Job</label>
+			            <div class="col-lg-10">
+			                <select class="form-control" id="job" th:field="*{job}">
+			                	<option value="" style="display:none"></option>
+			                	
+							    <option th:each="job : ${jobs}" th:value="${job}">
+							    	<th:block th:text="${job}"></th:block>
+							    </option>
+							    <option value="Other">Other</option>
+			                	<!-- 
+							    <option value="A">Job A</option>
+							    <option value="B">Job B</option>
+							    -->
+							    <option value="None">No job</option>
+							</select>
+			                <span class="help-block" th:if="${#fields.hasErrors('job')}" th:errors="*{job}">Invalid job selected</span>
+			            </div>
+			        </div>
+			        
+			        <div class="form-group" th:classappend="${#fields.hasErrors('ownCar')}? 'has-error'">
+			           	<label for="car" class="col-lg-2 control-label">Own car?</label>
+			           	<div class="col-lg-2">
+			            	<input type="checkbox" class="form-control" id="car" value=""/>
+			            </div>
+			            <span class="help-block" th:if="${#fields.hasErrors('ownCar')}" th:errors="*{ownCar}">Invalid entry</span>
+			        </div>
+			        
+			        <div id="divCar" class="form-group" th:classappend="${#fields.hasErrors('ownCar')}? 'has-error'" style="display: none;">
+			        	<label for="carYear" class="col-lg-2 control-label">Car details</label>
+			        	<div class="col-lg-4">
+				           	<input type="number" value="1900" class="form-control" placeholder="1900-2017" id="carYear" min="1900" max="2017" th:field="*{ownCar.registrationYear}"/>
+				        </div>
+				        <div class="col-lg-5">
+				           	<select class="form-control" id="carFuel" th:field="*{ownCar.fuelType}">
+				           		<option value="" style="display:none"></option>
+							    <option value="petrol">Petrol</option>
+							    <option value="diesel">Diesel</option>
+							    <option value="methane">Methane</option>
+							    <option value="other">Other</option>
+							</select>
+				       	</div>
+			        </div>
+			        
+			        <div class="form-group" th:classappend="${#fields.hasErrors('carSharing')}? 'has-error'">
+			            <label for="carSharing" class="col-lg-2 control-label">Car sharing service</label>
+			            <div class="col-lg-10">    
+			                <select class="form-control" id="carSharing" th:field="*{carSharing}">
+			                	<option value="none" style="display:none">Not used</option>
+							    <option th:each="carSharingService : ${carSharingServices}" th:value="${carSharingService}">
+							    	<th:block th:text="${carSharingService}"></th:block>
+							    </option>
+							    <option value="Other">Other</option>
+							</select>
+			            	<!-- 
+			                <input type="text" class="form-control" id="carSharing" placeholder="Leave blank if not used" th:field="*{carSharing}"/>
+			                 -->
+			                <span class="help-block" th:if="${#fields.hasErrors('carSharing')}" th:errors="*{carSharing}">Invalid Car Sharing Servise selected</span>
+			            </div>
+			        </div>
+			        
+			        <div class="form-group" th:classappend="${#fields.hasErrors('bikeUsage')}? 'has-error'">
+			           	<div id="bikeDiv" class="col-lg-12">
+			           		<label class="col-lg-2 control-label">Bike usage</label>
+			           		
+			           		<label for="owned" class="radio-inline">Owned</label>
+			            	<input type="checkbox" id="owned" th:field="*{bikeUsage.owned}"/>
+			            	
+			            	<label for="sharing" class="radio-inline">Bike sharing</label>
+			            	<input type="checkbox" id="sharing" th:field="*{bikeUsage.sharing}"/>
+			            </div>
+			        </div>
+			        
+			        <div class="form-group" th:classappend="${#fields.hasErrors('pubTransport')}? 'has-error'">
+			            <label for="pubTransport" class="col-lg-2 control-label">Public Transport</label>
+			            <div class="col-lg-10">
+			                <select class="form-control" id="pubTransport" th:field="*{pubTransport}">
+							    <option value="none">Never used</option>
+							    <option value="single">Single</option>
+							    <option value="daily">Daily</option>
+							</select>
+			                <span class="help-block" th:if="${#fields.hasErrors('pubTransport')}" th:errors="*{pubTransport}">Invalid level selected</span>
+			            </div>
+			        </div>
+			        
+			        <div class="form-group">
+			            <div class="col-lg-offset-2 col-lg-10">
+			                <button type="submit" class="btn btn-default">Sign up</button>
+			            </div>
+			        </div>
+			        
+			        <div class="form-group">
+			            <div class="col-lg-offset-2 col-lg-10">
+			                <p>Already have an account? <a href="login" th:href="@{/login}">Sign In</a></p>
+			            </div>
+			        </div>
+			    </fieldset>
+			</form>
+		</div>
+	</div>
+	<div th:replace="fragments/footer"></div>
+	
+	<!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
+	<script src="https://code.jquery.com/jquery.js"></script>
+	<script>
+		$(document).ready(function () {
+		    $('#car').change(function () {
+		        if (this.checked) 
+		           $('#divCar').fadeIn('slow');
+		        else 
+		            $('#divCar').fadeOut('slow');
+		    });
+		});
+		$("form").submit(function() {
+	
+	 	   $(this).children('#car').remove();
+	
+	 	});
+	</script>
+	<!-- Include all compiled plugins (below), or include individual files as needed -->
+	<script th:src="@{/js/bootstrap.min.js}"></script>
+</body>
+</html>
