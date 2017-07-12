@@ -53,6 +53,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
              .permitAll()
              .and()
          .logout()
+             .logoutSuccessUrl("/welcome")
              .permitAll();
 		 http.requiresChannel().anyRequest().requiresSecure();
 	}
