@@ -5,6 +5,7 @@ import java.util.List;
 import org.springframework.data.domain.Page;
 
 import it.polito.cinqueti.entities.User;
+import it.polito.cinqueti.entities.VerificationToken;
 
 public interface UserService {
 	void registerNewUserAccount(User user) throws Exception;
@@ -22,5 +23,13 @@ public interface UserService {
     List<User> findAll();
     
     Page<User> findAll(Integer page, Integer per_page);
+    
+    User getUser(String verificationToken);
+    
+    void saveRegisteredUser(User user);
+    
+    void createVerificationToken(User user, String token);
+    
+    VerificationToken getVerificationToken(String verificationToken);
 
 }

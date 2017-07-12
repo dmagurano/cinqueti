@@ -26,6 +26,10 @@
 	
 	    <div class="container">
 	    
+	    	<div th:if="${param.error != null}" th:text="${session[SPRING_SECURITY_LAST_EXCEPTION]}">
+	    		error
+	    	</div>
+	    
 	        <form class="form-signin" role="form" method="POST" th:action="@{/login}">
 	            <div class="alert alert-danger" th:if="${param.error}">
 	                <p th:text="#{login.error.invalid}">Invalid Credentials.</p>

@@ -6,16 +6,22 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import it.polito.cinqueti.entities.User;
+import it.polito.cinqueti.entities.VerificationToken;
 import it.polito.cinqueti.repositories.UserRepository;
+import it.polito.cinqueti.repositories.VerificationTokenRepository;
 
 @Service
 public class UserServiceImpl implements UserService {
     @Autowired
     private UserRepository userRepository;
+    
+    @Autowired
+    private VerificationTokenRepository verificationTokenRepository;
    
     @Autowired
     private BCryptPasswordEncoder bCryptPasswordEncoder;
@@ -26,11 +32,8 @@ public class UserServiceImpl implements UserService {
     @Override
     public void registerNewUserAccount(User user) throws Exception {
     	
-    	if (emailExist(user.getEmail())) {  
-            throw new Exception(
-              "There is an account with that email adress: "
-              +  user.getEmail());
-        }
+    	if (emailExist(user.getEmail()))
+            throw new Exception("There is an account with that email adress: " +  user.getEmail());
     	
     	List<String> roles = new ArrayList<String>();
     	roles.add("ROLE_USER");
@@ -55,7 +58,7 @@ public class UserServiceImpl implements UserService {
     
     @Override
     public User findByEmail(String username) {
-        return userRepository.findByEmail(username);
+    	return userRepository.findByEmail(username);
     }
 
 	@Override
@@ -92,4 +95,24 @@ public class UserServiceImpl implements UserService {
 		userRepository.save(user);
 	}
 
+	@Override
+	public VerificationToken getVerificationToken(String verificationToken) {
+		return verificationTokenRepository.findByToken(verificationToken);
+	}
+
+	@Override
+	public User getUser(String verificationToken) {
+		return verificationTokenRepository.findByToken(verificationToken).getUser();
+	}
+
+	@Override
+	public void createVerificationToken(User user, String token) {
+		VerificationToken verificationToken = new VerificationToken(token, user);
+		verificationTokenRepository.save(verificationToken);
+	}
+
+	@Override
+	public void saveRegisteredUser(User user) {
+		userRepository.save(user);
+	}
 }

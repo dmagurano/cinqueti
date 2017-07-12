@@ -82,6 +82,8 @@ public class User implements UserDetails {
 	
 	@Lob
 	private byte[] image;
+	
+	private boolean enabled;
 
 	//used to convert byte[] in base64 string otherwise the image won't be showed in thymeleaf
 	public String generateBase64Image()
@@ -89,13 +91,14 @@ public class User implements UserDetails {
 	    return Base64.getEncoder().encodeToString((this.getImage()));
 	}
 	
-
 	public User() {
+		setEnabled(false);
 		ownCar = new Car();
 		bikeUsage = new Bike();
 	}
 
 	public User(String email, String nickname) {
+		this.setEnabled(false);
 		this.email = email;
 		this.nickname = nickname;
 	}
@@ -137,12 +140,6 @@ public class User implements UserDetails {
 	@JsonIgnore
 	@Override
 	public boolean isCredentialsNonExpired() {
-		return true;
-	}
-
-	@JsonIgnore
-	@Override
-	public boolean isEnabled() {
 		return true;
 	}
 
@@ -267,5 +264,14 @@ public class User implements UserDetails {
 	public void setImage(byte[] image) {
 		this.image = image;
 	}
-	
+
+	@JsonIgnore
+	@Override
+	public boolean isEnabled() {
+		return enabled;
+	}
+
+	public void setEnabled(boolean enabled) {
+		this.enabled = enabled;
+	}
 }
