@@ -7,7 +7,10 @@ app.controller('CalculateController', ['$scope', 'PathsDataProvider', 'leafletBo
                         zoom: 13
             },
             paths: {},
-            bounds: {}
+            bounds: {},
+            defaults: {
+                tileLayer: "https://api.mapbox.com/styles/v1/mapbox/streets-v10/tiles/256/{z}/{x}/{y}?access_token=pk.eyJ1IjoiZGF2cjA5MTAiLCJhIjoiY2owemk4N2FmMDJ1ZzMzbno3YjZxZDN3YyJ9.eJdGDM0goIVXcFmMrQX8og",
+            }
         });
 
         $scope.pathDetailsVisibility = true;
