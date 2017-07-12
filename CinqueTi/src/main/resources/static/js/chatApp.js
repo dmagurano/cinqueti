@@ -380,7 +380,7 @@ $("#textArea").bind(
 			    if (location){
 				    //console.log("location:" , location);
 
-				    $.getJSON('http://nominatim.openstreetmap.org/search?q=' + location + ',+torino&format=json',
+				    $.getJSON('https://nominatim.openstreetmap.org/search?q=' + location + ',+torino&format=json',
 				    	function(data) {
 				    		console.log(data);
 				    		searchCompleted = true;
