@@ -19,6 +19,10 @@
 			        <div th:replace="fragments/alert :: alert (type='danger', message='Form contains errors. Please try again.')">Alert</div>
 			    </th:block>
 			    
+			    <th:block th:if="${exceptionMessage} != null">
+			    	<div th:replace="fragments/alert :: alert (type='warning', message=${exceptionMessage})">Alert</div>
+			    </th:block>
+			    
 			    <fieldset>
 			        <legend>Please Sign Up</legend>
 			        

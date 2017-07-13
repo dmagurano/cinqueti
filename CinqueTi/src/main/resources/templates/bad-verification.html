@@ -8,7 +8,7 @@
     <meta name="author" content=""/>
     <!-- <link rel="shortcut icon" th:href="@{/resources/ico/favicon.png}"/>  -->
 
-    <title>Login</title>
+    <title>Bad Verification</title>
 
 	 <!-- Bootstrap core CSS -->
     <link th:href="@{/css/bootstrap.css}" rel="stylesheet"/>
@@ -22,37 +22,17 @@
 
 <body>
 	<div id="wrap">
-	    <div th:replace="fragments/navbar (showLogin='false')"></div>
+	    <div th:replace="fragments/navbar"></div>
 	
 	    <div class="container">
-	    
 	    	<div th:if="${param.error != null}" th:text="${session[SPRING_SECURITY_LAST_EXCEPTION]}">error</div>
 	    
-	        <form class="form-signin" role="form" method="POST" th:action="@{/login}">
+	        <form class="form-signin" role="form">
 	        
-	            <div class="alert alert-danger" th:if="${param.error}">
-	                <p th:text="#{login.error.invalid}">Invalid Credentials.</p>
-	            </div>
-	            
-			    <th:block th:if="${infoMessage} != null">
-			    	<div th:replace="fragments/alert :: alert (type='info', message=${infoMessage})">Alert</div>
-			    </th:block>
-			    
 			    <th:block th:if="${dangerMessage} != null">
 			    	<div th:replace="fragments/alert :: alert (type='danger', message=${dangerMessage})">Alert</div>
 			    </th:block>
-	
-	            <h2 class="form-signin-heading">Please sign in</h2>
-	            
-	            <div class="form-group">
-	                <input type="text" class="form-control" placeholder="Email address" name="username" required="true" autofocus="true"/>
-	            </div>
-	            
-	            <div class="form-group">
-	                <input type="password" class="form-control" placeholder="Password" name="password" required="true"/>
-	            </div>
-	            
-	            <button class="btn btn-lg btn-primary btn-block" type="submit">Sign in</button>
+			    
 	        </form>
 	        
 	    </div>

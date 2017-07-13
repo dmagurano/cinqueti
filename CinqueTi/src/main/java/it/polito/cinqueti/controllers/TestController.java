@@ -26,6 +26,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import it.polito.cinqueti.entities.User;
 import it.polito.cinqueti.entities.VerificationToken;
+import it.polito.cinqueti.repositories.VerificationTokenRepository;
 import it.polito.cinqueti.services.SecurityService;
 import it.polito.cinqueti.services.UserService;
 
@@ -39,16 +40,16 @@ public class TestController {
     private SecurityService securityService;
     
     @Autowired
-    ApplicationEventPublisher applicationEventPublisher;
+    private ApplicationEventPublisher applicationEventPublisher;
     
     @Autowired
-    MessageSource messageSource;
+    private MessageSource messageSource;
     
     @Autowired
-    JavaMailSender javaMailSender;
+    private JavaMailSender javaMailSender;
     
     @Value("${user.minPasswordLength}")
-	Integer minPasswordLength;
+	private Integer minPasswordLength;
     
     @Value("#{'${topics}'.split(',')}")
 	private List<String> topics;
@@ -61,6 +62,13 @@ public class TestController {
     
     @Value("#{'${user.carSharingServices}'.split(',')}")
 	private List<String> carSharingServices;
+
+    @RequestMapping(value = {"/", "/welcome"}, method = RequestMethod.GET)
+    public String welcome(Model model) {
+    	model.addAttribute("topics", topics);
+    	
+        return "welcome";
+    }
     
     @RequestMapping(value = "/login", method = RequestMethod.GET)
     public String login(Model model, String error, String logout) {
@@ -69,14 +77,10 @@ public class TestController {
 
         if (logout != null)
             model.addAttribute("message", "You have been logged out successfully.");
+        
+    	model.addAttribute("topics", topics);
 
         return "login";
-    }
-
-    @RequestMapping(value = {"/", "/welcome"}, method = RequestMethod.GET)
-    public String welcome(Model model) {
-    	model.addAttribute("topics", topics);
-        return "welcome";
     }
     
     @RequestMapping(value = {"/register"}, method = RequestMethod.GET)
@@ -85,6 +89,8 @@ public class TestController {
     	model.addAttribute("educationLevels", educationLevels);
     	model.addAttribute("jobs", jobs);
     	model.addAttribute("carSharingServices", carSharingServices);
+    	model.addAttribute("topics", topics);
+    	
         return "register";
     }
     
@@ -95,26 +101,9 @@ public class TestController {
     
     @RequestMapping(value = {"/profile"}, method = RequestMethod.GET)
     public String profile(Model model) {
-    	
     	User currentUser = userService.findByEmail(securityService.findLoggedInUsername());
-//    	User test = new User();
-//    	test.setAge(11);
-//    	test.setBikeUsage(new Bike(true,false));
-//    	test.setCarSharing("Enjoy");
-//    	test.setEducation("primary school");
-//    	test.setEmail("pippo@a.it");
-//    	test.setGender("male");
-//    	test.setJob("no job");
-//    	test.setNickname("Mr_Test");
-//    	test.setOwnCar(new Car(1999,"diesel"));
-//    	test.setPassword("ads");
-//    	test.setPasswordConfirm("ads");
-//    	test.setPubTransport("daily");
-    	
-//    	if (currentUser.getImage().length == 0)
-//    		currentUser.setImage(null);
-    		
     	model.addAttribute("user", currentUser);
+    	
         return "profile";
     }
     
@@ -127,11 +116,13 @@ public class TestController {
     		WebRequest request) {
     	
     	boolean registered = true;
+    	String token = null;
     	
     	if (result.hasErrors()) {
     		model.addAttribute("educationLevels", educationLevels);
         	model.addAttribute("jobs", jobs);
         	model.addAttribute("carSharingServices", carSharingServices);
+        	model.addAttribute("topics", topics);
         	
             return "register";
     	}
@@ -148,6 +139,7 @@ public class TestController {
         		model.addAttribute("educationLevels", educationLevels);
             	model.addAttribute("jobs", jobs);
             	model.addAttribute("carSharingServices", carSharingServices);
+            	model.addAttribute("topics", topics);
             	
                 result.rejectValue("email", "user.registration.alreadyInUseEmail");
                 
@@ -155,21 +147,19 @@ public class TestController {
             }
             else{
             	try {
-                	String token = UUID.randomUUID().toString();
+                	token = UUID.randomUUID().toString();
             		
             		userService.createVerificationToken(user, token);
             		
             		String recipientAddress = user.getEmail();
             		String subject = "Registration Confirmation";
-            		String confirmationUrl = "https://localhost:8443/registrationConfirm.html?token=" + token;
-            		//String message = messageSource.getMessage("message.regSucc", null, request.getLocale());
+            		String confirmationUrl = "https://localhost:8443/"
+            				+ "registrationConfirm.html?token=" + token;
             		
             		SimpleMailMessage email = new SimpleMailMessage();
             		email.setTo(recipientAddress);
             		email.setSubject(subject);
-            		email.setText(
-            				//message + "rn" + 
-            				confirmationUrl);
+            		email.setText(confirmationUrl);
             		javaMailSender.send(email);
             		
                 } catch (Exception e) {
@@ -177,12 +167,22 @@ public class TestController {
             		model.addAttribute("educationLevels", educationLevels);
                 	model.addAttribute("jobs", jobs);
                 	model.addAttribute("carSharingServices", carSharingServices);
-                    // TODO insert proper message if token creation or email sending fails
+                	model.addAttribute("topics", topics);
+                	
+                	model.addAttribute("exceptionMessage", "Some problems occured while registration. "
+                			+ "Please register again.");
+                	
+                	userService.clearVerificationToken(user, token);
+                	
                     return "register";
                 }
+
+            	model.addAttribute("topics", topics);
                 
-            	// TODO insert proper message to tell the user to check his email
-                return "login";
+            	model.addAttribute("infoMessage", "Confirm your account by clicking on the link "
+            			+ "in the email we send you.");
+            	
+            	return "login";
             }
         }
     }
@@ -196,8 +196,13 @@ public class TestController {
     	VerificationToken verificationToken = userService.getVerificationToken(token);
     	
     	if ( verificationToken == null){
-    		// TODO add message from messages.properties "user.registration.invalidToken"
-    		return "redirect:login";
+        	model.addAttribute("topics", topics);
+        	
+    		model.addAttribute("dangerMessage", "Your token is not valid. Please register.");
+    		
+    		// TODO understand why "Chat e Segnalazioni" dropdown and "Login" dropdown don't work
+    		
+    		return "bad-verification";
     	}
     	
     	User user = verificationToken.getUser();
@@ -205,14 +210,23 @@ public class TestController {
     	Calendar calendar = Calendar.getInstance();
     	
     	if ( (verificationToken.getExpiryDate().getTime() - calendar.getTime().getTime()) <= 0 ){
-    		// TODO add message from messages.properties "user.registration.expiredToken"
-    		return "redirect:login";
+        	model.addAttribute("topics", topics);
+        	
+    		model.addAttribute("dangerMessage", "Your token expired. Please register again.");
+    		
+    		userService.clearVerificationToken(user, token);
+    		
+    		return "bad-verification";
     	}
     	
     	user.setEnabled(true);
-    	userService.saveRegisteredUser(user);
-    	//TODO remove token from database
-    	return "redirect:login";
+    	userService.saveRegisteredUser(user, token);
+    	
+    	model.addAttribute("topics", topics);
+
+		model.addAttribute("infoMessage", "You confirmed your account.");
+    	
+    	return "login";
     }
     
     @RequestMapping(value = "/change-nickname", method = RequestMethod.GET)

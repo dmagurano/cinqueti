@@ -112,7 +112,16 @@ public class UserServiceImpl implements UserService {
 	}
 
 	@Override
-	public void saveRegisteredUser(User user) {
+	public void saveRegisteredUser(User user, String token) {
 		userRepository.save(user);
+		
+		verificationTokenRepository.deleteByToken(token);
+	}
+
+	@Override
+	public void clearVerificationToken(User user, String token) {
+		userRepository.delete(user);
+		
+		verificationTokenRepository.deleteByToken(token);
 	}
 }

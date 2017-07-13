@@ -26,10 +26,12 @@ public interface UserService {
     
     User getUser(String verificationToken);
     
-    void saveRegisteredUser(User user);
+    void saveRegisteredUser(User user, String token);
     
     void createVerificationToken(User user, String token);
     
     VerificationToken getVerificationToken(String verificationToken);
+    
+    void clearVerificationToken(User user, String token);
 
 }
