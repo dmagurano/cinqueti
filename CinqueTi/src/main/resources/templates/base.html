@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+	<title></title>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<!-- <link th:href="@{/css/bootstrap.css}" rel="stylesheet"/> -->
+	<link rel="stylesheet" type="text/css" href="./css/bootstrap.css"/>
+	<link th:href="@{/css/custom-bootstrap.css}" rel="stylesheet"/>
+	<link th:href="@{/css/sticky-footer-navbar.css}" rel="stylesheet"/>
+	<script src="/js/jquery.js"></script>
+	<script src="/js/bootstrap.min.js"></script>
+	<script src="/js/angular.js"></script>
+	<script src="/js/leaflet.js"></script>
+	<script src="/js/angular-simple-logger.min.js"></script>
+	<script src="/js/angular-resource.js"></script>
+	<script src="/js/angular-route.js"></script>
+	<script src="/js/app.js"></script>
+	<script src="/js/app-main.js"></script>
+	<script src="/js/app-calculate.js"></script>
+	<script src="/js/ui-leaflet.js"></script>
+	<script src="/js/linee.js"></script>
+	<script src="/js/percorsi.js"></script>
+	<link rel="stylesheet" href="/css/leaflet.css"/>
+</head>
+<body ng-app="App">
+	<div th:replace="fragments/navbar"></div>
+	
+	
+	
+	<div th:replace="${view}"></div>
+	
+	
+	
+	<div th:replace="fragments/footer"></div>
+</body>
+</html>

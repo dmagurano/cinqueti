@@ -225,6 +225,8 @@ public class TestController {
     
     @RequestMapping(value = "/change-nickname", method = RequestMethod.GET)
     public String changeNickname(Model model){
+    	model.addAttribute("topics", topics);
+    	
     	return "change-nickname";
     }
     
@@ -254,6 +256,8 @@ public class TestController {
     
     @RequestMapping(value = "/change-password", method = RequestMethod.GET)
     public String changePassword(Model model){
+    	model.addAttribute("topics", topics);
+    	
     	return "change-password";
     }
     
@@ -298,5 +302,26 @@ public class TestController {
         }    
         return true;
     }
+    
+    // TEST
+    @RequestMapping(value = {"/base-welcome"}, method = RequestMethod.GET)
+    public String baseWelcome(Model model) {
+    	model.addAttribute("topics", topics);
+    	
+    	model.addAttribute("view", "base-welcome");
+    	
+        return "base";
+    }
+    
+    // TEST
+    @RequestMapping(value = {"/base-login"}, method = RequestMethod.GET)
+    public String baseLogin(Model model) {
+    	model.addAttribute("topics", topics);
+    	
+    	model.addAttribute("view", "base-login");
+    	
+        return "base";
+    }
+    
+    
 }
-
