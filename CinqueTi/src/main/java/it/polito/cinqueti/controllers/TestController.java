@@ -40,12 +40,6 @@ public class TestController {
     private SecurityService securityService;
     
     @Autowired
-    private ApplicationEventPublisher applicationEventPublisher;
-    
-    @Autowired
-    private MessageSource messageSource;
-    
-    @Autowired
     private JavaMailSender javaMailSender;
     
     @Value("${user.minPasswordLength}")
