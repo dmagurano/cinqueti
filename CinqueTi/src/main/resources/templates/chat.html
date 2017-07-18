@@ -1,14 +1,8 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
-	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-	<meta name="viewport" content="width=device-width, initial-scale=1" />
-	<link th:href="@{/css/bootstrap.css}" rel="stylesheet" />
-	<link rel="stylesheet" type="text/css" href="./css/bootstrap.css"/>
-	<link th:href="@{/css/custom-bootstrap.css}" rel="stylesheet"/>
-	<link th:href="@{/css/sticky-footer-navbar.css}" rel="stylesheet"/>
-	<script src="/js/jquery.js"></script>
-	<script src="/js/bootstrap.min.js"></script>
+	<th:block th:include="fragments/common :: commonHeadFragment"></th:block>
+	
 	<script src="/js/sockjs.js"></script>
 	<script src="js/stomp.js"></script>
 	<link th:href="@{/css/chatPage.css}" rel="stylesheet" />
