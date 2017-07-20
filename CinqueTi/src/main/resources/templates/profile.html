@@ -13,66 +13,65 @@
 		    
 		    <h3 th:text="'Hi ' + ${user.nickname} + ', this is your profile page'"></h3>
 		    
-		    <th:block th:if="${user.getImage().length != 0}">
-		    	<img th:src="@{'data:image/*;base64,'+${user.generateBase64Image()}}" style="width: 150px; height: 150px;"/>
-		    </th:block>
+		    <div class="col-lg-2 col-md-1">
+			    <div class="thumbnail">
+					<img th:if="${user.getImage().length != 0}" 
+						th:src="@{'data:image/*;base64,'+${user.generateBase64Image()}}" alt="..."/>
+					<img th:if="${user.getImage().length == 0}" 
+						src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQlQiU1yEonftm27j6_3hYC69EMvxwuFQrTJ1cgIFJMwF4tyCnG" alt="..."/>
+				</div>
+		    </div>
 		    
-		    <th:block th:if="${user.getImage().length == 0}">
-		    	<img 
-			    	src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQlQiU1yEonftm27j6_3hYC69EMvxwuFQrTJ1cgIFJMwF4tyCnG" 
-			    	style="width: 150px; height: 150px;"
-		    	/>
-		    </th:block>
-		    <!-- TODO load default profile picture -->
-		    
-		    <table class="table table-user-information">
-		    	<tbody>
-		    		<tr>
-		    			<td>Registration email</td>
-		    			<td th:text="${user.email}"></td>
-		    		</tr>
-		    		<tr>
-		    			<td>Nickname</td>
-		    			<td th:text="${user.nickname}"></td>
-		    		</tr>
-		    		<tr>
-		    			<td>Gender</td>
-		    			<td th:text="${user.gender}"></td>
-		    		</tr>
-		    		<tr>
-		    			<td>Age</td>
-		    			<td th:text="${user.age}"></td>
-		    		</tr>
-		    		<tr>
-		    			<td>Education level</td>
-		    			<td th:text="${user.education}"></td>
-		    		</tr>
-		    		<tr>
-		    			<td>Current job</td>
-		    			<td th:text="${user.job}"></td>
-		    		</tr>
-		    		<tr th:if="${user.ownCar.registrationYear} != null">
-		    			<td>Car information</td>
-		    			<td th:text="'Registration year: ' + ${user.ownCar.registrationYear} + ', fuel: ' + ${user.ownCar.fuelType}">No car setted</td>
-		    		</tr>
-		    		<tr>
-		    			<td>Car sharing service</td>
-		    			<td th:text="${user.carSharing}">Not used</td>
-		    		</tr>
-		    		<tr>
-		    			<td>Bike</td>
-		    			<td th:text="'Owned: ' + ${user.bikeUsage.owned}"></td>
-		    		</tr>
-		    		<tr>
-		    			<td></td>
-		    			<td th:text="'Shared: ' + ${user.bikeUsage.sharing}"></td>
-		    		</tr>
-		    		<tr>
-		    			<td>Public transport pass</td>
-		    			<td th:text="${user.pubTransport}"></td>
-		    		</tr>
-		    	</tbody>
-		    </table>
+			<div class="col-lg-10 col-md-10">
+				<table class="table table-user-information">
+			    	<tbody>
+			    		<tr>
+			    			<td>Registration email</td>
+			    			<td th:text="${user.email}"></td>
+			    		</tr>
+			    		<tr>
+			    			<td>Nickname</td>
+			    			<td th:text="${user.nickname}"></td>
+			    		</tr>
+			    		<tr>
+			    			<td>Gender</td>
+			    			<td th:text="${user.gender}"></td>
+			    		</tr>
+			    		<tr>
+			    			<td>Age</td>
+			    			<td th:text="${user.age}"></td>
+			    		</tr>
+			    		<tr>
+			    			<td>Education level</td>
+			    			<td th:text="${user.education}"></td>
+			    		</tr>
+			    		<tr>
+			    			<td>Current job</td>
+			    			<td th:text="${user.job}"></td>
+			    		</tr>
+			    		<tr th:if="${user.ownCar.registrationYear} != null">
+			    			<td>Car information</td>
+			    			<td th:text="'Registration year: ' + ${user.ownCar.registrationYear} + ', fuel: ' + ${user.ownCar.fuelType}">No car setted</td>
+			    		</tr>
+			    		<tr>
+			    			<td>Car sharing service</td>
+			    			<td th:text="${user.carSharing}">Not used</td>
+			    		</tr>
+			    		<tr>
+			    			<td>Bike</td>
+			    			<td th:text="'Owned: ' + ${user.bikeUsage.owned}"></td>
+			    		</tr>
+			    		<tr>
+			    			<td></td>
+			    			<td th:text="'Shared: ' + ${user.bikeUsage.sharing}"></td>
+			    		</tr>
+			    		<tr>
+			    			<td>Public transport pass</td>
+			    			<td th:text="${user.pubTransport}"></td>
+			    		</tr>
+			    	</tbody>
+			    </table>
+			</div>
 		    
 		    <hr></hr>
 		    

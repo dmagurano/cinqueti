@@ -5,7 +5,7 @@ import java.util.Calendar;
 import java.util.List;
 import java.util.UUID;
 
-import javax.validation.Valid;
+import javax.servlet.http.HttpSession;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -14,12 +14,16 @@ import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.context.request.WebRequest;
+import org.springframework.web.bind.annotation.SessionAttributes;
+import org.springframework.web.bind.support.SessionStatus;
 import org.springframework.web.multipart.MultipartFile;
+
+import com.fasterxml.jackson.annotation.JsonCreator.Mode;
 
 import it.polito.cinqueti.entities.User;
 import it.polito.cinqueti.entities.VerificationToken;
@@ -27,7 +31,9 @@ import it.polito.cinqueti.services.SecurityService;
 import it.polito.cinqueti.services.UserService;
 
 @Controller
+@SessionAttributes("user")
 public class UserController {
+	
     @Autowired
     private UserService userService;
 
@@ -40,9 +46,6 @@ public class UserController {
     @Value("${user.minPasswordLength}")
 	private Integer minPasswordLength;
     
-    @Value("#{'${topics}'.split(',')}")
-	private List<String> topics;
-    
     @Value("#{'${user.educationLevels}'.split(',')}")
 	private List<String> educationLevels;
     
@@ -52,63 +55,44 @@ public class UserController {
     @Value("#{'${user.carSharingServices}'.split(',')}")
 	private List<String> carSharingServices;
     
-    @RequestMapping(value = {"/register"}, method = RequestMethod.GET)
-    public String test(Model model) {
+    // two phase registration
+    // http://blog.codeleak.pl/2014/08/validation-groups-in-spring-mvc.html
+    
+    @RequestMapping(value = {"/register-first-phase"}, method = RequestMethod.GET)
+    public String getRegister(Model model) {
     	model.addAttribute("user", new User());
-    	model.addAttribute("educationLevels", educationLevels);
-    	model.addAttribute("jobs", jobs);
-    	model.addAttribute("carSharingServices", carSharingServices);
-    	model.addAttribute("topics", topics);
     	
-        return "register";
+        return "register-first-phase";
     }
     
-    @RequestMapping(value = "/register", method = RequestMethod.POST)
-    public String register(
-    		@ModelAttribute("user") @Valid User user, 
-    		BindingResult result, 
-    		@RequestParam MultipartFile file,
-    		Model model,
-    		WebRequest request) {
+    @RequestMapping(value = "/register-first-phase", method = RequestMethod.POST)
+    public String postRegister(
+    		@Validated(User.FirstPhaseValidation.class) User user,
+    		BindingResult bindingResult,
+    		Model model) {
     	
     	boolean registered = true;
     	String token = null;
     	
-    	if (result.hasErrors()) {
-    		model.addAttribute("educationLevels", educationLevels);
-        	model.addAttribute("jobs", jobs);
-        	model.addAttribute("carSharingServices", carSharingServices);
-        	model.addAttribute("topics", topics);
-        	
-            return "register";
+    	if (bindingResult.hasErrors()) {
+            return "register-first-phase";
     	}
     	else{
-        	try {
-    			user.setImage(file.getBytes());
-    		} catch (IOException e) {
-    			e.printStackTrace();
-    		}
-        	
-            registered = createUserAccount(user, result);
+            registered = registerUser(user);
         	
             if (registered == false) {
-        		model.addAttribute("educationLevels", educationLevels);
-            	model.addAttribute("jobs", jobs);
-            	model.addAttribute("carSharingServices", carSharingServices);
-            	model.addAttribute("topics", topics);
-            	
-                result.rejectValue("email", "user.registration.alreadyInUseEmail");
+                bindingResult.rejectValue("email", "user.registration.alreadyInUseEmail");
                 
-            	return "register";
+            	return "register-first-phase";
             }
             else{
             	try {
                 	token = UUID.randomUUID().toString();
             		
-            		userService.createVerificationToken(user, token);
+            		userService.saveVerificationToken(user, token);
             		
             		String recipientAddress = user.getEmail();
-            		String subject = "Registration Confirmation";
+            		String subject = "CinqueTi - Confirm registration";
             		String confirmationUrl = "https://localhost:8443/"
             				+ "registrationConfirm.html?token=" + token;
             		
@@ -120,23 +104,17 @@ public class UserController {
             		
                 } catch (Exception e) {
                 	e.printStackTrace();
-            		model.addAttribute("educationLevels", educationLevels);
-                	model.addAttribute("jobs", jobs);
-                	model.addAttribute("carSharingServices", carSharingServices);
-                	model.addAttribute("topics", topics);
                 	
                 	model.addAttribute("exceptionMessage", "Some problems occured while registration. "
                 			+ "Please register again.");
                 	
-                	userService.clearVerificationToken(user, token);
+                	userService.removeVerificationToken(user, token);
                 	
-                    return "register";
+                    return "register-first-phase";
                 }
-
-            	model.addAttribute("topics", topics);
-                
+            	
             	model.addAttribute("infoMessage", "Confirm your account by clicking on the link "
-            			+ "we send you on your email.");
+            			+ "we sent you on your email.");
             	
             	return "login";
             }
@@ -145,18 +123,14 @@ public class UserController {
     
     @RequestMapping(value = "/registrationConfirm", method = RequestMethod.GET)
     public String confirmRegistration(
-    		WebRequest request,
+    		@RequestParam("token") String token,
     		Model model,
-    		@RequestParam("token") String token){
+    		HttpSession session){
     	
     	VerificationToken verificationToken = userService.getVerificationToken(token);
     	
     	if ( verificationToken == null){
-        	model.addAttribute("topics", topics);
-        	
     		model.addAttribute("dangerMessage", "Your token is not valid. Please register.");
-    		
-    		// TODO understand why "Chat e Segnalazioni" dropdown and "Login" dropdown don't work
     		
     		return "bad-verification";
     	}
@@ -166,23 +140,68 @@ public class UserController {
     	Calendar calendar = Calendar.getInstance();
     	
     	if ( (verificationToken.getExpiryDate().getTime() - calendar.getTime().getTime()) <= 0 ){
-        	model.addAttribute("topics", topics);
-        	
     		model.addAttribute("dangerMessage", "Your token expired. Please register again.");
     		
-    		userService.clearVerificationToken(user, token);
+    		userService.removeVerificationToken(user, token);
     		
     		return "bad-verification";
     	}
     	
     	user.setEnabled(true);
     	userService.saveRegisteredUser(user, token);
-    	
-    	model.addAttribute("topics", topics);
 
 		model.addAttribute("infoMessage", "You confirmed your account.");
+
+    	model.addAttribute("educationLevels", educationLevels);
+    	model.addAttribute("jobs", jobs);
+    	model.addAttribute("carSharingServices", carSharingServices);
     	
-    	return "login";
+    	return "register-second-phase";
+    }
+    
+    @RequestMapping(value = "/register-second-phase", method = RequestMethod.POST)
+    public String postRegisterSecondPhase(
+    		@Validated(User.SecondPhaseValidation.class) User user,
+    		BindingResult bindingResult, 
+    		@RequestParam MultipartFile file,
+    		Model model,
+    		SessionStatus sessionStatus) {
+    	
+    	boolean updated = true;
+    	
+    	if (bindingResult.hasErrors()) {
+    		model.addAttribute("educationLevels", educationLevels);
+        	model.addAttribute("jobs", jobs);
+        	model.addAttribute("carSharingServices", carSharingServices);
+        	
+            return "register-second-phase";
+    	}
+    	else{
+        	try {
+    			user.setImage(file.getBytes());
+    		} catch (IOException e) {
+    			e.printStackTrace();
+    		}
+
+        	user.setEnabled(true);
+            updated = updateUser(user);
+        	
+            if (updated == false) {
+        		model.addAttribute("educationLevels", educationLevels);
+            	model.addAttribute("jobs", jobs);
+            	model.addAttribute("carSharingServices", carSharingServices);
+            	
+                bindingResult.rejectValue("email", "user.registration.alreadyInUseEmail");
+                
+            	return "register-second-phase";
+            }
+            else{
+            	sessionStatus.setComplete();
+            	securityService.autologin(user.getUsername(), user.getConfirmedPassword());
+            	
+            	return "redirect:profile";
+            }
+        }
     }
 
     @RequestMapping(value = "/login", method = RequestMethod.GET)
@@ -192,8 +211,6 @@ public class UserController {
 
         if (logout != null)
             model.addAttribute("message", "You have been logged out successfully.");
-        
-    	model.addAttribute("topics", topics);
 
         return "login";
     }
@@ -201,6 +218,7 @@ public class UserController {
     @RequestMapping(value = {"/profile"}, method = RequestMethod.GET)
     public String profile(Model model) {
     	User currentUser = userService.findByEmail(securityService.findLoggedInUsername());
+    	
     	model.addAttribute("user", currentUser);
     	
         return "profile";
@@ -208,8 +226,6 @@ public class UserController {
     
     @RequestMapping(value = "/change-nickname", method = RequestMethod.GET)
     public String changeNickname(Model model){
-    	model.addAttribute("topics", topics);
-    	
     	return "change-nickname";
     }
     
@@ -239,8 +255,6 @@ public class UserController {
     
     @RequestMapping(value = "/change-password", method = RequestMethod.GET)
     public String changePassword(Model model){
-    	model.addAttribute("topics", topics);
-    	
     	return "change-password";
     }
     
@@ -276,13 +290,27 @@ public class UserController {
     	return "redirect:profile";
     }
     
-    private boolean createUserAccount(User user, BindingResult result) {
-        
-        try {
-            userService.registerNewUserAccount(user);
-        } catch (Exception e) {
-            return false;
-        }    
-        return true;
+    private boolean registerUser(User user){
+    	try{
+    		userService.registerUserFirstPhase(user);
+    	}
+    	catch(Exception e){
+    		e.printStackTrace();
+    		return false;
+    	}
+    	
+    	return true;
+    }
+    
+    private boolean updateUser(User user){
+    	try{
+    		userService.registerUserSecondPhase(user);
+    	}
+    	catch(Exception e){
+    		e.printStackTrace();
+    		return false;
+    	}
+    	
+    	return true;
     }
 }

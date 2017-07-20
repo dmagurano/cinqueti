@@ -11,7 +11,7 @@
 	<div th:replace="fragments/navbar (showLogin='false')"></div>
 
     <div class="container">
-		<form id="form" class="form-narrow form-horizontal" method="post" th:action="@{/register}" th:object="${user}" th:fragment="signupForm" enctype="multipart/form-data">
+		<form id="form" class="form-narrow form-horizontal" method="post" th:action="@{/register-second-phase}" th:object="${user}" th:fragment="signupForm" enctype="multipart/form-data">
 		    <!--/* Show general error message when form contains errors */-->
 		    <th:block th:if="${#fields.hasErrors('${user.*}')}">
 		        <div th:replace="fragments/alert :: alert (type='danger', message='Form contains errors. Please try again.')">Alert</div>
@@ -22,33 +22,8 @@
 		    </th:block>
 		    
 		    <fieldset>
-		        <legend>Please Sign Up</legend>
-		        
-		        <div class="form-group" th:classappend="${#fields.hasErrors('email')}? 'has-error'">
-		            <label for="email" class="col-lg-2 control-label">Email</label>
-		            <div class="col-lg-10">
-		                <input type="text" class="form-control" id="email" placeholder="Email address" th:field="*{email}" />
-		                <span class="help-block" th:if="${#fields.hasErrors('email')}" th:errors="*{email}">Incorrect email</span>
-		            </div>
-		        </div>
-		        
-		        <div class="form-group" th:classappend="${#fields.hasErrors('password') || #fields.hasErrors('global')}? 'has-error'">
-		            <label for="password" class="col-lg-2 control-label">Password</label>
-		            <div class="col-lg-10">
-		                <input type="password" class="form-control" id="password" placeholder="Password" th:field="*{password}"/>
-		                <span class="help-block" th:if="${#fields.hasErrors('password')}" th:errors="*{password}">Incorrect password</span>
-		            </div>
-		        </div>
-		        
-		        <div class="form-group" th:classappend="${#fields.hasErrors('password') || #fields.hasErrors('global')}? 'has-error'">
-		            <label for="passwordConfirm" class="col-lg-2 control-label">Confirm password</label>
-		            <div class="col-lg-10">
-		                <input type="password" class="form-control" id="passwordConfirm" placeholder="Password" th:field="*{passwordConfirm}"/>
-		                <span class="help-block" th:if="${#fields.hasErrors('password')}" th:errors="*{password}">Incorrect password</span>
-		                <span class="help-block" th:each="err : ${#fields.errors('global')}" th:text="${err}">Input is incorrect</span>
-		            </div>
-		        </div>
-		        
+		        <legend>Please complete your registration</legend>
+		        		        
 		        <div class="form-group" th:classappend="${#fields.hasErrors('nickname')}? 'has-error'">
 		            <label for="nickname" class="col-lg-2 control-label">Nickname</label>
 		            <div class="col-lg-10">
@@ -99,11 +74,7 @@
 						    <option th:each="educationLevel : ${educationLevels}" th:value="${educationLevel}">
 						    	<th:block th:text="${educationLevel}"></th:block>
 						    </option>
-						    <!-- 
-						    <option value="A">Level A</option>
-						    <option value="B">Level B</option>
-						    <option value="C">Level C</option>
-						     -->
+						    
 						</select>
 		                <span class="help-block" th:if="${#fields.hasErrors('education')}" th:errors="*{education}">Invalid level selected</span>
 		            </div>
@@ -118,12 +89,10 @@
 						    <option th:each="job : ${jobs}" th:value="${job}">
 						    	<th:block th:text="${job}"></th:block>
 						    </option>
+						    
 						    <option value="Other">Other</option>
-		                	<!-- 
-						    <option value="A">Job A</option>
-						    <option value="B">Job B</option>
-						    -->
 						    <option value="None">No job</option>
+						    
 						</select>
 		                <span class="help-block" th:if="${#fields.hasErrors('job')}" th:errors="*{job}">Invalid job selected</span>
 		            </div>
@@ -158,14 +127,13 @@
 		            <div class="col-lg-10">    
 		                <select class="form-control" id="carSharing" th:field="*{carSharing}">
 		                	<option value="none" style="display:none">Not used</option>
+		                	
 						    <option th:each="carSharingService : ${carSharingServices}" th:value="${carSharingService}">
 						    	<th:block th:text="${carSharingService}"></th:block>
 						    </option>
+						    
 						    <option value="Other">Other</option>
 						</select>
-		            	<!-- 
-		                <input type="text" class="form-control" id="carSharing" placeholder="Leave blank if not used" th:field="*{carSharing}"/>
-		                 -->
 		                <span class="help-block" th:if="${#fields.hasErrors('carSharing')}" th:errors="*{carSharing}">Invalid Car Sharing Servise selected</span>
 		            </div>
 		        </div>
@@ -196,7 +164,7 @@
 		        
 		        <div class="form-group">
 		            <div class="col-lg-offset-2 col-lg-10">
-		                <button type="submit" class="btn btn-default">Sign up</button>
+		            	<button class="btn btn-lg btn-primary btn-block" type="submit">Confirm data</button>
 		            </div>
 		        </div>
 		        

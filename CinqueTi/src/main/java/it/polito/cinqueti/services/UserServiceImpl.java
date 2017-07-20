@@ -29,11 +29,10 @@ public class UserServiceImpl implements UserService {
     @Autowired
     private SecurityService securityService;
 
-    @Override
-    public void registerNewUserAccount(User user) throws Exception {
-    	
-    	if (emailExist(user.getEmail()))
-            throw new Exception("There is an account with that email adress: " +  user.getEmail());
+	@Override
+	public void registerUserFirstPhase(User user) throws Exception {
+		if (emailExist(user.getEmail()))
+            throw new Exception("There is already an account with email adress: " +  user.getEmail());
     	
     	List<String> roles = new ArrayList<String>();
     	roles.add("ROLE_USER");
@@ -41,7 +40,15 @@ public class UserServiceImpl implements UserService {
         user.setPassword(bCryptPasswordEncoder.encode(user.getPassword()));
         user.setAuthorities(roles);
         userRepository.save(user);
-    }
+	}
+
+	@Override
+	public void registerUserSecondPhase(User user) throws Exception {
+		if (!emailExist(user.getEmail()))
+            throw new Exception("There is no account with email adress: " +  user.getEmail());
+		
+		userRepository.save(user);
+	}
     
     private boolean emailExist(String email) {
         User user = this.findByEmail(email);
@@ -106,7 +113,7 @@ public class UserServiceImpl implements UserService {
 	}
 
 	@Override
-	public void createVerificationToken(User user, String token) {
+	public void saveVerificationToken(User user, String token) {
 		VerificationToken verificationToken = new VerificationToken(token, user);
 		verificationTokenRepository.save(verificationToken);
 	}
@@ -115,11 +122,11 @@ public class UserServiceImpl implements UserService {
 	public void saveRegisteredUser(User user, String token) {
 		userRepository.save(user);
 		
-		verificationTokenRepository.deleteByToken(token);
+		//verificationTokenRepository.deleteByToken(token);
 	}
 
 	@Override
-	public void clearVerificationToken(User user, String token) {
+	public void removeVerificationToken(User user, String token) {
 		userRepository.delete(user);
 		
 		verificationTokenRepository.deleteByToken(token);

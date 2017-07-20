@@ -21,50 +21,56 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import it.polito.cinqueti.validator.PasswordMatches;
 import it.polito.cinqueti.validator.ValidEmail;
 
-@PasswordMatches
+@PasswordMatches(groups = {User.FirstPhaseValidation.class})
 public class User implements UserDetails {
 	
 	private static final long serialVersionUID = 1L;
 	
+	public interface FirstPhaseValidation{
+		// first validation group
+	}
+	
+	public interface SecondPhaseValidation{
+		// second validation group
+	}
+	
 	@Id
 	private String id;
 	
-	@ValidEmail
-	@NotNull
-	@NotEmpty
+	@ValidEmail(groups = {FirstPhaseValidation.class})
+	@NotNull(groups = {FirstPhaseValidation.class})
+	@NotEmpty(groups = {FirstPhaseValidation.class})
 	@Indexed(unique = true)
 	private String email;
 	
-	//TODO foto profilo
-	
-	@NotNull
-    @NotEmpty
-    @Size(min = 8, max= 36)	// please check application.properties > user.minPasswordLength
+	@NotNull(groups = {FirstPhaseValidation.class})
+    @NotEmpty(groups = {FirstPhaseValidation.class})
+    @Size(min = 8, max= 36)
 	private String password;
 	
-	@NotNull
-    @NotEmpty
-	private String passwordConfirm;
+	@NotNull(groups = {FirstPhaseValidation.class})
+    @NotEmpty(groups = {FirstPhaseValidation.class})
+	private String confirmedPassword;
 	
 	private List<Role> roles;
 	
-	@NotNull
-    @NotEmpty
+	@NotNull(groups = {SecondPhaseValidation.class})
+    @NotEmpty(groups = {SecondPhaseValidation.class})
 	private String nickname;
 	
-	@NotNull
-    @NotEmpty
+	@NotNull(groups = {SecondPhaseValidation.class})
+    @NotEmpty(groups = {SecondPhaseValidation.class})
 	private String gender;
 	
-	@NotNull
+	@NotNull(groups = {SecondPhaseValidation.class})
 	private int age;
 	
-	@NotNull
-    @NotEmpty
+	@NotNull(groups = {SecondPhaseValidation.class})
+    @NotEmpty(groups = {SecondPhaseValidation.class})
 	private String education;
 	
-	@NotNull
-    @NotEmpty
+	@NotNull(groups = {SecondPhaseValidation.class})
+    @NotEmpty(groups = {SecondPhaseValidation.class})
 	private String job;
 	
 	//@Field("car")
@@ -72,12 +78,12 @@ public class User implements UserDetails {
 	
 	private String carSharing;
 	
-	@NotNull
+	@NotNull(groups = {SecondPhaseValidation.class})
 	@Field("bike")
 	private Bike bikeUsage;
 	
-	@NotNull
-    @NotEmpty
+	@NotNull(groups = {SecondPhaseValidation.class})
+    @NotEmpty(groups = {SecondPhaseValidation.class})
 	private String pubTransport;
 	
 	@Lob
@@ -241,12 +247,12 @@ public class User implements UserDetails {
 	
 	@JsonIgnore
 	@Transient
-    public String getPasswordConfirm() {
-        return passwordConfirm;
+    public String getConfirmedPassword() {
+        return confirmedPassword;
     }
 
-    public void setPasswordConfirm(String passwordConfirm) {
-        this.passwordConfirm = passwordConfirm;
+    public void setConfirmedPassword(String passwordConfirm) {
+        this.confirmedPassword = passwordConfirm;
     }
 
 	public void setAuthorities(List<String> roles) {
