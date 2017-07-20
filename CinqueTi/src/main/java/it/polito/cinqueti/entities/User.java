@@ -73,7 +73,6 @@ public class User implements UserDetails {
     @NotEmpty(groups = {SecondPhaseValidation.class})
 	private String job;
 	
-	//@Field("car")
 	private Car ownCar;
 	
 	private String carSharing;

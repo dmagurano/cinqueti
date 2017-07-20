@@ -30,7 +30,7 @@ public class UserServiceImpl implements UserService {
     private SecurityService securityService;
 
 	@Override
-	public void registerUserFirstPhase(User user) throws Exception {
+	public void registerNewUser(User user) throws Exception {
 		if (emailExist(user.getEmail()))
             throw new Exception("There is already an account with email adress: " +  user.getEmail());
     	
@@ -40,14 +40,6 @@ public class UserServiceImpl implements UserService {
         user.setPassword(bCryptPasswordEncoder.encode(user.getPassword()));
         user.setAuthorities(roles);
         userRepository.save(user);
-	}
-
-	@Override
-	public void registerUserSecondPhase(User user) throws Exception {
-		if (!emailExist(user.getEmail()))
-            throw new Exception("There is no account with email adress: " +  user.getEmail());
-		
-		userRepository.save(user);
 	}
     
     private boolean emailExist(String email) {
@@ -115,20 +107,21 @@ public class UserServiceImpl implements UserService {
 	@Override
 	public void saveVerificationToken(User user, String token) {
 		VerificationToken verificationToken = new VerificationToken(token, user);
+		
 		verificationTokenRepository.save(verificationToken);
 	}
 
 	@Override
-	public void saveRegisteredUser(User user, String token) {
-		userRepository.save(user);
-		
-		//verificationTokenRepository.deleteByToken(token);
+	public void removeVerificationToken(String token) {
+		verificationTokenRepository.deleteByToken(token);
 	}
 
 	@Override
-	public void removeVerificationToken(User user, String token) {
+	public void clearVerificationToken(User user, String token) {
 		userRepository.delete(user);
-		
+
 		verificationTokenRepository.deleteByToken(token);
 	}
+	
+	
 }

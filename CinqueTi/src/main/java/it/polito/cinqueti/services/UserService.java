@@ -8,9 +8,7 @@ import it.polito.cinqueti.entities.User;
 import it.polito.cinqueti.entities.VerificationToken;
 
 public interface UserService {
-	void registerUserFirstPhase(User user) throws Exception;
-	
-	void registerUserSecondPhase(User user) throws Exception;
+	void registerNewUser(User user) throws Exception;
 	
 	User findLoggedInUser();
 	
@@ -26,14 +24,14 @@ public interface UserService {
     
     Page<User> findAll(Integer page, Integer per_page);
     
-    User getUser(String verificationToken);
+    VerificationToken getVerificationToken(String token);
     
-    void saveRegisteredUser(User user, String token);
+    User getUser(String token);
     
     void saveVerificationToken(User user, String token);
     
-    VerificationToken getVerificationToken(String verificationToken);
+    void removeVerificationToken(String token);
     
-    void removeVerificationToken(User user, String token);
+    void clearVerificationToken(User user, String token);
 
 }
