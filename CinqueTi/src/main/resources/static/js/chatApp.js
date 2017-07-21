@@ -45,7 +45,7 @@ stompClient.connect({}, function (frame) {
 	/* subscribing to the chat topic */
 	stompClient.subscribe('/topic/chat/' + getUrlParameter('topic'), function (mess) {
 		processMessage(JSON.parse(mess.body));
-	} );
+	});
 	
 	/* to retrieve last messages */
 	stompClient.subscribe('/user/queue/' + getUrlParameter('topic'), function (messArr) {

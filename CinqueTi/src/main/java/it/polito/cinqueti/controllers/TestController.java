@@ -72,6 +72,7 @@ public class TestController {
     
     @RequestMapping(value = {"/chat"}, method = RequestMethod.GET)
     public String chat(Model model) {
+    	model.addAttribute("topics", topics);
     	return "chat";
     }
     

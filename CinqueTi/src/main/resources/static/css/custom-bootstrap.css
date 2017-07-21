@@ -109,6 +109,6 @@ body {
 	max-height: 438px;
 }
 
-.dropdown-toggle, .lines {
+.dropdown-toggle, .lines, .dropdown-menu{
 	cursor: pointer;
 }

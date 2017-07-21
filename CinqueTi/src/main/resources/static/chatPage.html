@@ -1,0 +1,74 @@
+
+	
+	<div class="container">
+		<div class="col-lg-12" id="chat-map"></div>
+	</div>
+	
+	<br></br>
+			
+	<div class="container">
+		<div class="col-sm-3">
+			<div class="row">
+				<div class="dropdown all_conversation">
+					<button class="dropdown-toggle" type="button" id="dropdownMenu2" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+						<i class="fa fa-weixin" aria-hidden="true"></i>Users list
+					</button>
+				</div>
+				<div class="member_list">
+					<ul ng-repeat="user in participants" id="usersList" class="list-unstyled">
+						<li  class="left clearfix"> 
+							<span class="chat-img pull-left">
+			 					<img src="http://icons.iconarchive.com/icons/custom-icon-design/pretty-office-8/128/User-blue-icon.png" alt="User Avatar" class="img-circle"/>
+			 				</span>
+			 				<div class="chat-body clearfix">
+								<div class="header_sec">
+				   					<strong class="primary-font">{{user}}</strong>
+								</div>
+							</div>
+						</li>
+					</ul>
+				</div>	
+			</div>
+		</div>
+		<!--chat_sidebar-->
+
+		<div class="col-sm-9 message_section">
+			<div class="row">
+				<div class="chat_area">
+					<ul id="chatMessages" class="list-unstyled">
+						<chat-message ng-repeat="message in messages" message="message"  ></chat-message>
+					</ul>
+				</div>
+				<!--chat_area-->
+				<div class="message_write">
+				
+					<textarea ng-keypress="enterKeyListener($event)"   ng-model="newMessage" id="textArea" class="form-control" placeholder="type a message"></textarea>
+					
+					<div id="alertsModal"  class="modal fade">
+						<div class="modal-dialog">
+							<div class="modal-content">
+						       <div class="modal-header">
+						         <h4 class="modal-title">Select your alert type</h4>
+						       </div>
+						       <div class="modal-body" id="modal-body">
+									<!-- filled with javascript -->
+						       </div>
+						       <div class="modal-footer">
+									<button type="button" class="btn btn-default" data-dismiss="modal" id="modal-select">Select</button>
+						       </div>
+						    </div>
+					    </div>
+					</div>
+					
+					<div class="clearfix"></div>
+					<div class="chat_bottom">
+						<a href="#" class="pull-left upload_btn"><i class="fa fa-cloud-upload" aria-hidden="true"></i>Add Image</a> 
+						<a id="sendBtn" href="#" ng-click="sendMessage()" class="pull-right btn btn-success">Send</a>
+					</div>
+				</div>
+			</div>
+		</div>
+		<!--message_section-->
+	</div>
+	
+	
