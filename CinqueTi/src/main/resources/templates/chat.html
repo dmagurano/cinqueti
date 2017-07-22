@@ -2,11 +2,20 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
 	<th:block th:include="fragments/common :: commonHeadFragment"></th:block>
-	
+
 	<script src="/js/sockjs.js"></script>
-	<script src="js/stomp.js"></script>
+	<script src="/js/stomp.js"></script>
 	<link th:href="@{/css/chatPage.css}" rel="stylesheet" />
 	<link th:href="@{/css/rating.css}" rel="stylesheet" />
+	
+	<script src="/js/angular.js"></script>
+    <script src="/js/leaflet.js"></script>
+    <script src="/js/angular-simple-logger.min.js"></script>
+    <script src="/js/angular-resource.js"></script>
+    <script src="/js/angular-route.js"></script>
+    <script src="/js/ui-leaflet.js"></script>
+    
+    <script src="/js/app/app-chat.js"></script>
 	
 	<!-- map -->
 	<link rel="stylesheet" href="https://unpkg.com/leaflet@1.0.3/dist/leaflet.css"
@@ -16,70 +25,12 @@
    integrity="sha512-A7vV8IFfih/D732iSSKi20u/ooOfj/AGehOKq0f4vLT1Zr2Y+RX7C+w8A1gaSasGtRUZpF/NZgzSAu4/Gc41Lg=="
    crossorigin=""></script>
 </head>
-<body>
+<body ng-app="App">
 	<script src="https://use.fontawesome.com/45e03a14ce.js"></script>
 
 	<div th:replace="fragments/navbar :: navbar(chat)"></div>
-	
-	<div class="container">
-		<div class="col-lg-12" id="chat-map"></div>
-	</div>
-	
-	<br></br>
-			
-	<div class="container">
-		<div class="col-sm-3">
-			<div class="row">
-				<div class="dropdown all_conversation">
-					<button class="dropdown-toggle" type="button" id="dropdownMenu2" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-						<i class="fa fa-weixin" aria-hidden="true"></i>Users list
-					</button>
-				</div>
-				<div class="member_list">
-					<ul id="usersList" class="list-unstyled"></ul>
-				</div>
-			</div>
-		</div>
-		<!--chat_sidebar-->
-
-		<div class="col-sm-9 message_section">
-			<div class="row">
-				<div class="chat_area">
-					<ul id="chatMessages" class="list-unstyled"></ul>
-				</div>
-				<!--chat_area-->
-				<div class="message_write">
-				
-					<textarea id="textArea" class="form-control" placeholder="type a message"></textarea>
-					
-					<div id="alertsModal"  class="modal fade">
-						<div class="modal-dialog">
-							<div class="modal-content">
-						       <div class="modal-header">
-						         <h4 class="modal-title">Select your alert type</h4>
-						       </div>
-						       <div class="modal-body" id="modal-body">
-									<!-- filled with javascript -->
-						       </div>
-						       <div class="modal-footer">
-									<button type="button" class="btn btn-default" data-dismiss="modal" id="modal-select">Select</button>
-						       </div>
-						    </div>
-					    </div>
-					</div>
-					
-					<div class="clearfix"></div>
-					<div class="chat_bottom">
-						<a href="#" class="pull-left upload_btn"><i class="fa fa-cloud-upload" aria-hidden="true"></i>Add Image</a> 
-						<a id="sendBtn" href="#" class="pull-right btn btn-success">Send</a>
-					</div>
-				</div>
-			</div>
-		</div>
-		<!--message_section-->
-	</div>
+	<div ng-view="true"></div>
 	
 	<div th:replace="fragments/footer"></div>
-	<script th:src="@{/js/chatApp.js}"></script>
 </body>
 </html>

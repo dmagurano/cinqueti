@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1" />
+	<link th:href="@{/css/bootstrap.css}" rel="stylesheet" />
+	<link rel="stylesheet" type="text/css" href="./css/bootstrap.css"/>
+	<link th:href="@{/css/custom-bootstrap.css}" rel="stylesheet"/>
+	<link th:href="@{/css/sticky-footer-navbar.css}" rel="stylesheet"/>
+	<script src="/js/jquery.js"></script>
+	<script src="/js/bootstrap.min.js"></script>
+	<script src="/js/sockjs.js"></script>
+	<script src="js/stomp.js"></script>
+	<link th:href="@{/css/chatPage.css}" rel="stylesheet" />
+	<link th:href="@{/css/rating.css}" rel="stylesheet" />
+	
+	<!-- map -->
+	<link rel="stylesheet" href="https://unpkg.com/leaflet@1.0.3/dist/leaflet.css"
+   integrity="sha512-07I2e+7D8p6he1SIM+1twR5TIrhUQn9+I6yjqD53JQjFiMf8EtC93ty0/5vJTZGF8aAocvHYNEDJajGdNx1IsQ=="
+   crossorigin=""/>
+   <script src="https://unpkg.com/leaflet@1.0.3/dist/leaflet.js"
+   integrity="sha512-A7vV8IFfih/D732iSSKi20u/ooOfj/AGehOKq0f4vLT1Zr2Y+RX7C+w8A1gaSasGtRUZpF/NZgzSAu4/Gc41Lg=="
+   crossorigin=""></script>
+</head>
+<body>
+	<script src="https://use.fontawesome.com/45e03a14ce.js"></script>
+
+	<div th:replace="fragments/navbar :: navbar(chat)"></div>
+	
+	<div class="container">
+		<div class="col-lg-12" id="chat-map"></div>
+	</div>
+	
+	<br></br>
+			
+	<div class="container">
+		<div class="col-sm-3">
+			<div class="row">
+				<div class="dropdown all_conversation">
+					<button class="dropdown-toggle" type="button" id="dropdownMenu2" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+						<i class="fa fa-weixin" aria-hidden="true"></i>Users list
+					</button>
+				</div>
+				<div class="member_list">
+					<ul id="usersList" class="list-unstyled"></ul>
+				</div>
+			</div>
+		</div>
+		<!--chat_sidebar-->
+
+		<div class="col-sm-9 message_section">
+			<div class="row">
+				<div class="chat_area">
+					<ul id="chatMessages" class="list-unstyled"></ul>
+				</div>
+				<!--chat_area-->
+				<div class="message_write">
+				
+					<textarea id="textArea" class="form-control" placeholder="type a message"></textarea>
+					
+					<div id="alertsModal"  class="modal fade">
+						<div class="modal-dialog">
+							<div class="modal-content">
+						       <div class="modal-header">
+						         <h4 class="modal-title">Select your alert type</h4>
+						       </div>
+						       <div class="modal-body" id="modal-body">
+									<!-- filled with javascript -->
+						       </div>
+						       <div class="modal-footer">
+									<button type="button" class="btn btn-default" data-dismiss="modal" id="modal-select">Select</button>
+						       </div>
+						    </div>
+					    </div>
+					</div>
+					
+					<div class="clearfix"></div>
+					<div class="chat_bottom">
+						<a href="#" class="pull-left upload_btn"><i class="fa fa-cloud-upload" aria-hidden="true"></i>Add Image</a> 
+						<a id="sendBtn" href="#" class="pull-right btn btn-success">Send</a>
+					</div>
+				</div>
+			</div>
+		</div>
+		<!--message_section-->
+	</div>
+	
+	<div th:replace="fragments/footer"></div>
+	<script th:src="@{/js/chatApp.js}"></script>
+</body>
+</html>
