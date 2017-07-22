@@ -11,4 +11,5 @@ import it.polito.cinqueti.entities.BusLine;
 public interface LineRepository extends CrudRepository<BusLine, String>{
 
 	public List<BusLine> findAll();
+	public BusLine findOne(String id);
 }

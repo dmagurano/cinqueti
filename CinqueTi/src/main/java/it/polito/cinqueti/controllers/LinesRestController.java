@@ -47,40 +47,37 @@ public class LinesRestController {
 	@RequestMapping(value="/rest/lines", method=RequestMethod.GET)
 	public List<BusLine> getLines()
 	{	
-		List<BusLine> l = lineService.findAll();
+		/*List<BusLine> l = lineService.findAll();
 		List<BusLine> bl = new ArrayList<BusLine>();
 		int i = 0;
 		for(BusLine lin: l){
 			bl.add(lin);
 			i++;
-			if(i == 1)
+			if(i == 40)
 				break;
-		}
-		return bl;
+		}*/
+		return lineService.findAll();
 	}
 	
 	
 	// method used to retrieve the single line details
 	@RequestMapping(value="/rest/lines/{id}", method=RequestMethod.GET)
-	public List<Topic> getTopics()
+	public  BusLine getLineDetails(@PathVariable String id)
 	{	
-		List<Topic> topicList = new ArrayList<Topic>();
-		// we have no topic service, so we decided to simply add an attribute here
-		for(String topic : topics){
-			Topic t = new Topic(topic);
-			// let's produce the rest url to navigate to the topic messages
-			t.add(linkTo(methodOn(AppRestController.class).getTopics()).slash(topic).slash("messages").withSelfRel());
-			topicList.add(t);
-		}
-	
-		return topicList;
+		//Control if the resource with the passed id is present
+		
+		BusLine line = lineService.findOne(id);
+		if(line == null)
+			throw new ResourceNotFoundException(id, "line");
+			
+		return line;
 	}
 	
 	// method used to retrieve the best path from source to destination
 	@RequestMapping(value="/rest/path/", method=RequestMethod.GET)
 	public HttpEntity<PagedResources<Message>> getTopicMessages(
-			@PathVariable String src,
-			@PathVariable String dst)
+			@RequestParam("src") String src,
+			@RequestParam("dst") String dst)
 	{
 		return null;
 		
