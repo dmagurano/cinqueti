@@ -20,4 +20,10 @@ public class LineServiceImpl implements LineService {
 		return lineRepository.findAll();
 	}
 
+	@Override
+	public BusLine findOne(String id) {
+		
+		return lineRepository.findOne(id);
+	}
+
 }
