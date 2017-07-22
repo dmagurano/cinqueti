@@ -1,38 +1,29 @@
 <!DOCTYPE html>
-<html>
+<html xmlns:th="http://www.thymeleaf.org">
 <head>
     <title>Profile Summary</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-    <!-- Bootstrap -->
-    <link th:href="@{/css/bootstrap.min.css}" rel="stylesheet"/>
-    <link th:href="@{/css/custom-bootstrap.css}" rel="stylesheet"/>
-    <link th:href="@{/css/sticky-footer-navbar.css}" rel="stylesheet"/>
+    
+	<th:block th:include="fragments/common :: commonHeadFragment"></th:block>
 </head>
 <body>
-	<div id="wrap">
-	    <div th:replace="fragments/navbar"></div>
-	
-	    <div class="container">
-			<div id="form"  th:object="${user}" th:fragment="profile">
-			    <!--/* Show general error message when form contains errors */-->
-			<!--     <th:block th:if="${#fields.hasErrors('${user.*}')}"> -->
-			<!--         <div th:replace="fragments/alert :: alert (type='danger', message='Form contains errors. Please try again.')">Alert</div> -->
-			<!--     </th:block> -->
-			    <legend th:text="'Hi ' + ${user.nickname} + ', this is your profile page'"></legend>
-			    
-			    <th:block th:if="${user.getImage().length != 0}">
-			    	<img th:src="@{'data:image/*;base64,'+${user.generateBase64Image()}}" style="width: 150px; height: 150px;"/>
-			    </th:block>
-			    
-			    <th:block th:if="${user.getImage().length == 0}">
-			    	<img 
-				    	src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQlQiU1yEonftm27j6_3hYC69EMvxwuFQrTJ1cgIFJMwF4tyCnG" 
-				    	style="width: 150px; height: 150px;"
-			    	/>
-			    </th:block>
-			    <!-- TODO load default profile picture -->
-			    
-			    <table class="table table-user-information">
+    <div th:replace="fragments/navbar"></div>
+
+    <div class="container">
+		<div id="form"  th:object="${user}" th:fragment="profile">
+		    
+		    <h3 th:text="'Hi ' + ${user.nickname} + ', this is your profile page'"></h3>
+		    
+		    <div class="col-lg-2 col-md-1">
+			    <div class="thumbnail">
+					<img th:if="${user.getImage().length != 0}" 
+						th:src="@{'data:image/*;base64,'+${user.generateBase64Image()}}" alt="..."/>
+					<img th:if="${user.getImage().length == 0}" 
+						src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQlQiU1yEonftm27j6_3hYC69EMvxwuFQrTJ1cgIFJMwF4tyCnG" alt="..."/>
+				</div>
+		    </div>
+		    
+			<div class="col-lg-10 col-md-10">
+				<table class="table table-user-information">
 			    	<tbody>
 			    		<tr>
 			    			<td>Registration email</td>
@@ -80,16 +71,17 @@
 			    		</tr>
 			    	</tbody>
 			    </table>
-			    
-			    <hr></hr>
-			    
-			    <div class="btn-group btn-group-justified" role="group" aria-label="...">
-			    	<a role="button" class="btn btn-default" th:href="@{/change-nickname}">Change Nickname</a>
-			    	<a role="button" class="btn btn-default" th:href="@{/change-password}">Change Password</a>
-			    </div>
 			</div>
+		    
+		    <hr></hr>
+		    
+		    <div class="btn-group btn-group-justified" role="group" aria-label="...">
+		    	<a role="button" class="btn btn-default" th:href="@{/change-nickname}">Change Nickname</a>
+		    	<a role="button" class="btn btn-default" th:href="@{/change-password}">Change Password</a>
+		    </div>
 		</div>
 	</div>
+	
 	<div th:replace="fragments/footer"></div>
 
 	<!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->

@@ -21,67 +21,74 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import it.polito.cinqueti.validator.PasswordMatches;
 import it.polito.cinqueti.validator.ValidEmail;
 
-@PasswordMatches
+@PasswordMatches(groups = {User.FirstPhaseValidation.class})
 public class User implements UserDetails {
 	
 	private static final long serialVersionUID = 1L;
 	
+	public interface FirstPhaseValidation{
+		// first validation group
+	}
+	
+	public interface SecondPhaseValidation{
+		// second validation group
+	}
+	
 	@Id
 	private String id;
 	
-	@ValidEmail
-	@NotNull
-	@NotEmpty
+	@ValidEmail(groups = {FirstPhaseValidation.class})
+	@NotNull(groups = {FirstPhaseValidation.class})
+	@NotEmpty(groups = {FirstPhaseValidation.class})
 	@Indexed(unique = true)
 	private String email;
 	
-	//TODO foto profilo
-	
-	@NotNull
-    @NotEmpty
-    @Size(min = 8, max= 36)	// please check application.properties > user.minPasswordLength
+	@NotNull(groups = {FirstPhaseValidation.class})
+    @NotEmpty(groups = {FirstPhaseValidation.class})
+    @Size(min = 8, max= 36)
 	private String password;
 	
-	@NotNull
-    @NotEmpty
-	private String passwordConfirm;
+	@NotNull(groups = {FirstPhaseValidation.class})
+    @NotEmpty(groups = {FirstPhaseValidation.class})
+	private String confirmedPassword;
 	
 	private List<Role> roles;
 	
-	@NotNull
-    @NotEmpty
+	@NotNull(groups = {SecondPhaseValidation.class})
+    @NotEmpty(groups = {SecondPhaseValidation.class})
 	private String nickname;
 	
-	@NotNull
-    @NotEmpty
+	@NotNull(groups = {SecondPhaseValidation.class})
+    @NotEmpty(groups = {SecondPhaseValidation.class})
 	private String gender;
 	
-	@NotNull
+	@NotNull(groups = {SecondPhaseValidation.class})
 	private int age;
 	
-	@NotNull
-    @NotEmpty
+	@NotNull(groups = {SecondPhaseValidation.class})
+    @NotEmpty(groups = {SecondPhaseValidation.class})
 	private String education;
 	
-	@NotNull
-    @NotEmpty
+	@NotNull(groups = {SecondPhaseValidation.class})
+    @NotEmpty(groups = {SecondPhaseValidation.class})
 	private String job;
 	
-	//@Field("car")
 	private Car ownCar;
 	
 	private String carSharing;
 	
-	@NotNull
+	@NotNull(groups = {SecondPhaseValidation.class})
 	@Field("bike")
 	private Bike bikeUsage;
 	
-	@NotNull
-    @NotEmpty
+	@NotNull(groups = {SecondPhaseValidation.class})
+    @NotEmpty(groups = {SecondPhaseValidation.class})
 	private String pubTransport;
 	
 	@Lob
 	private byte[] image;
+	
+	private boolean enabled;
 
 	//used to convert byte[] in base64 string otherwise the image won't be showed in thymeleaf
 	public String generateBase64Image()
@@ -89,13 +96,14 @@ public class User implements UserDetails {
 	    return Base64.getEncoder().encodeToString((this.getImage()));
 	}
 	
-
 	public User() {
+		setEnabled(false);
 		ownCar = new Car();
 		bikeUsage = new Bike();
 	}
 
 	public User(String email, String nickname) {
+		this.setEnabled(false);
 		this.email = email;
 		this.nickname = nickname;
 	}
@@ -137,12 +145,6 @@ public class User implements UserDetails {
 	@JsonIgnore
 	@Override
 	public boolean isCredentialsNonExpired() {
-		return true;
-	}
-
-	@JsonIgnore
-	@Override
-	public boolean isEnabled() {
 		return true;
 	}
 
@@ -244,12 +246,12 @@ public class User implements UserDetails {
 	
 	@JsonIgnore
 	@Transient
-    public String getPasswordConfirm() {
-        return passwordConfirm;
+    public String getConfirmedPassword() {
+        return confirmedPassword;
     }
 
-    public void setPasswordConfirm(String passwordConfirm) {
-        this.passwordConfirm = passwordConfirm;
+    public void setConfirmedPassword(String passwordConfirm) {
+        this.confirmedPassword = passwordConfirm;
     }
 
 	public void setAuthorities(List<String> roles) {
@@ -267,5 +269,14 @@ public class User implements UserDetails {
 	public void setImage(byte[] image) {
 		this.image = image;
 	}
-	
+
+	@JsonIgnore
+	@Override
+	public boolean isEnabled() {
+		return enabled;
+	}
+
+	public void setEnabled(boolean enabled) {
+		this.enabled = enabled;
+	}
 }

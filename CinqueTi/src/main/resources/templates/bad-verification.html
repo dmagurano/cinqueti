@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+
+	<title>Bad Verification</title>
+
+	<th:block th:include="fragments/common :: commonHeadFragment"></th:block>
+
+    <!-- Custom styles for this template -->
+    <link th:href="@{/css/signin.css}" rel="stylesheet"/>
+</head>
+
+<body>
+	<div id="wrap">
+	    <div th:replace="fragments/navbar"></div>
+	
+	    <div class="container">
+	    	<div th:if="${param.error != null}" th:text="${session[SPRING_SECURITY_LAST_EXCEPTION]}">error</div>
+	    
+	        <form class="form-signin" role="form">
+	        
+			    <th:block th:if="${dangerMessage} != null">
+			    	<div th:replace="fragments/alert :: alert (type='danger', message=${dangerMessage})">Alert</div>
+			    </th:block>
+			    
+	        </form>
+	        
+	    </div>
+	</div>
+	
+	<div th:replace="fragments/footer"></div>
+</body>
+</html>

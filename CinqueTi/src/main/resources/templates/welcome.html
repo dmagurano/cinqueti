@@ -2,15 +2,8 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
 <title>Home</title>
-    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-    <base href="/"/>
-    <!-- <link th:href="@{/css/bootstrap.css}" rel="stylesheet"/> -->
-    <link rel="stylesheet" type="text/css" href="./css/bootstrap.css"/>
-    <link th:href="@{/css/custom-bootstrap.css}" rel="stylesheet"/>
-    <link th:href="@{/css/sticky-footer-navbar.css}" rel="stylesheet"/>
-    <link rel="stylesheet" href="/css/leaflet.css"/>
-    <script src="/js/jquery.js"></script>
-    <script src="/js/bootstrap.min.js"></script>
+    <th:block th:include="fragments/common :: commonHeadFragment"></th:block>
+    
     <script src="/js/angular.js"></script>
     <script src="/js/leaflet.js"></script>
     <script src="/js/angular-simple-logger.min.js"></script>
