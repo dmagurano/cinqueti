@@ -4,12 +4,6 @@ import java.sql.Timestamp;
 import java.util.Calendar;
 import java.util.Date;
 
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.data.annotation.Id;
-
 // http://www.baeldung.com/registration-verify-user-by-email
 public class VerificationToken {
 
@@ -17,12 +11,12 @@ public class VerificationToken {
 	
 	private String token;
 	
-	private User user;
+	private String userId;
 	
 	private Date expiryDate;
 	
-	public VerificationToken(String token, User user) {
-		this.user = user;
+	public VerificationToken(String token, String userId) {
+		this.userId = userId;
 		this.token = token;
 		this.expiryDate = calculateExpiryDate(EXPIRE_HOURS);
 	}
@@ -35,12 +29,12 @@ public class VerificationToken {
 		this.token = token;
 	}
 
-	public User getUser() {
-		return user;
+	public String getUserId() {
+		return userId;
 	}
 
-	public void setUser(User user) {
-		this.user = user;
+	public void setUserId(String userId) {
+		this.userId = userId;
 	}
 
 	public Date getExpiryDate() {

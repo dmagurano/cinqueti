@@ -10,6 +10,8 @@ import it.polito.cinqueti.entities.VerificationToken;
 public interface UserService {
 	void registerNewUser(User user) throws Exception;
 	
+	void updateNewUser(User user) throws Exception;
+	
 	User findLoggedInUser();
 	
 	void updateUserNewNickname(User user, String nickname);
@@ -28,10 +30,8 @@ public interface UserService {
     
     User getUser(String token);
     
-    void saveVerificationToken(User user, String token);
+    void saveVerificationToken(String userId, String token);
     
     void removeVerificationToken(String token);
-    
-    void clearVerificationToken(User user, String token);
 
 }

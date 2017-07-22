@@ -9,9 +9,13 @@ import org.springframework.data.mongodb.repository.MongoRepository;
 import it.polito.cinqueti.entities.User;
 
 public interface UserRepository extends MongoRepository<User, String> {
+
+	public User findById(String userId);
 	
 	public User findByEmail(String email);
+	
 	public List<User> findAll();
+	
 	public Page<User> findAll(Pageable p);
 	
 }

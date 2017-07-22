@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org"  xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 
 <head>
-	<title>Registrati - Informazioni personali</title>
+	<title>Registrati - Informazioni trasporti</title>
 	
 	<th:block th:include="fragments/common :: commonHeadFragment"></th:block>
 </head>
@@ -11,23 +11,25 @@
 	<div th:replace="fragments/navbar (showLogin='false')"></div>
 
     <div class="container">
-		<form id="form" class="form-narrow form-horizontal" method="post" th:action="@{/register-second-phase(token=${token})}" th:object="${user}" th:fragment="signupForm" enctype="multipart/form-data">
-		    <div th:replace="fragments/common :: generalErrorsFragment"></div>
+		<form id="form" class="form-narrow form-horizontal" method="post" th:action="@{/register-third-phase(token=${token})}" th:object="${user}" th:fragment="signupForm" enctype="multipart/form-data">
 		
+			<div th:replace="fragments/common :: generalErrorsFragment"></div>
+			
 		    <!--/* Show general error message when form contains errors */-->
-		    <!--
+		    <!-- 
 		    <th:block th:if="${#fields.hasErrors('${user.*}')}">
-		        <div th:replace="fragments/alert :: alert (type='danger', message='I dati inseriti non sono validi. Prova di nuovo.')">I dati inseriti non sono validi</div>
+		        <div th:replace="fragments/alert :: alert (type='danger', message='Form contains errors. Please try again.')">Alert</div>
 		    </th:block>
 		    
 		    <th:block th:if="${exceptionMessage} != null">
-		    	<div th:replace="fragments/alert :: alert (type='warning', message=${exceptionMessage})">Qualcosa è andato storto.</div>
+		    	<div th:replace="fragments/alert :: alert (type='warning', message=${exceptionMessage})">Alert</div>
 		    </th:block>
-		    -->
+		     -->
 		    
 		    <fieldset>
-		        <legend>Informazioni personali</legend>
-		        		        
+		        <legend>Informazioni trasporti</legend>
+
+				<!-- 
 		        <div class="form-group" th:classappend="${#fields.hasErrors('nickname')}? 'has-error'">
 		            <label for="nickname" class="col-lg-2 control-label">Nickname</label>
 		            <div class="col-lg-10">
@@ -98,7 +100,7 @@
 		            </div>
 		        </div>
 		        
-		        <!--
+		        -->
 				
 				<div class="form-group" th:classappend="${#fields.hasErrors('ownCar')}? 'has-error'">
 		           	<label for="car" class="col-lg-2 control-label">Auto propria</label>
@@ -165,7 +167,6 @@
 		                <span class="help-block" th:if="${#fields.hasErrors('pubTransport')}" th:errors="*{pubTransport}">Trasporto pubblico non valido</span>
 		            </div>
 		        </div>
-		        -->
 		        
 		        <th:block th:include="fragments/common :: tailRegistrationFragment"></th:block>
 		        

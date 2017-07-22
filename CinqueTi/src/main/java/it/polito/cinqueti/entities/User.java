@@ -28,10 +28,17 @@ public class User implements UserDetails {
 	
 	public interface FirstPhaseValidation{
 		// first validation group
+		// email, password
 	}
 	
 	public interface SecondPhaseValidation{
 		// second validation group
+		// personal information
+	}
+	
+	public interface ThirdPhaseValidation{
+		// third validation group
+		// personal transport information
 	}
 	
 	@Id
@@ -45,7 +52,7 @@ public class User implements UserDetails {
 	
 	@NotNull(groups = {FirstPhaseValidation.class})
     @NotEmpty(groups = {FirstPhaseValidation.class})
-    @Size(min = 8, max= 36)
+    @Size(min = 8, max= 36, groups = {FirstPhaseValidation.class})
 	private String password;
 	
 	@NotNull(groups = {FirstPhaseValidation.class})
@@ -77,12 +84,12 @@ public class User implements UserDetails {
 	
 	private String carSharing;
 	
-	@NotNull(groups = {SecondPhaseValidation.class})
+	@NotNull(groups = {ThirdPhaseValidation.class})
 	@Field("bike")
 	private Bike bikeUsage;
 	
-	@NotNull(groups = {SecondPhaseValidation.class})
-    @NotEmpty(groups = {SecondPhaseValidation.class})
+	@NotNull(groups = {ThirdPhaseValidation.class})
+    @NotEmpty(groups = {ThirdPhaseValidation.class})
 	private String pubTransport;
 	
 	@Lob

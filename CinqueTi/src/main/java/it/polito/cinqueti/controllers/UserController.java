@@ -1,23 +1,17 @@
 package it.polito.cinqueti.controllers;
 
-import java.io.File;
 import java.io.IOException;
-import java.util.Calendar;
 import java.util.List;
 import java.util.UUID;
 
-import javax.imageio.ImageIO;
 import javax.servlet.ServletContext;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.mail.SimpleMailMessage;
-import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -26,6 +20,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributesModelMap;
 
 import it.polito.cinqueti.entities.User;
 import it.polito.cinqueti.entities.VerificationToken;
+import it.polito.cinqueti.services.MailService;
 import it.polito.cinqueti.services.SecurityService;
 import it.polito.cinqueti.services.UserService;
 
@@ -42,7 +37,7 @@ public class UserController {
     private SecurityService securityService;
     
     @Autowired
-    private JavaMailSender javaMailSender;
+    private MailService mailService;
 	
     @Value("${user.minPasswordLength}")
 	private Integer minPasswordLength;
@@ -78,60 +73,46 @@ public class UserController {
             return "register-first-phase";
     	}
     	else{
-        	try {
-            	token = UUID.randomUUID().toString();
-        		
-        		userService.saveVerificationToken(user, token);
-        		
-        		String recipientAddress = user.getEmail();
-        		String subject = "CinqueTi - Confirm registration";
-        		String confirmationUrl = "https://localhost:8443/"
-        				+ "registrationConfirm.html?token=" + token;
-        		
-        		SimpleMailMessage email = new SimpleMailMessage();
-        		email.setTo(recipientAddress);
-        		email.setSubject(subject);
-        		email.setText(confirmationUrl);
-        		javaMailSender.send(email);
-        		
-            } catch (Exception e) {
-            	e.printStackTrace();
-            	
-            	model.addAttribute("exceptionMessage", "Some problems occured while registration. "
-            			+ "Please register again.");
-            	
-            	userService.clearVerificationToken(user, token);
+        	token = UUID.randomUUID().toString();
+    		
+    		if (mailService.sendConfirmationEmail(user.getEmail(), token) == false){
+            	model.addAttribute("exceptionMessage", "Ci sono stati dei problemi durante la registrazione. "
+            			+ "Registrati.");
             	
                 return "register-first-phase";
-            }
-        	
-        	model.addAttribute("infoMessage", "Confirm your account by clicking on the link "
-        			+ "we sent you on your email.");
-        	
-        	return "login";
+    		}
+    		else{
+    			registerNewUser(user);
+        		
+        		userService.saveVerificationToken(user.getId(), token);
+    			
+	        	model.addAttribute("infoMessage", "Conferma il tuo account tramite la mail "
+	        			+ "che abbiamo inviato sul tuo indirizzo di posta elettronica.");
+	        	
+	        	return "login";
+    		}
         }
     }
     
-    @RequestMapping(value = "/registrationConfirm", method = RequestMethod.GET)
+    @RequestMapping(value = "/register-second-phase", method = RequestMethod.GET)
     public String confirmRegistration(
     		@RequestParam("token") String token,
     		Model model,
     		RedirectAttributesModelMap redirectAttributes){
     	
-    	User user = checkVerificationToken(token);
+    	User databaseUser = checkVerificationToken(token);
     	
-    	if (user == null){
-    		model.addAttribute("dangerMessage", "Your token is not valid. Please register.");
+    	if (databaseUser == null){
+    		model.addAttribute("dangerMessage", "Il tuo token non è valido. Registrati.");
     		
     		return "bad-verification";
     	}
     	
     	model.addAttribute("educationLevels", educationLevels);
     	model.addAttribute("jobs", jobs);
-    	model.addAttribute("carSharingServices", carSharingServices);
     	
     	model.addAttribute("token", token);
-    	model.addAttribute("user", new User());
+    	model.addAttribute("user", databaseUser);
     	
     	return "register-second-phase";
     }
@@ -139,7 +120,7 @@ public class UserController {
     @RequestMapping(value = "/register-second-phase", method = RequestMethod.POST)
     public String postRegisterSecondPhase(
     		@RequestParam("token") String token,
-    		@Validated(User.SecondPhaseValidation.class) @ModelAttribute User user,
+    		@Validated(User.SecondPhaseValidation.class) User user,
     		BindingResult bindingResult, 
     		@RequestParam MultipartFile file,
     		Model model) {
@@ -147,7 +128,7 @@ public class UserController {
     	User databaseUser = checkVerificationToken(token);
     	
     	if (databaseUser == null){
-    		model.addAttribute("dangerMessage", "Your token is not valid. Please register again.");
+    		model.addAttribute("dangerMessage", "Il tuo token non è valido. Registrati.");
     		
     		return "bad-verification";
     	}
@@ -155,19 +136,17 @@ public class UserController {
     	if (bindingResult.hasErrors()) {
     		model.addAttribute("educationLevels", educationLevels);
         	model.addAttribute("jobs", jobs);
-        	model.addAttribute("carSharingServices", carSharingServices);
 
         	model.addAttribute("token", token);
         	
             return "register-second-phase";
     	}
     	else{
-    		byte[] image = checkImage(file);
+    		byte[] image = parseImage(file);
     		
     		if (image == null){
     			model.addAttribute("educationLevels", educationLevels);
             	model.addAttribute("jobs", jobs);
-            	model.addAttribute("carSharingServices", carSharingServices);
 
             	model.addAttribute("token", token);
             	
@@ -175,29 +154,82 @@ public class UserController {
                 
             	return "register-second-phase";
     		}
-    		
-        	user.setId(databaseUser.getId());
-        	user.setEmail(databaseUser.getEmail());
-        	user.setPassword(databaseUser.getPassword());
-        	user.setImage(image);
-        	user.setEnabled(true);
-            boolean registered = registerNewUser(user);
+    		else{
+    			if (image.length > 0)
+            		databaseUser.setImage(image);
+    		}
+
+    		databaseUser.setNickname(user.getNickname());
+    		databaseUser.setGender(user.getGender());
+    		databaseUser.setAge(user.getAge());
+    		databaseUser.setEducation(user.getEducation());
+    		databaseUser.setJob(user.getJob());
+            boolean updated = updateNewUser(databaseUser);
         	
-            if (registered == false) {
+            if (updated == false) {
         		model.addAttribute("educationLevels", educationLevels);
             	model.addAttribute("jobs", jobs);
-            	model.addAttribute("carSharingServices", carSharingServices);
 
             	model.addAttribute("token", token);
             	
-                bindingResult.rejectValue("email", "user.registration.alreadyInUseEmail");
+                bindingResult.rejectValue("email", "user.registration.emailNotFound");
+                
+            	return "register-second-phase";
+            }
+            else{
+            	model.addAttribute("carSharingServices", carSharingServices);
+            	
+            	model.addAttribute("token", token);
+            	model.addAttribute("user", databaseUser);
+            	
+            	return "register-third-phase";
+            }
+        }
+    }
+    
+    @RequestMapping(value = "/register-third-phase", method = RequestMethod.POST)
+    public String postRegisterThirdPhase(
+    		@RequestParam("token") String token,
+    		@Validated(User.ThirdPhaseValidation.class) User user,
+    		BindingResult bindingResult,
+    		Model model) {
+    	
+    	User databaseUser = checkVerificationToken(token);
+    	
+    	if (databaseUser == null){
+    		model.addAttribute("dangerMessage", "Il tuo token non è valido. Registrati.");
+    		
+    		return "bad-verification";
+    	}
+    	
+    	if (bindingResult.hasErrors()) {
+    		model.addAttribute("carSharingServices", carSharingServices);
+
+        	model.addAttribute("token", token);
+        	
+            return "register-second-phase";
+    	}
+    	else{
+    		databaseUser.setOwnCar(user.getOwnCar());
+    		databaseUser.setCarSharing(user.getCarSharing());
+    		databaseUser.setBikeUsage(user.getBikeUsage());
+    		databaseUser.setPubTransport(user.getPubTransport());
+    		databaseUser.setEnabled(true);
+            boolean updated = updateNewUser(databaseUser);
+        	
+            if (updated == false) {
+        		model.addAttribute("carSharingServices", carSharingServices);
+
+            	model.addAttribute("token", token);
+            	
+                bindingResult.rejectValue("email", "user.registration.emailNotFound");
                 
             	return "register-second-phase";
             }
             else{
             	userService.removeVerificationToken(token);
             	
-            	securityService.autologin(user.getUsername(), user.getConfirmedPassword());
+            	securityService.autologin(databaseUser.getUsername(), databaseUser.getConfirmedPassword());
             	
             	return "redirect:profile";
             }
@@ -302,6 +334,18 @@ public class UserController {
     	return true;
     }
     
+    private boolean updateNewUser(User user){
+    	try{
+    		userService.updateNewUser(user);
+    	}
+    	catch(Exception e){
+    		e.printStackTrace();
+    		return false;
+    	}
+    	
+    	return true;
+    }
+    
     private User checkVerificationToken(String token){
     	VerificationToken verificationToken = userService.getVerificationToken(token);
     	
@@ -311,20 +355,27 @@ public class UserController {
     	if ( verificationToken.isExpired() )
     		return null;
     	
-    	return verificationToken.getUser();
+    	return userService.getUser(token);
     }
     
-    private byte[] checkImage(MultipartFile multipartFile){
+    private byte[] parseImage(MultipartFile multipartFile){
+    	String mimeType = null;
     	byte[] image = null;
     	
-    	try {
-    		String mimeType = servletContext.getMimeType(multipartFile.getOriginalFilename());
-    		
-    		if (mimeType != null && mimeType.startsWith("image/"))
-    			image = multipartFile.getBytes();
-    		
-		} catch (IOException e) {
-			e.printStackTrace();
+    	if (multipartFile.isEmpty())
+    		return new byte[0];
+    	
+    	mimeType = servletContext.getMimeType(multipartFile.getOriginalFilename());
+		
+		if (mimeType != null && mimeType.startsWith("image/")){
+			
+	    	try {
+	    		
+				image = multipartFile.getBytes();
+				
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
 		}
     	
     	return image;

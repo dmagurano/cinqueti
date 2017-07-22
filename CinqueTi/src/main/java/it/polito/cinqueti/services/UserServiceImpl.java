@@ -41,6 +41,14 @@ public class UserServiceImpl implements UserService {
         user.setAuthorities(roles);
         userRepository.save(user);
 	}
+
+	@Override
+	public void updateNewUser(User user) throws Exception {
+		if (!emailExist(user.getEmail()))
+            throw new Exception("There is no account with email adress: " +  user.getEmail());
+    	
+        userRepository.save(user);
+	}
     
     private boolean emailExist(String email) {
         User user = this.findByEmail(email);
@@ -101,12 +109,14 @@ public class UserServiceImpl implements UserService {
 
 	@Override
 	public User getUser(String verificationToken) {
-		return verificationTokenRepository.findByToken(verificationToken).getUser();
+		String userId = verificationTokenRepository.findByToken(verificationToken).getUserId();
+		
+		return userRepository.findById(userId);
 	}
 
 	@Override
-	public void saveVerificationToken(User user, String token) {
-		VerificationToken verificationToken = new VerificationToken(token, user);
+	public void saveVerificationToken(String userId, String token) {
+		VerificationToken verificationToken = new VerificationToken(token, userId);
 		
 		verificationTokenRepository.save(verificationToken);
 	}
@@ -115,13 +125,4 @@ public class UserServiceImpl implements UserService {
 	public void removeVerificationToken(String token) {
 		verificationTokenRepository.deleteByToken(token);
 	}
-
-	@Override
-	public void clearVerificationToken(User user, String token) {
-		userRepository.delete(user);
-
-		verificationTokenRepository.deleteByToken(token);
-	}
-	
-	
 }

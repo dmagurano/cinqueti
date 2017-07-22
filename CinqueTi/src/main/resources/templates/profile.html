@@ -15,9 +15,9 @@
 		    
 		    <div class="col-lg-2 col-md-1">
 			    <div class="thumbnail">
-					<img th:if="${user.getImage().length != 0}" 
+					<img th:if="${user.getImage() != null}" 
 						th:src="@{'data:image/*;base64,'+${user.generateBase64Image()}}" alt="..."/>
-					<img th:if="${user.getImage().length == 0}" 
+					<img th:if="${user.getImage() == null}" 
 						src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQlQiU1yEonftm27j6_3hYC69EMvxwuFQrTJ1cgIFJMwF4tyCnG" alt="..."/>
 				</div>
 		    </div>

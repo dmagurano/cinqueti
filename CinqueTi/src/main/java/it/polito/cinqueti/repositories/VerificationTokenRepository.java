@@ -3,7 +3,6 @@ package it.polito.cinqueti.repositories;
 
 import org.springframework.data.mongodb.repository.MongoRepository;
 
-import it.polito.cinqueti.entities.User;
 import it.polito.cinqueti.entities.VerificationToken;
 
 public interface VerificationTokenRepository 
@@ -11,7 +10,7 @@ public interface VerificationTokenRepository
 
 	VerificationToken findByToken(String token);
 	
-	VerificationToken findByUser(User user);
+	//VerificationToken findByUserId(String UserId);
 	
 	void deleteByToken(String token);
 	

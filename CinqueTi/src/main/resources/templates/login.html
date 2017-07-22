@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
-    <title>Login</title>
+    <title>Accedi</title>
 
 	<th:block th:include="fragments/common :: commonHeadFragment"></th:block>
 
@@ -18,7 +18,7 @@
         
             <div class="alert alert-danger" th:if="${param.error}">
                 <p th:text="${#strings.arraySplit(session[SPRING_SECURITY_LAST_EXCEPTION], ':')[1]}">
-                	Invalid Credentials.
+                	Credenziali non valide.
                 </p>
             </div>
                 
@@ -30,17 +30,17 @@
 		    	<div th:replace="fragments/alert :: alert (type='danger', message=${dangerMessage})">Alert</div>
 		    </th:block>
 
-            <h2 class="form-signin-heading">Please sign in</h2>
+            <h2 class="form-signin-heading">Accedi</h2>
             
             <div class="form-group">
-                <input type="text" class="form-control" placeholder="Email address" name="username" required="true" autofocus="true"/>
+                <input type="text" class="form-control" placeholder="Indirizzo email" name="username" required="required" autofocus="autofocus"/>
             </div>
             
             <div class="form-group">
-                <input type="password" class="form-control" placeholder="Password" name="password" required="true"/>
+                <input type="password" class="form-control" placeholder="Password" name="password" required="required"/>
             </div>
             
-            <button class="btn btn-lg btn-primary btn-block" type="submit">Sign in</button>
+            <button class="btn btn-lg btn-primary btn-block" type="submit">Accedi</button>
         </form>
         
     </div>
