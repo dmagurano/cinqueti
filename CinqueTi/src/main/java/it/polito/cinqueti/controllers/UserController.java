@@ -51,6 +51,12 @@ public class UserController {
     @Value("#{'${user.carSharingServices}'.split(',')}")
 	private List<String> carSharingServices;
     
+    @Value("#{'${user.car.fuelTypes}'.split(',')}")
+	private List<String> fuelTypes;
+    
+    @Value("#{'${user.passTypes}'.split(',')}")
+	private List<String> passTypes;
+    
     // two phase registration
     // http://blog.codeleak.pl/2014/08/validation-groups-in-spring-mvc.html
     
@@ -108,10 +114,8 @@ public class UserController {
     		return "bad-verification";
     	}
     	
-    	model.addAttribute("educationLevels", educationLevels);
-    	model.addAttribute("jobs", jobs);
+    	fillSecondPhaseModel(model, token);
     	
-    	model.addAttribute("token", token);
     	model.addAttribute("user", databaseUser);
     	
     	return "register-second-phase";
@@ -134,10 +138,7 @@ public class UserController {
     	}
     	
     	if (bindingResult.hasErrors()) {
-    		model.addAttribute("educationLevels", educationLevels);
-        	model.addAttribute("jobs", jobs);
-
-        	model.addAttribute("token", token);
+    		fillSecondPhaseModel(model, token);
         	
             return "register-second-phase";
     	}
@@ -145,10 +146,7 @@ public class UserController {
     		byte[] image = parseImage(file);
     		
     		if (image == null){
-    			model.addAttribute("educationLevels", educationLevels);
-            	model.addAttribute("jobs", jobs);
-
-            	model.addAttribute("token", token);
+    			fillSecondPhaseModel(model, token);
             	
                 bindingResult.rejectValue("image", "user.registration.invalidImage");
                 
@@ -167,19 +165,15 @@ public class UserController {
             boolean updated = updateNewUser(databaseUser);
         	
             if (updated == false) {
-        		model.addAttribute("educationLevels", educationLevels);
-            	model.addAttribute("jobs", jobs);
-
-            	model.addAttribute("token", token);
+            	fillSecondPhaseModel(model, token);
             	
                 bindingResult.rejectValue("email", "user.registration.emailNotFound");
                 
             	return "register-second-phase";
             }
             else{
-            	model.addAttribute("carSharingServices", carSharingServices);
+            	fillThirdPhaseModel(model, token);
             	
-            	model.addAttribute("token", token);
             	model.addAttribute("user", databaseUser);
             	
             	return "register-third-phase";
@@ -203,9 +197,7 @@ public class UserController {
     	}
     	
     	if (bindingResult.hasErrors()) {
-    		model.addAttribute("carSharingServices", carSharingServices);
-
-        	model.addAttribute("token", token);
+        	fillThirdPhaseModel(model, token);
         	
             return "register-second-phase";
     	}
@@ -218,9 +210,7 @@ public class UserController {
             boolean updated = updateNewUser(databaseUser);
         	
             if (updated == false) {
-        		model.addAttribute("carSharingServices", carSharingServices);
-
-            	model.addAttribute("token", token);
+            	fillThirdPhaseModel(model, token);
             	
                 bindingResult.rejectValue("email", "user.registration.emailNotFound");
                 
@@ -379,5 +369,21 @@ public class UserController {
 		}
     	
     	return image;
+    }
+    
+    private void fillSecondPhaseModel(Model model, String token){
+    	model.addAttribute("educationLevels", educationLevels);
+    	model.addAttribute("jobs", jobs);
+
+    	model.addAttribute("token", token);
+    }
+    
+    private void fillThirdPhaseModel(Model model, String token){
+    	model.addAttribute("fuelTypes", fuelTypes);
+    	model.addAttribute("passTypes", passTypes);
+    	model.addAttribute("carSharingServices", carSharingServices);
+    	
+    	model.addAttribute("token", token);
+
     }
 }
