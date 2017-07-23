@@ -41,9 +41,9 @@
 		            <div class="col-lg-10">
 		                <select class="form-control" id="gender" th:field="*{gender}">
 		                	<option value="" style="display:none"></option>
-						    <option value="male">M</option>
-						    <option value="female">F</option>
-						    <option value="other">Other</option>
+						    <option value="maschio">M</option>
+						    <option value="femmina">F</option>
+						    <option value="altro">Altro</option>
 						</select>
 		                <span class="help-block" th:if="${#fields.hasErrors('gender')}" th:errors="*{gender}">Nessun sesso scelto</span>
 		            </div>
@@ -58,7 +58,7 @@
 		        </div>
 		        
 		        <div class="form-group" th:classappend="${#fields.hasErrors('image')}? 'has-error'">
-		            <label for="image" class="col-lg-2 control-label">Imagine profilo</label>
+		            <label for="image" class="col-lg-2 control-label">Immagine profilo</label>
 		            <div class="col-lg-10">
 		            	<input type="file" id="file" name="file" accept="image/x-png,image/gif,image/jpeg"/>
 		                <span class="help-block" th:if="${#fields.hasErrors('image')}" th:errors="*{image}">Il file non è un'immagine</span>
@@ -81,7 +81,7 @@
 		        </div>
 		        
 		        <div class="form-group" th:classappend="${#fields.hasErrors('job')}? 'has-error'">
-		            <label for="job" class="col-lg-2 control-label">Lavoro</label>
+		            <label for="job" class="col-lg-2 control-label">Ambito Lavorativo</label>
 		            <div class="col-lg-10">
 		                <select class="form-control" id="job" th:field="*{job}" required="required">
 		                	<option value="" style="display:none"></option>

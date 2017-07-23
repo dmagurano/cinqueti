@@ -102,28 +102,46 @@
 		        
 		        -->
 				
-				<div class="form-group" th:classappend="${#fields.hasErrors('ownCar')}? 'has-error'">
-		           	<label for="car" class="col-lg-2 control-label">Auto propria</label>
-		           	<div class="col-lg-2">
-		            	<input type="checkbox" class="form-control" id="car" value=""/>
+				<div class="form-group form-inline" th:classappend="${#fields.hasErrors('ownCar')}? 'has-error'">
+					<div class="col-lg-12">
+			           	<label for="car" class="col-lg-2 control-label">Auto propria</label>
+			            <input id="car" type="checkbox" class="form-control" value=""/>
+			            
+			            <span class="help-block" th:if="${#fields.hasErrors('ownCar')}" th:errors="*{ownCar}">Informazioni non valide</span>
 		            </div>
-		            <span class="help-block" th:if="${#fields.hasErrors('ownCar')}" th:errors="*{ownCar}">Informazioni non valide</span>
 				</div>
 
 		        <div id="divCar" class="form-group" th:classappend="${#fields.hasErrors('ownCar')}? 'has-error'" style="display: none;">
-		        	<label for="carYear" class="col-lg-2 control-label">Dettagli auto</label>
-		        	<div class="col-lg-5">
-			           	<input type="number" value="1900" class="form-control" placeholder="Anno immatricolazione" id="carYear" min="1900" max="2017" th:field="*{ownCar.registrationYear}"/>
-			        </div>
-			        <div class="col-lg-5">
-			           	<select class="form-control" id="carFuel" th:field="*{ownCar.fuelType}" placeholder="Carburante">
-			           		<option value="" style="display:none"></option>
-						    <option value="petrol">Benzina</option>
-						    <option value="diesel">Diesel</option>
-						    <option value="methane">Metano</option>
-						    <option value="other">Altro</option>
-						</select>
+		        	<label class="col-lg-2 control-label">Dettagli auto</label>
+		        	<div class="col-lg-10">
+		        	
+						<label for="carYear" class="radio-inline col-lg-6">Anno Immatricolazione</label>
+						<div class="form-group col-lg-6">
+				        	<input type="number" value="1900" class="form-control col-lg-6" placeholder="1900-2017" id="carYear" min="1900" max="2017" th:field="*{ownCar.registrationYear}"/>
+				        </div>
+				        
+		        		<label for="carFuel" class="radio-inline col-lg-6">Carburante</label>
+						<div class="form-group col-lg-6">
+			           		<select class="form-control col-lg-6" id="carFuel" th:field="*{ownCar.fuelType}">
+				           		<option value="" selected="selected">Scegli</option>
+				           		
+				           		<option th:each="fuelType : ${fuelTypes}" th:value="${fuelType}">
+							    	<th:block th:text="${fuelType}"></th:block>
+							    </option>
+				           		
+				           		<!--
+							    <option value="petrol">Benzina</option>
+							    <option value="diesel">Diesel</option>
+							    <option value="methane">Metano</option>
+							    -->
+							    
+							    
+							    <option value="other">Altro</option>
+							</select>
+						</div>
+				       	
 			       	</div>
+			       	
 		        </div>
 		        
 		        <div class="form-group" th:classappend="${#fields.hasErrors('carSharing')}? 'has-error'">
@@ -159,10 +177,18 @@
 		            <div class="col-lg-10">
 		                <select class="form-control" id="pubTransport" th:field="*{pubTransport}">
 						    <option value="none">Mai usato</option>
+						    
+						    <option th:each="passType : ${passTypes}" th:value="${passType}">
+						    	<th:block th:text="${passType}"></th:block>
+						    </option>
+						    
+						    <!--
 						    <option value="single">Biglietto singolo</option>
 						    <option value="daily">Abbonamento giornaliero</option>
 						    <option value="monthly">Abbonamento mensile</option>
 						    <option value="annually">Abbonamento Annuale</option>
+						    -->
+						    
 						</select>
 		                <span class="help-block" th:if="${#fields.hasErrors('pubTransport')}" th:errors="*{pubTransport}">Trasporto pubblico non valido</span>
 		            </div>

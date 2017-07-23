@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
-    <title>Profile Summary</title>
+    <title>Profilo</title>
     
 	<th:block th:include="fragments/common :: commonHeadFragment"></th:block>
 </head>
@@ -11,7 +11,7 @@
     <div class="container">
 		<div id="form"  th:object="${user}" th:fragment="profile">
 		    
-		    <h3 th:text="'Hi ' + ${user.nickname} + ', this is your profile page'"></h3>
+		    <h3 th:text="'Ciao ' + ${user.nickname} + ', questo è il tuo profilo.'"></h3>
 		    
 		    <div class="col-lg-2 col-md-1">
 			    <div class="thumbnail">
@@ -20,13 +20,24 @@
 					<img th:if="${user.getImage() == null}" 
 						src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQlQiU1yEonftm27j6_3hYC69EMvxwuFQrTJ1cgIFJMwF4tyCnG" alt="..."/>
 				</div>
+				
+				<hr></hr>			
+				
+		    	<a class="btn btn-default" role="button" th:href="@{/change-password}">Cambia Password</a>
+		    	
+				<hr></hr>
+	    	
+		    	<a class="btn btn-default" role="button" th:href="@{/change-nickname}">Cambia Nickname</a>
+		    	
+			    
+			    
 		    </div>
 		    
 			<div class="col-lg-10 col-md-10">
 				<table class="table table-user-information">
 			    	<tbody>
 			    		<tr>
-			    			<td>Registration email</td>
+			    			<td>Email</td>
 			    			<td th:text="${user.email}"></td>
 			    		</tr>
 			    		<tr>
@@ -34,51 +45,50 @@
 			    			<td th:text="${user.nickname}"></td>
 			    		</tr>
 			    		<tr>
-			    			<td>Gender</td>
+			    			<td>Sesso</td>
 			    			<td th:text="${user.gender}"></td>
 			    		</tr>
 			    		<tr>
-			    			<td>Age</td>
+			    			<td>Età</td>
 			    			<td th:text="${user.age}"></td>
 			    		</tr>
 			    		<tr>
-			    			<td>Education level</td>
+			    			<td>Livello Istruzione</td>
 			    			<td th:text="${user.education}"></td>
 			    		</tr>
 			    		<tr>
-			    			<td>Current job</td>
+			    			<td>Ambito lavorativo</td>
 			    			<td th:text="${user.job}"></td>
 			    		</tr>
 			    		<tr th:if="${user.ownCar.registrationYear} != null">
-			    			<td>Car information</td>
-			    			<td th:text="'Registration year: ' + ${user.ownCar.registrationYear} + ', fuel: ' + ${user.ownCar.fuelType}">No car setted</td>
-			    		</tr>
-			    		<tr>
-			    			<td>Car sharing service</td>
-			    			<td th:text="${user.carSharing}">Not used</td>
-			    		</tr>
-			    		<tr>
-			    			<td>Bike</td>
-			    			<td th:text="'Owned: ' + ${user.bikeUsage.owned}"></td>
+			    			<td>Auto</td>
+			    			<td th:text="'Anno di registrazione: ' + ${user.ownCar.registrationYear}"></td>
 			    		</tr>
 			    		<tr>
 			    			<td></td>
-			    			<td th:text="'Shared: ' + ${user.bikeUsage.sharing}"></td>
+			    			<td th:text="'Carburante: ' + ${user.ownCar.fuelType}"></td>
 			    		</tr>
 			    		<tr>
-			    			<td>Public transport pass</td>
+			    			<td>Servizio di car sharing</td>
+			    			<td th:text="${user.carSharing}">Non usato</td>
+			    		</tr>
+			    		<tr>
+			    			<td>Bici</td>
+			    			<td th:if="${user.bikeUsage.owned} == true" th:text="Posseduta"></td>
+			    			<td th:if="${user.bikeUsage.owned} == false" th:text="Non posseduta"></td>
+			    		</tr>
+			    		<tr>
+			    			<td></td>
+			    			<td th:if="${user.bikeUsage.sharing} == true" th:text="'Servizio bike sharing usato'"></td>
+			    			<td th:if="${user.bikeUsage.sharing} == false" th:text="'Servizio bike sharing non usato'"></td>
+			    		</tr>
+			    		<tr>
+			    			<td>Trasporto pubblico</td>
 			    			<td th:text="${user.pubTransport}"></td>
 			    		</tr>
 			    	</tbody>
 			    </table>
 			</div>
-		    
-		    <hr></hr>
-		    
-		    <div class="btn-group btn-group-justified" role="group" aria-label="...">
-		    	<a role="button" class="btn btn-default" th:href="@{/change-nickname}">Change Nickname</a>
-		    	<a role="button" class="btn btn-default" th:href="@{/change-password}">Change Password</a>
-		    </div>
 		</div>
 	</div>
 	
