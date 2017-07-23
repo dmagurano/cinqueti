@@ -1,7 +1,9 @@
 
 	
 	<div class="container">
-		<div class="col-lg-12" id="chat-map"></div>
+		<div class="col-lg-12" id="chat-map">
+			<leaflet lf-center="turin" defaults="defaults" markers="markers" paths="paths" bounds="bounds" height="300px"></leaflet>
+		</div>
 	</div>
 	
 	<br></br>
@@ -41,9 +43,7 @@
 				</div>
 				<!--chat_area-->
 				<div class="message_write">
-				
-					<textarea ng-keypress="enterKeyListener($event)"   ng-model="newMessage" id="textArea" class="form-control" placeholder="type a message"></textarea>
-					
+					<textarea ng-keypress="enterKeyListener($event)"   ng-model="newMessage" ng-change="monitorTextInput()" id="textArea" class="form-control" placeholder="type a message"></textarea>
 					<div id="alertsModal"  class="modal fade">
 						<div class="modal-dialog">
 							<div class="modal-content">
@@ -51,19 +51,23 @@
 						         <h4 class="modal-title">Select your alert type</h4>
 						       </div>
 						       <div class="modal-body" id="modal-body">
-									<!-- filled with javascript -->
+								   <div class="radio"  ng-repeat="atype in alertTypes">
+									   <label>
+										   <input ng-model="$parent.newAlert.alert.type" type="radio"  name="type" ng-value="atype">
+										   {{atype}}
+									   </label>
+								   </div>
 						       </div>
 						       <div class="modal-footer">
-									<button type="button" class="btn btn-default" data-dismiss="modal" id="modal-select">Select</button>
+									<button type="button" class="btn btn-default" data-dismiss="modal" id="modal-select" >Select</button>
 						       </div>
 						    </div>
 					    </div>
 					</div>
-					
 					<div class="clearfix"></div>
 					<div class="chat_bottom">
-						<a href="#" class="pull-left upload_btn"><i class="fa fa-cloud-upload" aria-hidden="true"></i>Add Image</a> 
-						<a id="sendBtn" href="#" ng-click="sendMessage()" class="pull-right btn btn-success">Send</a>
+						<a class="pull-left upload_btn"><i class="fa fa-cloud-upload" aria-hidden="true"></i>Add Image</a>
+						<a id="sendBtn" ng-click="sendMessage()" class="pull-right btn btn-success">Send</a>
 					</div>
 				</div>
 			</div>
