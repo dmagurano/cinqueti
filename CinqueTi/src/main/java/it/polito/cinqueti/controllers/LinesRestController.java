@@ -21,12 +21,15 @@ import static org.springframework.hateoas.mvc.ControllerLinkBuilder.linkTo;
 import static org.springframework.hateoas.mvc.ControllerLinkBuilder.methodOn;
 
 import it.polito.cinqueti.entities.BusLine;
+import it.polito.cinqueti.entities.Edge;
 import it.polito.cinqueti.entities.Message;
+import it.polito.cinqueti.entities.MinPath;
 import it.polito.cinqueti.entities.Topic;
 import it.polito.cinqueti.entities.User;
 import it.polito.cinqueti.errorhandlers.ResourceNotFoundException;
 import it.polito.cinqueti.services.LineService;
 import it.polito.cinqueti.services.MessageService;
+import it.polito.cinqueti.services.PathService;
 import it.polito.cinqueti.services.UserService;
 
 
@@ -35,6 +38,9 @@ public class LinesRestController {
 	
 	@Autowired
 	private LineService lineService;
+	
+	@Autowired
+	private PathService pathService;
 	
 	
 	// read both topics and the default elementsPerPage from the application.properties file
@@ -75,11 +81,11 @@ public class LinesRestController {
 	
 	// method used to retrieve the best path from source to destination
 	@RequestMapping(value="/rest/path/", method=RequestMethod.GET)
-	public HttpEntity<PagedResources<Message>> getTopicMessages(
-			@RequestParam("src") String src,
-			@RequestParam("dst") String dst)
+	public List<Edge> getPath(
+			/*@RequestParam("src") String src,
+			@RequestParam("dst") String dst*/)
 	{
-		return null;
+		return pathService.getPath(45.067397, 7.646947, 45.062079, 7.678479);
 		
 	}
 }

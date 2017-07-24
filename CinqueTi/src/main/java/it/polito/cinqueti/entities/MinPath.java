@@ -2,12 +2,14 @@ package it.polito.cinqueti.entities;
 
 import java.util.List;
 
+import org.springframework.data.annotation.Id;
+
 /**
  * Classe che rappresenta i percorsi a costo minimo da salvare all'interno di MongoDB.
  * */
 public class MinPath {
 
-	
+	@Id
 	String id; //Added w.r.t. the original class, used for repository
 	
 	/**
@@ -20,10 +22,6 @@ public class MinPath {
 	 * */
 	private String idDestination;
 	
-	/**
-	 * Lista di tratte che compongono il percorso
-	 * */
-	private List<Edge> edges;
 	
 	/**
 	 * Costo totale dell'intero percorso.
@@ -31,6 +29,13 @@ public class MinPath {
 	 * a questo valore
 	 * */
 	private int totalCost;
+	
+	/**
+	 * Lista di tratte che compongono il percorso
+	 * */
+	private List<Edge> edges;
+	
+	
 	
 	public String getIdSource() {
 		return idSource;

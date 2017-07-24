@@ -21,6 +21,10 @@ import org.springframework.orm.jpa.vendor.Database;
 import org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter;
 import org.springframework.transaction.PlatformTransactionManager;
 
+import com.mongodb.MongoClient;
+import com.mongodb.MongoClientURI;
+import com.mongodb.client.MongoDatabase;
+
 
 
 @SpringBootApplication
@@ -38,6 +42,15 @@ public class MainApplication {
 	
 	@Value("${spring.datasource.postgres.password}")
 	private String postgresPsw;
+	
+	@Value("${spring.jpa.database-platform.postgre}")
+	private String dialectPostGres;
+	
+	@Value("${spring.jpa.database-platform.postgis}")
+	private String dialectPostGis;
+	
+	private static final String url = "mongodb://localhost:27017";
+	private static final String db_name = "MinPathsDB";
 	
 	
 	@Bean
@@ -67,6 +80,9 @@ public class MainApplication {
 		HibernateJpaVendorAdapter vendorAdapter = new HibernateJpaVendorAdapter();
 		vendorAdapter.setDatabase(Database.POSTGRESQL);
 		vendorAdapter.setGenerateDdl(true);
+		vendorAdapter.setDatabasePlatform(dialectPostGres);
+		vendorAdapter.setDatabasePlatform(dialectPostGis);
+		
 		
 		LocalContainerEntityManagerFactoryBean factory = new LocalContainerEntityManagerFactoryBean();
 		
@@ -85,6 +101,18 @@ public class MainApplication {
 		return txManager;
 	}
 
+	@SuppressWarnings("resource")
+	@Bean
+	public MongoDatabase getMongoDB(){
+		
+		return new MongoClient(new MongoClientURI(url)).getDatabase(db_name);
+	}
+	
+	
+	
+	
+	
+	
 	private Connector createStandardConnector() {
 		Connector connector = new Connector("org.apache.coyote.http11.Http11NioProtocol");
 		connector.setPort(8080);
