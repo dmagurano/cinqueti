@@ -5,7 +5,11 @@ import java.util.List;
 import java.util.UUID;
 
 import javax.servlet.ServletContext;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
 
+import org.hibernate.validator.constraints.NotBlank;
+import org.hibernate.validator.constraints.NotEmpty;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
@@ -245,71 +249,76 @@ public class UserController {
     	
         return "profile";
     }
-    
+    /*
     @RequestMapping(value = "/change-nickname", method = RequestMethod.GET)
     public String changeNickname(Model model){
     	return "change-nickname";
     }
-    
+    */
     @RequestMapping(value = "/change-nickname", method = RequestMethod.POST)
     public String changeNickname(
     		@RequestParam(value = "new-nickname", required = true) String newNickname,
     		Model model){
     	
-    	if (newNickname.length() == 0){
-    		model.addAttribute("emptyNickname", true);
-    		return "change-nickname";
-    	}
-    	
     	User currentUser = userService.findByEmail(securityService.findLoggedInUsername());
     	
-    	if (newNickname.compareTo(currentUser.getNickname()) != 0){
-    		userService.updateUserNewNickname(currentUser, newNickname);
+    	if (newNickname.length() == 0){
+    		model.addAttribute("emptyNickname", true);
     	}
     	else{
-    		model.addAttribute("alreadyInUseNickname", true);
-    		// "redirect:change-nickname" does not show alert msg
-    		return "change-nickname";
-    	}
+	    	if (newNickname.compareTo(currentUser.getNickname()) == 0){
+	    		model.addAttribute("alreadyInUseNickname", true);
+	    	}
+	    	else{
+	    		userService.updateUserNewNickname(currentUser, newNickname);
+	    		
+	    		model.addAttribute("updatedNickname", true);
+	    	}
+	    }
     	
-    	return "redirect:profile";
+    	model.addAttribute("user", currentUser);
+    	
+    	return "profile";
     }
-    
+    /*
     @RequestMapping(value = "/change-password", method = RequestMethod.GET)
     public String changePassword(Model model){
     	return "change-password";
     }
-    
+    */
     @RequestMapping(value = "/change-password", method = RequestMethod.POST)
     public String changPassword(
     		@RequestParam(value = "old-password", required = true) String oldPassword,
     		@RequestParam(value = "new-password", required = true) String newPassword,
     		@RequestParam(value = "new-password-confirmed", required = true) String newPasswordConfirmed, 
     		Model model){
-
-    	if (newPassword.compareTo(newPasswordConfirmed) != 0){
-    		model.addAttribute("passwordsMismatch", true);
-    		return "change-password";
-    	}
-    	
-    	// TODO check old == new
-    	
-    	if (newPassword.length() < minPasswordLength){
-    		model.addAttribute("shortPassword", true);
-    		return "change-password";
-    	}
     	
     	User currentUser = userService.findByEmail(securityService.findLoggedInUsername());
     	
-    	if (!userService.checkPassword(currentUser, oldPassword)){
+    	if (oldPassword.length() == 0 || newPassword.length() == 0 || newPasswordConfirmed.length() == 0){
+    		model.addAttribute("emptyPassword", true);
+    	}
+    	else if (newPassword.compareTo(newPasswordConfirmed) != 0){
+    		model.addAttribute("mismatchPassword", true);
+    	}
+    	else if (newPassword.length() < minPasswordLength){
+	    	model.addAttribute("shortPassword", true);
+    	}
+    	else if (!userService.checkPassword(currentUser, oldPassword)){
     		model.addAttribute("wrongOldPassword", true);
-    		return "change-password";
+    	}
+    	else if (oldPassword.compareTo(newPassword) == 0){
+    		model.addAttribute("samePassword", true);
+    	}
+    	else{
+	    	userService.updateUserNewPassword(currentUser, newPassword);
+	    	
+	    	model.addAttribute("updatedPassword", true);
     	}
     	
-    	userService.updateUserNewPassword(currentUser, newPassword);
-    	model.addAttribute("passwordUpdated");
+    	model.addAttribute("user", currentUser);
     	
-    	return "redirect:profile";
+    	return "profile";
     }
     
     private boolean registerNewUser(User user){
