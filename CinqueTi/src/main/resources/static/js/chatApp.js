@@ -1,7 +1,7 @@
 var stompClient = null;
 var whoami = null;
 var alert = {};
-var types = ['cantiere', 'incidente', 'incendio', 'altro', 'Davide, we are watching you'];
+var types = ['cantiere', 'incidente', 'incendio', 'altro'];
 var alerts = [];
 var reference = false;
 
