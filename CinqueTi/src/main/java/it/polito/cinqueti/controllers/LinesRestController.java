@@ -21,12 +21,15 @@ import static org.springframework.hateoas.mvc.ControllerLinkBuilder.linkTo;
 import static org.springframework.hateoas.mvc.ControllerLinkBuilder.methodOn;
 
 import it.polito.cinqueti.entities.BusLine;
+import it.polito.cinqueti.entities.BusLineStop;
+import it.polito.cinqueti.entities.BusStop;
 import it.polito.cinqueti.entities.Edge;
 import it.polito.cinqueti.entities.Message;
 import it.polito.cinqueti.entities.MinPath;
 import it.polito.cinqueti.entities.Topic;
 import it.polito.cinqueti.entities.User;
 import it.polito.cinqueti.errorhandlers.ResourceNotFoundException;
+import it.polito.cinqueti.services.BusStopService;
 import it.polito.cinqueti.services.LineService;
 import it.polito.cinqueti.services.MessageService;
 import it.polito.cinqueti.services.PathService;
@@ -38,6 +41,9 @@ public class LinesRestController {
 	
 	@Autowired
 	private LineService lineService;
+	
+	@Autowired
+	private BusStopService busService;
 	
 	@Autowired
 	private PathService pathService;
@@ -65,6 +71,13 @@ public class LinesRestController {
 		return lineService.findAll();
 	}
 	
+	@RequestMapping(value="/rest/stops", method=RequestMethod.GET)
+	public List<BusStop> getStps()
+	{	
+		
+		return busService.findAll();
+	}
+	
 	
 	// method used to retrieve the single line details
 	@RequestMapping(value="/rest/lines/{id}", method=RequestMethod.GET)
@@ -78,6 +91,25 @@ public class LinesRestController {
 			
 		return line;
 	}
+	
+	//used for getting bus lines of stop. Return only the ids of lines
+	@RequestMapping(value="/rest/stops/{id}", method=RequestMethod.GET)
+	public  List<String> getLinesForStop(@PathVariable String id)
+	{	
+		//Control if the resource with the passed id is present
+		
+		List<BusLineStop> busStopLines = busService.findById(id).getBusLines();
+		if(busStopLines == null)
+			throw new ResourceNotFoundException(id, "stop lines");
+		
+		List<String> lines = new ArrayList<String>();
+		for(BusLineStop bls : busStopLines){
+			lines.add(bls.getBusLine().getLine());
+		}
+			
+		return lines;
+	}
+	
 	
 	// method used to retrieve the best path from source to destination
 	@RequestMapping(value="/rest/path/", method=RequestMethod.GET)

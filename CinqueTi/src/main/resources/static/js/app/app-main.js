@@ -3,7 +3,26 @@ app.controller('MainCtrl', [ '$scope', 'LinesDataProvider', 'leafletBoundsHelper
 
         this.lineID = $routeParams.lineID;
 
-        this.lines = LinesDataProvider.load();
+        var self = this;
+
+        /*
+        //to resolve the problem to avoid to download again the lines
+        if($routeParams.lineID == null){
+
+            LinesDataProvider.lines_request().then(
+                function(res){
+                    self.lines = res;
+                });
+
+        }else
+            this.lines = window.localStorage.getItem('lines');
+        */
+
+        LinesDataProvider.lines_request().then(
+            function(res){
+                self.lines = res;
+            });
+
 
         // updates route
         this.goToLink = function(line) {
@@ -28,35 +47,60 @@ app.controller('MainCtrl', [ '$scope', 'LinesDataProvider', 'leafletBoundsHelper
         } else {
             $scope.center = { lat: 45.07,
                          lng: 7.69,
-                         zoom: 13 
+                         zoom: 13
                      }
         };
 
         $scope.$on('leafletDirectiveMarker.click', function(e, args) {
             clickedBusStopId = args.model.id;
 
-            var busStopLines = LinesDataProvider.queryBusStop(clickedBusStopId);
+                LinesDataProvider.queryBusStop.query({stop: clickedBusStopId},function(busStopLines){
 
-            var busStopLinesHTML = "<br>Other lines:";
-            angular.forEach(busStopLines, function(value, key){
-                busStopLinesHTML += "<br>"+value;
+                var busStopLinesHTML = "<br>Other lines:";
+                angular.forEach(busStopLines, function(value, key){
+                    busStopLinesHTML += "<br>"+value;
+                });
+
+                var popup = args.leafletObject._popup;
+
+                popup.setContent("Bus stop: <strong>" + clickedBusStopId + "</strong>" + busStopLinesHTML);
+
             });
 
-            var popup = args.leafletObject._popup;
 
-            popup.setContent("Bus stop: <strong>" + $routeParams.lineID + "</strong>" + busStopLinesHTML);
         });
     }
 ]);
 
-app.factory('LinesDataProvider', ['Linee', '$filter',
-    function (linee,$filter) {
+app.factory('LinesDataProvider', ['$resource', '$filter',
+    function ($resource,$filter) {
+
+        var lines_resource = $resource('/rest/lines/');
+        var lines = {};
+
+        var stops = {};
+        var stops_resource = $resource('/rest/stops/').query(function(data){
+            stops = data;
+        });
+
+        var stop_lines = $resource('/rest/stops/:stop');
+
         return {
-            load : function () { return linee.lines; },
+            lines_request : function(){
+                var data = lines_resource.query().$promise.then(function(d){
+                    lines = d;
+                    //window.localStorage.setItem('lines',angular.toJson(d));
+                    return lines;
+                }).catch(function(error){
+                    lines = error; //TODO gestire errore
+                });
+                return data;
+            },
+
             query : function (id) {
-                for (var i=0; i < linee.lines.length; i++ ) {
-                    if (linee.lines[i].line == id)
-                        return linee.lines[i].stops;
+                for (var i=0; i < lines.length; i++ ) {
+                    if (lines[i].line == id)
+                        return lines[i].busStops;
                 }
             },
             loadPath : function (id) {
@@ -94,7 +138,8 @@ app.factory('LinesDataProvider', ['Linee', '$filter',
                 this.query(id).forEach( function (stop) {
                     var point = new Object();
 
-                    var stop = $filter('filter')(linee.stops, function (s) {return s.id === stop;})[0];
+                    var stop = $filter('filter')(stops, function (s) {
+                        return s.id === stop.busStop.id;})[0];
 
                     if ( firstElement ){
                         firstBusId = stop.id;
@@ -108,9 +153,9 @@ app.factory('LinesDataProvider', ['Linee', '$filter',
                             lastProcessedBusId = stop.id;
                     }
 
-                    point.lat = stop.latLng[0];
-                    point.lng = stop.latLng[1];
-                    
+                    point.lat = stop.lat;
+                    point.lng = stop.lng;
+
                     if (requestedDirection === "all"){
                         if (direction === "going"){
                             paths.going_path.latlngs.push(point);
@@ -123,7 +168,7 @@ app.factory('LinesDataProvider', ['Linee', '$filter',
                         if (requestedDirection === "going" && direction === "going"){
                             paths.going_path.latlngs.push(point);
                         }
-                        
+
                         if (requestedDirection === "return" && direction === "return"){
                             paths.return_path.latlngs.push(point);
                         }
@@ -132,7 +177,7 @@ app.factory('LinesDataProvider', ['Linee', '$filter',
                     if (point.lat < min_lat)
                         min_lat = point.lat;
                     if (point.lat > max_lat)
-                        max_lat = point.lat;                                
+                        max_lat = point.lat;
                     if (point.lng < min_lng)
                         min_lng = point.lng;
                     if (point.lng > max_lng)
@@ -176,12 +221,7 @@ app.factory('LinesDataProvider', ['Linee', '$filter',
 
                 return PathInfo;
             },
-            queryBusStop : function (id) {
-                for (var i=0; i < linee.stops.length; i++ ) {
-                    if (linee.stops[i].id == id)
-                        return linee.stops[i].lines;
-                }
-            }
+            queryBusStop : stop_lines
         };
     }
 ]);
