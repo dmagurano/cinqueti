@@ -151,7 +151,6 @@ app.controller('chatCtrl', ['$scope', '$location', '$interval', 'ChatSocket', '$
                 var location = matches[1]; //get the tag string
                 $scope.newAlert.searchOff = true;
                 AddressResolver.query({location: location}, function(addresses) {
-                    //TODO turin results search done by server
                     //TODO multiple results
                     var address = addresses[0];
 
@@ -396,7 +395,8 @@ app.directive('chatAlert', function($compile, $timeout) {
 });
 
 app.factory('AddressResolver', ['$resource', function ($resource) {
-    return $resource('https://nominatim.openstreetmap.org/search?q=:location,torino&format=json');
+    //return $resource('https://nominatim.openstreetmap.org/search?q=:location,torino&format=json');
+	return $resource('/rest/address?address=:location');
 }]);
 
 app.factory('ChatSocket', ['$rootScope', function($rootScope) {

@@ -29,6 +29,7 @@ import it.polito.cinqueti.entities.MinPath;
 import it.polito.cinqueti.entities.Topic;
 import it.polito.cinqueti.entities.User;
 import it.polito.cinqueti.errorhandlers.ResourceNotFoundException;
+import it.polito.cinqueti.entities.OSMDecodedAddress;
 import it.polito.cinqueti.services.BusStopService;
 import it.polito.cinqueti.services.LineService;
 import it.polito.cinqueti.services.MessageService;
@@ -119,5 +120,11 @@ public class LinesRestController {
 	{
 		return pathService.getPath(45.067397, 7.646947, 45.062079, 7.678479);
 		
+	}
+	
+	@RequestMapping(value="/rest/address", method=RequestMethod.GET)
+	public List<OSMDecodedAddress> getAddresses(@RequestParam String address)
+	{
+		return lineService.getAddressInformation(address);
 	}
 }
