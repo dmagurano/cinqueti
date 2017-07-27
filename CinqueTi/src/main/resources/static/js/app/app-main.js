@@ -1,27 +1,27 @@
-app.controller('MainCtrl', [ '$scope', 'LinesDataProvider', 'leafletBoundsHelpers', '$routeParams', '$location',
-    function ($scope, LinesDataProvider, leafletBoundsHelpers, $routeParams, $location) {
+app.controller('MainCtrl', [ '$scope', 'LinesDataProvider', 'leafletBoundsHelpers', '$routeParams', '$location', 'linesCache',
+    function ($scope, LinesDataProvider, leafletBoundsHelpers, $routeParams, $location, linesCache) {
 
         this.lineID = $routeParams.lineID;
 
         var self = this;
 
-        /*
-        //to resolve the problem to avoid to download again the lines
-        if($routeParams.lineID == null){
+
+        //Use cache to store the lines when they are downloaded. This to avoid to download
+        // them again when the view changes
+
+        var cache = linesCache;
+
+
+        if(angular.isUndefined(cache.get('lines'))){
 
             LinesDataProvider.lines_request().then(
                 function(res){
                     self.lines = res;
+                    cache.put('lines',res);
                 });
-
         }else
-            this.lines = window.localStorage.getItem('lines');
-        */
+            this.lines = cache.get('lines');
 
-        LinesDataProvider.lines_request().then(
-            function(res){
-                self.lines = res;
-            });
 
 
         // updates route
@@ -89,7 +89,6 @@ app.factory('LinesDataProvider', ['$resource', '$filter',
             lines_request : function(){
                 var data = lines_resource.query().$promise.then(function(d){
                     lines = d;
-                    //window.localStorage.setItem('lines',angular.toJson(d));
                     return lines;
                 }).catch(function(error){
                     lines = error; //TODO gestire errore

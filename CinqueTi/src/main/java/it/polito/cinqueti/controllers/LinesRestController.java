@@ -105,7 +105,11 @@ public class LinesRestController {
 		
 		List<String> lines = new ArrayList<String>();
 		for(BusLineStop bls : busStopLines){
-			lines.add(bls.getBusLine().getLine());
+			
+			//Do not consider duplicates(forward,backward). Example line 4
+			//{stop: 248 sequence number 21, stop: 248 sequence number 61}
+			if(!lines.contains(bls.getBusLine().getLine()))
+				lines.add(bls.getBusLine().getLine());
 		}
 			
 		return lines;
