@@ -1,6 +1,8 @@
 app.controller('MainCtrl', [ '$scope', 'LinesDataProvider', 'leafletBoundsHelpers', '$routeParams', '$location', 'linesCache',
     function ($scope, LinesDataProvider, leafletBoundsHelpers, $routeParams, $location, linesCache) {
 
+        document.getElementById("direction-buttons").style.visibility = "hidden";
+
         this.lineID = $routeParams.lineID;
 
         var self = this;
@@ -40,10 +42,12 @@ app.controller('MainCtrl', [ '$scope', 'LinesDataProvider', 'leafletBoundsHelper
         });
 
         if ($routeParams.lineID) {
-            var PathInfo = LinesDataProvider.loadPath($routeParams.lineID);
+
+            var PathInfo = LinesDataProvider.loadPath($routeParams.lineID,'all');
             $scope.paths = PathInfo.paths;
             $scope.markers = PathInfo.markers;
             $scope.bounds = leafletBoundsHelpers.createBoundsFromArray(PathInfo.bounds);
+            document.getElementById("direction-buttons").style.visibility = "visible";
         } else {
             $scope.center = { lat: 45.07,
                          lng: 7.69,
@@ -69,6 +73,22 @@ app.controller('MainCtrl', [ '$scope', 'LinesDataProvider', 'leafletBoundsHelper
 
 
         });
+
+
+        $scope.buttonClick = function(direction){
+
+            /*//Clear map
+            $scope.paths = {};
+            $scope.markers = {};*/
+
+            var PathInfo = LinesDataProvider.loadPath($routeParams.lineID,direction);
+            $scope.paths = PathInfo.paths;
+            $scope.markers = PathInfo.markers;
+            $scope.bounds = leafletBoundsHelpers.createBoundsFromArray(PathInfo.bounds);
+
+        }
+
+
     }
 ]);
 
@@ -102,15 +122,17 @@ app.factory('LinesDataProvider', ['$resource', '$filter',
                         return lines[i].busStops;
                 }
             },
-            loadPath : function (id) {
+            loadPath : function (id,reqDir) {
                 var PathInfo = new Object();
 
                 var direction = "going";
-                var requestedDirection = "all";
+                var requestedDirection = reqDir;
                 var goingPhase = true;
                 var firstElement = true;
                 var firstBusId;
                 var lastProcessedBusId;
+                var end = false;
+
 
                 var max_lat,max_lng,min_lat,min_lng;
                 min_lat = 90; max_lat = -90; min_lng = 180; max_lng = -180;
@@ -134,7 +156,14 @@ app.factory('LinesDataProvider', ['$resource', '$filter',
 
                 var markers = {};
 
-                this.query(id).forEach( function (stop) {
+                var stops_res = this.query(id);
+
+                for(var i = 0; i<stops_res.length; i++){
+
+                    if(end && requestedDirection === 'going')
+                        break;
+
+                    var stop = stops_res[i];
                     var point = new Object();
 
                     var stop = $filter('filter')(stops, function (s) {
@@ -146,8 +175,13 @@ app.factory('LinesDataProvider', ['$resource', '$filter',
                         firstElement = false;
                     }
                     else{
-                        if (stop.id === lastProcessedBusId)
+                        if (stop.id === lastProcessedBusId){
                             direction = "return";
+                            end = true;
+                            if(requestedDirection === "return")
+                                markers = {}; //empty markers in order to consider going stops
+                        }
+
                         else
                             lastProcessedBusId = stop.id;
                     }
@@ -207,7 +241,9 @@ app.factory('LinesDataProvider', ['$resource', '$filter',
                     }
 
                     markers["busStop"+stop.id] = marker;
-                });
+                }
+
+
 
                 PathInfo.bounds = [
                                     [max_lat, max_lng],
