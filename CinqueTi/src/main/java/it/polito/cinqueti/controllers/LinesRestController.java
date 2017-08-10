@@ -117,12 +117,16 @@ public class LinesRestController {
 	
 	
 	// method used to retrieve the best path from source to destination
-	@RequestMapping(value="/rest/path/", method=RequestMethod.GET)
+	@RequestMapping(value="/rest/path", method=RequestMethod.GET)
 	public List<Edge> getPath(
-			/*@RequestParam("src") String src,
-			@RequestParam("dst") String dst*/)
+			@RequestParam("srcLat") Double srcLat,
+			@RequestParam("srcLong") Double srcLong,
+			@RequestParam("dstLat") Double dstLat,
+			@RequestParam("dstLong") Double dstLong)
 	{
-		return pathService.getPath(45.067397, 7.646947, 45.062079, 7.678479);
+		//return pathService.getPath(45.067397, 7.646947, 45.062079, 7.678479);
+		
+		return pathService.getPath(srcLat, srcLong, dstLat, dstLong);
 		
 	}
 	

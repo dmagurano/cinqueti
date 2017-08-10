@@ -1,15 +1,36 @@
 <div class="col-lg-5">
-    <h3>Insert search parameter</h3>
+    <h3>Dove vuoi andare?</h3>
+    <style>
+        .legend {
+            padding: 6px 8px;
+            width: 100px;
+            font: 14px/16px Arial, Helvetica, sans-serif;
+            box-shadow: 0 0 15px rgba(0,0,0,0.2);
+            background: rgba(255,255,255, 0.9);
+            line-height: 18px;
+            border-radius: 5px;
+            color: #555;
+        }
 
+        .legend i {
+            color: #777;
+            width: 18px;
+            height: 18px;
+            float: left;
+            margin-right: 8px;
+            opacity: 0.7;
+        }
+
+    </style>
     <div>
         <form id="search-form">
             <div class="input-group">
-                <span class="input-group-addon">Source</span>
+                <span class="input-group-addon">Partenza</span>
                 <input ng-model="ctrl.source" type="text" class="form-control" placeholder="Source" aria-describedby="basic-addon1">
             </div>
             <br>
             <div class="input-group">
-                <span class="input-group-addon">Destination</span>
+                <span class="input-group-addon">Arrivo</span>
                 <input ng-model="ctrl.destination" type="text" class="form-control" placeholder="Destination" aria-describedby="basic-addon1">
             </div>
             <br>
@@ -18,12 +39,12 @@
 
         <div style="margin-top: 20px" class="panel panel-default" ng-hide="pathDetailsVisibility">
             <div class="panel-heading">
-                <h3 style="text-align: center" class="panel-title" >Path details</h3>
+                <h3 style="text-align: center" class="panel-title" >Dettagli del percorso</h3>
             </div>
             <div class="panel-body">
                 <table class="table table-hover table-striped" id="path">
                     <tbody>
-                    <tr ng-repeat="path in pathDetails"><td>{{path.cost}} m</td><td ng-if="path.mode">Walking</td><td ng-if="!path.mode">{{path.edgeLine}}</td></tr>
+                    <tr ng-repeat="path in pathDetails"><td>{{path.cost}} m</td><td ng-if="path.mode"><img src="https://icons.iconarchive.com/icons/icons8/windows-8/24/Sports-Walking-icon.png"></td><td ng-if="!path.mode"><img src="https://icons.iconarchive.com/icons/fasticon/happy-bus/24/bus-blue-icon.png">{{path.edgeLine}}</img></td></tr>
                     </tbody>
                 </table>
             </div>
@@ -51,5 +72,5 @@
 </div>
 
 <div class="col-lg-7">
-    <leaflet lf-center="turin" defaults="defaults" paths="paths" bounds="bounds" height="480px"></leaflet>
+    <leaflet lf-center="turin" defaults="defaults" bounds="bounds" paths="paths" markers="markers" legend="legend" height="480px"></leaflet>
 </div>
