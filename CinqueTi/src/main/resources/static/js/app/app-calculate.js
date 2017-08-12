@@ -24,16 +24,21 @@ app.controller('CalculateController', ['$scope', 'PathsDataProvider', 'leafletBo
         this.calculate = function(){
 
             //Use Nominatim service to get lat and long for the address
-            var pathPrefix = "https://nominatim.openstreetmap.org/search?q=";
+            //var pathPrefix = "https://nominatim.openstreetmap.org/search?q=";
+
+            //Use ArcGis service to get lat ando long for the address
+            var pathPrefix = "https://geocode.arcgis.com/arcgis/rest/services/World/GeocodeServer/findAddressCandidates?SingleLine=";
+
 
             //build source query by replacing space for +
-            var src_addr = this.source.replace(/ /g, "+");
+            var src_addr = $scope.source.replace(/ /g, "+");
 
-            //build source query by replacing space for +
-            var dst_addr = this.destination.replace(/ /g, "+");
 
-            PathsDataProvider.setSource(pathPrefix+src_addr+"+Torino&format=json");  //add Nominatim suffix
-            PathsDataProvider.setDestination(pathPrefix+dst_addr+"+Torino&format=json");
+            //build destination query by replacing space for +
+            var dst_addr = $scope.destination.replace(/ /g, "+");
+
+            PathsDataProvider.setSource(pathPrefix+src_addr+",+Torino,+IT&category=&outFields=*&forStorage=false&f=pjson");  //add ArcGis suffix
+            PathsDataProvider.setDestination(pathPrefix+dst_addr+",+Torino,+IT&category=&outFields=*&forStorage=false&f=pjson");
 
 
             //var self = this;
@@ -55,6 +60,21 @@ app.controller('CalculateController', ['$scope', 'PathsDataProvider', 'leafletBo
 
         }
 
+        //Use to show suggestions while user typing a character, contacting the arcgis service
+        $scope.getSrcSuggestions = function(){
+             PathsDataProvider.getSuggestions($scope.source.replace(/ /g,"%2C")).then(function(sugs){
+
+                 $scope.srcSuggestions = sugs;
+             })
+        }
+
+        //Use to show suggestions while user typing a character, contacting the arcgis service
+        $scope.getDstSuggestions = function(){
+            PathsDataProvider.getSuggestions($scope.destination.replace(/ /g,"%2C")).then(function(sugs){
+
+                $scope.dstSuggestions = sugs;
+            })
+        }
 
     }
 ]);
@@ -65,6 +85,26 @@ app.factory('PathsDataProvider', [ '$http', '$window',
         var source,destination;
 
         var currentPath = [];
+
+
+        function getSuggestions(srcAddress){
+            console.log("CIAO:: "+srcAddress);
+            return $http.get("https://geocode.arcgis.com/arcgis/rest/services/World/GeocodeServer/suggest?text=Torino,"+srcAddress+"&f=pjson&sourceCountry=ITA").then(
+                function(resp){
+
+                    var data = resp.data.suggestions;
+                    var suggestions = [];
+                    for(var i = 0; i < data.length; i++){
+                        suggestions.push(data[i].text);
+                    }
+                    return suggestions;
+                }).catch(function(){
+
+                    //TODO handle error
+            });
+
+            //return ['red','yellow','white'];
+        }
 
 
         return {
@@ -98,8 +138,8 @@ app.factory('PathsDataProvider', [ '$http', '$window',
 
                         //Get only first element
 
-                        srcLat = srcData.data[0].lat;
-                        srcLong = srcData.data[0].lon;
+                        srcLat = srcData.data.candidates[0].location.y;
+                        srcLong = srcData.data.candidates[0].location.x;
                         
                         return $http.get(destination);
                     }
@@ -121,8 +161,8 @@ app.factory('PathsDataProvider', [ '$http', '$window',
 
                         //Parse response to get destination lat and long
 
-                        dstLat = dstData.data[0].lat;
-                        dstLong = dstData.data[0].lon;
+                        dstLat = dstData.data.candidates[0].location.y;
+                        dstLong = dstData.data.candidates[0].location.x;
 
                         //Request best path
 
@@ -316,7 +356,11 @@ app.factory('PathsDataProvider', [ '$http', '$window',
                 });
 
 
-            }
+            },
+
+            getSuggestions: getSuggestions
+
+
         };
     }
 ]);

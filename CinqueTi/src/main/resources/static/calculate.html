@@ -25,13 +25,19 @@
     <div>
         <form id="search-form">
             <div class="input-group">
-                <span class="input-group-addon">Partenza</span>
-                <input ng-model="ctrl.source" type="text" class="form-control" placeholder="Source" aria-describedby="basic-addon1">
+                <span class="input-group-addon"><img src="http://icons.iconarchive.com/icons/everaldo/crystal-clear/72/Action-flag-icon.png" width="20px"> Partenza</span>
+                <input ng-model="source" list="srcSuggestions" ng-change="getSrcSuggestions()" type="text" class="form-control" placeholder="Source" aria-describedby="basic-addon1">
+                <datalist id="srcSuggestions">
+                    <option ng-repeat="srcSuggestion in srcSuggestions" value="{{srcSuggestion}}">
+                </datalist>
             </div>
             <br>
             <div class="input-group">
-                <span class="input-group-addon">Arrivo</span>
-                <input ng-model="ctrl.destination" type="text" class="form-control" placeholder="Destination" aria-describedby="basic-addon1">
+                <span class="input-group-addon"><img src="http://icons.iconarchive.com/icons/icons8/ios7/32/Sports-Finish-Flag-icon.png" width="20px"> Arrivo</span>
+                <input ng-model="destination" list="dstSuggestions" ng-change="getDstSuggestions()" type="text" class="form-control" placeholder="Destination" aria-describedby="basic-addon1">
+                <datalist id="dstSuggestions">
+                    <option ng-repeat="dstSuggestion in dstSuggestions" value="{{dstSuggestion}}">
+                </datalist>
             </div>
             <br>
             <button ng-click="ctrl.calculate()" type="button" class="btn btn-default btn-block">Search</button>
