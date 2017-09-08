@@ -235,13 +235,15 @@ app.controller('chatCtrl', ['$scope', '$location', '$interval', 'ChatSocket', '$
                     var alertsArray = JSON.parse(alertsArr.body);
                     alertsArray.forEach(function(alert) {
                         $scope.alerts[alert.id] = alert;
+                        //extract the icon name starting from the alert type position in alertTypes array
+                        var alertIcon = "" + $scope.alertTypes.indexOf(alert.type) + ".png"
                         $scope.markers.push({
                             getMessageScope: function() {return $scope; },
                             icon: {
-                                iconUrl: '../assets/leaf-orange.png',
-                                shadowUrl: '../assets/leaf-shadow.png',
-                                iconSize:     [19, 47],
-                                shadowSize:   [25, 32]},
+                                iconUrl: '../assets/alert-markers/' + alertIcon,
+                                //shadowUrl: '../assets/leaf-shadow.png',
+                                iconSize:     [32, 32],
+                                shadowSize:   [0, 0]},
                             lat: alert.lat,
                             lng: alert.lng,
                             message: '<chat-alert alert="alerts[\'' + alert.id +'\']" quote="quote(id)" submit="sendRate(id,rate)"></chat-alert>'
@@ -253,8 +255,15 @@ app.controller('chatCtrl', ['$scope', '$location', '$interval', 'ChatSocket', '$
                 chatSocket.subscribe('/topic/chat/alerts', function (alertMessage) {
                     var alert = (JSON.parse(alertMessage.body));
                     $scope.alerts[alert.id] = alert;
+                    //extract the icon name starting from the alert type position in alertTypes array
+                    var alertIcon = "" + $scope.alertTypes.indexOf(alert.type) + ".png"
                     $scope.markers.push({
                         getMessageScope: function() {return $scope; },
+                        icon: {
+                            iconUrl: '../assets/alert-markers/' + alertIcon,
+                            //shadowUrl: '../assets/leaf-shadow.png',
+                            iconSize:     [32, 32],
+                            shadowSize:   [0, 0]},
                         lat: alert.lat,
                         lng: alert.lng,
                         message: '<chat-alert alert="alerts[\'' + alert.id +'\']" quote="quote(id)" submit="sendRate(id,rate)"></chat-alert>'

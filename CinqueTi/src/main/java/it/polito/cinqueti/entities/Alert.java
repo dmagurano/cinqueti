@@ -14,18 +14,36 @@ public class Alert {
 	private Double lat;
 	private Double lng;
 	private List<Rate> rates;
-	private Date timestamp;
+	private Date recvTimestamp;
+	private Date lastAccessTimestamp;
 	private String userEmail;
 	private String nickname;
 	private String address;
 
 	private String type;
 	
+	public Alert() {
+		this.rates = new ArrayList<Rate>();
+	}
+	
 	public Alert(Double lat, Double lng, String address, Date timestamp, String userEmail, String nickname, String type) {
 		this.lat = lat;
 		this.lng = lng;
 		this.address = address;
-		this.timestamp = timestamp;
+		this.recvTimestamp = timestamp;
+		this.lastAccessTimestamp = timestamp;
+		this.userEmail = userEmail;
+		this.nickname = nickname;
+		this.type = type;
+		this.rates = new ArrayList<Rate>();
+	}
+	
+	public Alert(Double lat, Double lng, String address, Date start, Date access, String userEmail, String nickname, String type) {
+		this.lat = lat;
+		this.lng = lng;
+		this.address = address;
+		this.recvTimestamp = start;
+		this.lastAccessTimestamp = access;
 		this.userEmail = userEmail;
 		this.nickname = nickname;
 		this.type = type;
@@ -48,12 +66,24 @@ public class Alert {
 		this.lng = lng;
 	}
 	
-	public Date getTimestamp() {
-		return timestamp;
+	public Date getRecvTimestamp() {
+		return recvTimestamp;
 	}
 	
-	public void setTimestamp(Date timestamp) {
-		this.timestamp = timestamp;
+	public void setRecvTimestamp(Date timestamp) {
+		this.recvTimestamp = timestamp;
+	}
+	
+	public Date getLastAccessTimestamp() {
+		return lastAccessTimestamp;
+	}
+
+	public void setLastAccessTimestamp(Date lastAccess) {
+		this.lastAccessTimestamp = lastAccess;
+	}
+	
+	public void setLastAccess() {
+		this.lastAccessTimestamp = new Date();
 	}
 	
 	public String getUserEmail() {
