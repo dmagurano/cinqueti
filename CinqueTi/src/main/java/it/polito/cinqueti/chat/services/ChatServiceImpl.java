@@ -61,10 +61,10 @@ public class ChatServiceImpl implements ChatService {
 		
 	    // TODO purge alert from message
 		Alert alert = msg.extractAlert();
-		
 		if (alert != null){
+			// save the alert into the db
 			alertRepository.save(alert);
-
+			// the alert object has been updated: it contains the alertId assigned by mongo
 			messagingTemplate.convertAndSend(alertTopic, alert);
 		}
 	    
@@ -73,7 +73,11 @@ public class ChatServiceImpl implements ChatService {
 	    if (msg.getAlertId() != null)	// reference to existing alert
 	    	mess.setAlertId(msg.getAlertId());
 	    else if (alert != null)	// 	new alert
+	    {
+	    	// update the references with the id assigned by mongo
 	    	mess.setAlertId(alert.getId());
+	    	msg.setAlertId(alert.getId());
+	    }
 	    
 	    messageRepo.save(mess);
 	    
@@ -110,9 +114,15 @@ public class ChatServiceImpl implements ChatService {
 			  .setMessage(m.getText())
 			  .setNickname(m.getNickname())
 			  .setUsername(m.getUserEmail());
-			  return cm;
+			if (alertRepository.findById(m.getAlertId()) != null)
+				cm.setAlertId(m.getAlertId());
+			return cm;
 		}).collect(Collectors.toList());
 		
+		for (ChatMessage msg: chmsgs)
+		{
+			
+		}
 		messagingTemplate.convertAndSendToUser(user, chatMessagesList, chmsgs);
 				
 //		// Generate an iterator. Start just after the last element.

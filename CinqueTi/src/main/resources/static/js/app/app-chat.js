@@ -22,8 +22,8 @@ app.controller('HeaderCtrl', [ '$scope', '$location',
         }
 }]);
 
-app.controller('chatCtrl', ['$scope', '$location', '$interval', 'ChatSocket', '$routeParams', 'AddressResolver',
-	function($scope, $location, $interval, chatSocket,$routeParams, AddressResolver) {
+app.controller('chatCtrl', ['$scope', '$location', '$interval', 'ChatSocket', '$routeParams', 'AddressResolver', 'ToolsResolver',
+	function($scope, $location, $interval, chatSocket,$routeParams, AddressResolver, ToolsResolver) {
         angular.extend($scope, {
             turin: {
                 lat: 45.07,
@@ -46,7 +46,8 @@ app.controller('chatCtrl', ['$scope', '$location', '$interval', 'ChatSocket', '$
         $scope.newMessage   = '';
 
         $scope.alerts       = [];
-        $scope.alertTypes   = ['cantiere', 'incidente', 'incendio', 'altro']; //TODO move on server side?
+        //$scope.alertTypes   = ['cantiere', 'incidente', 'incendio', 'altro']; //TODO move on server side?
+        $scope.alertTypes   = ToolsResolver.alertTypes;
         $scope.topic = $routeParams.topic;
         // alert input monitor variables
         $scope.newAlert     = {
@@ -199,7 +200,7 @@ app.controller('chatCtrl', ['$scope', '$location', '$interval', 'ChatSocket', '$
         $scope.enterKeyListener = function(keyEvent) {
         	if (keyEvent.which === 13)
         	   $scope.sendMessage();
-        };        
+        };
             
         var initStompClient = function() {
             chatSocket.init('/transportsChat');
@@ -217,7 +218,7 @@ app.controller('chatCtrl', ['$scope', '$location', '$interval', 'ChatSocket', '$
                     var message = (JSON.parse(mess.body)); 
                     var date = new Date(message.date);
                     message.date = isToday(date) ? date.toLocaleTimeString() : date.toLocaleString();
-                    $scope.messages.push(message);   
+                    $scope.messages.push(message);
                 });
 
                     /* to retrieve last messages */
@@ -226,7 +227,7 @@ app.controller('chatCtrl', ['$scope', '$location', '$interval', 'ChatSocket', '$
                      messageA.forEach(function(message) {
                         var date = new Date(message.date);
                         message.date = isToday(date) ? date.toLocaleTimeString() : date.toLocaleString();
-                        $scope.messages.push(message);   
+                        $scope.messages.push(message);
                     });
                 });
 
@@ -330,35 +331,69 @@ function printDateTime(timestamp){
     var formattedTime = day + "." + month + "." + year + " " + hours + ':' + minutes.substr(-2) + ':' + seconds.substr(-2);
 
     return formattedTime;
-}
+};
+
+function formatChatMessage1(textMsg) {
+    //textMsg = textMsg.replace("[", "<span class=\"label label-info\">");
+    //textMsg = textMsg.replace("]", "</span>");
+    textMsg = textMsg.replace("[", "<b>");
+    textMsg = textMsg.replace("]", "</b>");
+
+    return textMsg;
+};
 
 app.directive('chatMessage', function($compile, $timeout) {
 
-	var sent = 		'<li class="left clearfix admin_chat"><span class="chat-img1 pull-right"><img src="https://scontent-mxp1-1.xx.fbcdn.net/v/t1.0-9/995179_496393017119212_1942402182_n.jpg?oh=931db49c4f4f7c905efde31e3371f592&oe=59E4426F" alt="User Avatar" class="img-circle"/></span><div class="chat-body2 clearfix"><p>'+
-					 	'{{message.message}}'+
-					 	'</p><div class="chat_time pull-left">{{message.date}}</div></div></li>';
+	var sent = 		'<li class="left clearfix admin_chat"><span class="chat-img1 pull-right"><img src="https://scontent-mxp1-1.xx.fbcdn.net/v/t1.0-9/995179_496393017119212_1942402182_n.jpg?oh=931db49c4f4f7c905efde31e3371f592&oe=59E4426F" alt="User Avatar" class="img-circle"/></span>' +
+                    '<div class="chat-body2 clearfix" ng-switch on="message.alertId">' +
+                    '<p ng-switch-when="null" ng-bind-html="formatChatMessageOldAlert(message.message)">'+'</p>'+
+                    //'<p ng-switch-default>ok'+'{{formatChatMessage(message.message)}}'+'</p>'+
+                    '<p ng-switch-default ng-bind-html="formatChatMessage(message.message)">'+'</p>'+
+                    '<div class="chat_time pull-left">{{message.date}}</div></div></li>';
 	  
 	var received = 	'<li class="left clearfix"><span class="chat-img1 pull-left"><img src="http://icons.iconarchive.com/icons/custom-icon-design/pretty-office-8/128/User-blue-icon.png" alt="User Avatar" class="img-circle"/></span>'+
-					    '<div class="chat-nickname">'+
-					    '{{message.nickname}}'+
-					    '</div><div class="chat-body1 clearfix"><p>'+
-					    '{{message.message}}'+
-					    '</p><div class="chat_time pull-right">{{message.date}}</div></div></li>';
+					'<div class="chat-nickname">'+'{{message.nickname}}'+'</div>' +
+                    '<div class="chat-body1 clearfix" ng-switch on="message.alertId">'+
+                        '<p ng-switch-when="null" ng-bind-html="formatChatMessageOldAlert(message.message)">'+'</p>'+
+                        '<p ng-switch-default ng-bind-html="formatChatMessage(message.message)">'+'</p>'+
+                        '<div class="chat_time pull-right">{{message.date}}</div>' +
+                    '</div></li>';
 	  
 	return {
 	    restrict: 'EA',
 	    scope: {
 	    	message: '=message'
 	    },
+        controller: function($scope, $sce) {
+            $scope.formatChatMessage = function(textMsg) {
+                textMsg = textMsg.replace("[", "<span class=\"label label-danger\">");
+                textMsg = textMsg.replace("]", "</span>");
+                //textMsg = textMsg.replace("[", "<b>");
+                //textMsg = textMsg.replace("]", "</b>");
+
+                return $sce.trustAsHtml(textMsg);
+            };
+            $scope.formatChatMessageOldAlert = function(textMsg) {
+                textMsg = textMsg.replace("[", "<span class=\"label label-warning\">");
+                textMsg = textMsg.replace("]", "</span>");
+                //textMsg = textMsg.replace("[", "<b>");
+                //textMsg = textMsg.replace("]", "</b>");
+
+                return $sce.trustAsHtml(textMsg);
+            };
+
+
+        },
 	    replace: 'true',
-	    translucde: 'true',
+	    //transclude: 'true', //TODO remove this
 	    compile: function(tElem, tAttr) {
 	    	return function(scope, el, attr, ctrl, trans) {
 		        if (scope.message.username != scope.$parent.$parent.username) {
-		        	var mess = $compile(received)(scope);
+                    var mess = $compile(received)(scope);
 		        	el.append(mess);
 		        } else {
                     var mess = $compile(sent)(scope);
+                    console.log(mess);
                     el.append(mess);
 		        }
 	        }
@@ -406,6 +441,14 @@ app.directive('chatAlert', function($compile, $timeout) {
 app.factory('AddressResolver', ['$resource', function ($resource) {
     //return $resource('https://nominatim.openstreetmap.org/search?q=:location,torino&format=json');
 	return $resource('/rest/address?address=:location');
+}]);
+
+app.factory('ToolsResolver', ['$resource', function ($resource) {
+    var alertTypesRes = $resource('/rest/alerttypes');
+    var alertTypes = alertTypesRes.query();
+    return {
+        alertTypes: alertTypes
+    }
 }]);
 
 app.factory('ChatSocket', ['$rootScope', function($rootScope) {

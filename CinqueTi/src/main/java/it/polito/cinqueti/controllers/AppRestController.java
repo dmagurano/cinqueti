@@ -43,6 +43,11 @@ public class AppRestController {
 	@Value("#{'${rest.elementsPerPage}'}")
 	private Integer elementsPerPage;
 	
+	// read the alert types from application.properties file
+	@Value("#{'${alerts.types}'.split(',')}")
+	private List<String> alertTypes;
+	
+	
 	// method used to retrieve the (paginated and anonymized) list of users
 	@RequestMapping(value="/rest/users", method=RequestMethod.GET)
 	public HttpEntity<PagedResources<User>> getUsers(
@@ -109,5 +114,12 @@ public class AppRestController {
 		// The assembler is required in order to generate the "self", "next", "first" REST urls. 
 		// This solution allows to navigate between the page with the given urls
 		return new ResponseEntity<>(assembler.toResource(res), HttpStatus.OK);
+	}
+	
+	// TODO move to a better controller
+	@RequestMapping(value="/rest/alerttypes", method=RequestMethod.GET)
+	public List<String> getAlertTypes()
+	{
+		return alertTypes;
 	}
 }

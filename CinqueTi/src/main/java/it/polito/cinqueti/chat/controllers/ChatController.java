@@ -56,10 +56,10 @@ public class ChatController implements ApplicationListener<ApplicationEvent> {
 	    
 	    chatService.updateUsersList(msg.getTopicName());
 	    
-	    /*for the user to receive last 10 messages*/
-	    chatService.retrieveLastMessages(msg.getTopicName(), principal.getName());
 	    
 	    chatService.retrieveAlerts(principal.getName());
+	    /*for the user to receive last 10 messages*/
+	    chatService.retrieveLastMessages(msg.getTopicName(), principal.getName());
 	  }
 	  
 	  @MessageMapping("/chat") 
