@@ -38,8 +38,6 @@ app.controller('chatCtrl', ['$scope', '$location', '$interval', 'ChatSocket', '$
             }
         });
 
-
-
         $scope.username     = '';
         $scope.participants = [];
         $scope.messages     = [];
@@ -88,7 +86,10 @@ app.controller('chatCtrl', ['$scope', '$location', '$interval', 'ChatSocket', '$
         
         $scope.sendMessage = function() {
         	var messageToServer;
-
+            // check if: something is ready to send && the message contains something different from whitespace
+            // otherwise do nothing
+            if (!($scope.newMessage.length > 0 && $scope.newMessage.match(/^\s+$/) === null))
+                return;
         	if ($scope.alertRef.quoting === false)
             {
                 messageToServer = JSON.stringify({
@@ -195,12 +196,23 @@ app.controller('chatCtrl', ['$scope', '$location', '$interval', 'ChatSocket', '$
                 {},
                 messageToServer
             );
+            // update local info
+            var rates = $scope.alerts[id].rates
+            if ($scope.alerts[id].myRate === 0)
+            {
+                rates.push({value: rate});
+                rates.avg = ((rates.avg*(rates.length-1) + rate)/rates.length).toFixed(2);
+            }
+            else
+                rates.avg = ((rates.avg*(rates.length) - $scope.alerts[id].myRate + rate)/rates.length).toFixed(2);
+            $scope.alerts[id].myRate = rate;
         };
 
         $scope.enterKeyListener = function(keyEvent) {
         	if (keyEvent.which === 13)
         	   $scope.sendMessage();
         };
+
             
         var initStompClient = function() {
             chatSocket.init('/transportsChat');
@@ -235,6 +247,7 @@ app.controller('chatCtrl', ['$scope', '$location', '$interval', 'ChatSocket', '$
                 chatSocket.subscribe('/user/queue/alerts', function (alertsArr) {
                     var alertsArray = JSON.parse(alertsArr.body);
                     alertsArray.forEach(function(alert) {
+                        alert.rates.avg = printRates(alert.rates);
                         $scope.alerts[alert.id] = alert;
                         //extract the icon name starting from the alert type position in alertTypes array
                         var alertIcon = "" + $scope.alertTypes.indexOf(alert.type) + ".png"
@@ -255,6 +268,7 @@ app.controller('chatCtrl', ['$scope', '$location', '$interval', 'ChatSocket', '$
                 /* subscribing to the alerts */
                 chatSocket.subscribe('/topic/chat/alerts', function (alertMessage) {
                     var alert = (JSON.parse(alertMessage.body));
+                    alert.rates.avg = printRates(alert.rates);
                     $scope.alerts[alert.id] = alert;
                     //extract the icon name starting from the alert type position in alertTypes array
                     var alertIcon = "" + $scope.alertTypes.indexOf(alert.type) + ".png"
@@ -299,6 +313,16 @@ function updateChat() {
 	chatdiv.scrollTop(chatdiv.get(0).scrollHeight);
 }
 
+function printRates(rates) {
+    var sum = 0
+    if(rates.length === 0)
+        return (0).toFixed(2);
+    for (var i = 0; i<rates.length; i++) {
+        sum += rates[i].value;
+    }
+    return (sum/rates.length).toFixed(2);
+};
+
 function showAlertTypeSelector() {
     $('#alertsModal').modal({
         backdrop: 'static',
@@ -312,34 +336,6 @@ function isToday (date) {
         return true;
     else 
         return false;
-};
-function printDateTime(timestamp){
-    var date = new Date(timestamp);
-
-    var day = date.getDate();
-
-    var month = date.getMonth() + 1;
-
-    var year = date.getFullYear();
-
-    var hours = date.getHours();
-
-    var minutes = "0" + date.getMinutes();
-
-    var seconds = "0" + date.getSeconds();
-
-    var formattedTime = day + "." + month + "." + year + " " + hours + ':' + minutes.substr(-2) + ':' + seconds.substr(-2);
-
-    return formattedTime;
-};
-
-function formatChatMessage1(textMsg) {
-    //textMsg = textMsg.replace("[", "<span class=\"label label-info\">");
-    //textMsg = textMsg.replace("]", "</span>");
-    textMsg = textMsg.replace("[", "<b>");
-    textMsg = textMsg.replace("]", "</b>");
-
-    return textMsg;
 };
 
 app.directive('chatMessage', function($compile, $timeout) {
@@ -409,9 +405,9 @@ app.directive('chatAlert', function($compile, $timeout) {
         template: "<div><b>" + "{{alert.type.toUpperCase()}}" + "</b>"
         + " <button ng-click=\"quote({id: alert.id})\">Citami</button><br>"
         + "{{alert.address}}" + "<br>"
-        + "attivo dal " + "{{printDateTime(alert.timestamp)}}" + "<br>"
+        + "attivo dal " + "{{printDateTime(alert.recvTimestamp)}}" + "<br>"
         + "segnalato da " + "{{alert.nickname}}" + "<br>"
-        + "valutazione " + "{{alert.rates}}"
+        + "valutazione " + "{{alert.rates.avg}}"
         + "	<div class=\"stars\" id=\"rating-in-" + "{{alert.id}}" + "\">"
         + "	<form action=\"\">"
         + "			<input class=\"star star-5\" id=\"star-5\" type=\"radio\" name=\"star\" value=\"5\" ng-click=\"submit({id: alert.id,rate: 5})\"/>"
@@ -426,7 +422,30 @@ app.directive('chatAlert', function($compile, $timeout) {
         + "			<label class=\"star star-1\" for=\"star-1\"></label>"
         + "		</form>"
         + "	</div>"
-        +"<br></div>"
+        +"<br></div>",
+        controller: function($scope) {
+
+            $scope.printDateTime = function(timestamp){
+                var date = new Date(timestamp);
+
+                var day = date.getDate();
+
+                var month = date.getMonth() + 1;
+
+                var year = date.getFullYear();
+
+                var hours = date.getHours();
+
+                var minutes = "0" + date.getMinutes();
+
+                var seconds = "0" + date.getSeconds();
+
+                var formattedTime = day + "." + month + "." + year + " " + hours + ':' + minutes.substr(-2) + ':' + seconds.substr(-2);
+
+                return formattedTime;
+            };
+        }
+
 
     };
 

@@ -157,6 +157,14 @@ public class ChatServiceImpl implements ChatService {
 			{	// update the lastAccessTimestamp and sync to db
 				alert.setLastAccess();
 				alertRepository.save(alert);
+				for (Rate rate: alert.getRates())
+				{
+					if (rate.getEmail().equals(user))
+					{
+						alert.setMyRate(rate.getValue());
+						break;
+					}
+				}
 			}
 		}	
 		

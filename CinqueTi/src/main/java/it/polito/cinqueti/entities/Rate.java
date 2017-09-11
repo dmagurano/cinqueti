@@ -1,10 +1,17 @@
 package it.polito.cinqueti.entities;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 public class Rate {
+	@JsonIgnore
 	private String email;
 	private Integer value;
 	
 	public Rate() {
+	}
+	
+	public Rate(Integer value) {
+		this.value = value;
 	}
 
 	public Rate(String email, Integer value) {
