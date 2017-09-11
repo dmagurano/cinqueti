@@ -15,31 +15,31 @@
 		    
 		    <div class="col-lg-3 col-md-2">
 				<th:block th:if="${alreadyInUseNickname}">   
-			        <div th:replace="fragments/alert :: alert (type='danger', message='Usi gi&agrave; questo nickname.')">
-			        	Usi gi&agrave; questo nickname.
+			        <div th:replace="fragments/alert :: alert (type='danger', message=${alreadyInUseNickname})">
+			        	Scegliere un nickname diverso da quello gi&agrave; in uso.
 			        </div>
 		        </th:block>
 	
-				<th:block th:if="${emptyNickname}">   
-			        <div th:replace="fragments/alert :: alert (type='danger', message='Nickname inserito vuoto.')">
-			        	Nickname inserito vuoto.
+				<th:block th:if="${emptyNickname}">
+			        <div th:replace="fragments/alert :: alert (type='danger', message=${emptyNickname})">
+			        	Il nickname deve essere di almeno 1 carattere.
 			        </div>
 		        </th:block>
 	
 				<th:block th:if="${updatedNickname}">   
-			        <div th:replace="fragments/alert :: alert (type='success', message='Nickname cambiato.')">
-			        	Nickname aggiornato.
+			        <div th:replace="fragments/alert :: alert (type='success', message=${updatedNickname})">
+			        	Nickname cambiato.
 			        </div>
 		        </th:block>
 
 		        <th:block th:if="${mismatchPassword}">   
-			        <div th:replace="fragments/alert :: alert (type='danger', message='Le password non coincidono.')">
+			        <div th:replace="fragments/alert :: alert (type='danger', message=${mismatchPassword})">
 			        	Le password non coincidono.
 			        </div>
 		        </th:block>
 
 		        <th:block th:if="${emptyPassword}">   
-			        <div th:replace="fragments/alert :: alert (type='danger', message='Le password non possono essere vuote.')">
+			        <div th:replace="fragments/alert :: alert (type='danger', message=${emptyPassword})">
 			        	Le password non possono essere vuote.
 			        </div>
 		        </th:block>
@@ -67,6 +67,24 @@
 			        	Password cambiata.
 			        </div>
 		        </th:block>
+		        
+				<th:block th:if="${notValidImage}">   
+			        <div th:replace="fragments/alert :: alert (type='danger', message='Immagine non valida.')">
+			        	Immagine non valida.
+			        </div>
+		        </th:block>
+		        
+				<th:block th:if="${profilePictureUpdateProblems}">   
+			        <div th:replace="fragments/alert :: alert (type='danger', message='Si sono verificati dei problemi durante l aggiornamento dell immagine del profilo.')">
+			        	Si sono verificati dei problemi durante l'aggiornamento dell immagine del profilo.
+			        </div>
+		        </th:block>
+		        
+				<th:block th:if="${successfullProfilePictureUpdate}">   
+			        <div th:replace="fragments/alert :: alert (type='success', message='Immagine del profilo aggiornata.')">
+			        	Immagine del profilo aggiornata.
+			        </div>
+		        </th:block>
 
 			    <div class="thumbnail">
 					<img th:if="${user.getImage() != null}" 
@@ -82,6 +100,10 @@
 				<hr></hr>
 
 				<button type="button" class="btn btn-default btn-block" data-toggle="modal" data-target="#change-nickname-modal">Cambia Nickname</button>
+
+				<hr></hr>
+
+				<button type="button" class="btn btn-default btn-block" data-toggle="modal" data-target="#change-profile-picture-modal">Cambia Immagine del profilo</button>
 
 		    </div>
 		    
@@ -113,30 +135,34 @@
 			    			<td th:text="${user.job}"></td>
 			    		</tr>
 			    		<tr th:if="${user.ownCar.registrationYear} != null">
-			    			<td>Auto</td>
-			    			<td th:text="'Anno di registrazione: ' + ${user.ownCar.registrationYear}"></td>
-			    		</tr>
-			    		<tr>
-			    			<td></td>
-			    			<td th:text="'Carburante: ' + ${user.ownCar.fuelType}"></td>
+				    		<tr>
+				    			<td>Auto</td>
+				    			<td th:text="'Anno di registrazione: ' + ${user.ownCar.registrationYear}"></td>
+				    		</tr>
+				    		<tr>
+				    			<td></td>
+				    			<td th:text="'Carburante: ' + ${user.ownCar.fuelType}"></td>
+				    		</tr>
 			    		</tr>
 			    		<tr>
 			    			<td>Servizio di car sharing</td>
-			    			<td th:text="${user.carSharing}">Non usato</td>
+			    			<td th:if="${user.carSharing} != none" th:text="${user.carSharing}"></td>
+			    			<td th:if="${user.carSharing} == none" th:text="'Non usato'"></td>
 			    		</tr>
 			    		<tr>
 			    			<td>Bici</td>
-			    			<td th:if="${user.bikeUsage.owned} == true" th:text="Posseduta"></td>
-			    			<td th:if="${user.bikeUsage.owned} == false" th:text="Non posseduta"></td>
+			    			<td th:if="${user.bikeUsage.owned} == true" th:text="'Posseduta'"></td>
+			    			<td th:if="${user.bikeUsage.owned} == false" th:text="'Non posseduta'"></td>
 			    		</tr>
 			    		<tr>
-			    			<td></td>
-			    			<td th:if="${user.bikeUsage.sharing} == true" th:text="'Servizio bike sharing usato'"></td>
-			    			<td th:if="${user.bikeUsage.sharing} == false" th:text="'Servizio bike sharing non usato'"></td>
+			    			<td>Servizio di bike sharing</td>
+			    			<td th:if="${user.bikeUsage.sharing} == true" th:text="'Usato'"></td>
+			    			<td th:if="${user.bikeUsage.sharing} == false" th:text="'Non usato'"></td>
 			    		</tr>
 			    		<tr>
 			    			<td>Trasporto pubblico</td>
-			    			<td th:text="${user.pubTransport}"></td>
+			    			<td th:if="${user.pubTransport} != none" th:text="${user.pubTransport}"></td>
+			    			<td th:if="${user.pubTransport} == none" th:text="'Non usato'"></td>
 			    		</tr>
 			    	</tbody>
 			    </table>
@@ -161,14 +187,24 @@
 				<form role="form" method="POST" th:action="@{/change-password}">
 					<div class="form-group">
 						<input type="password" class="form-control" placeholder="Password attuale" name="old-password" autofocus="true" required="true"/>
+					</div>
                 
+                	<div class="form-group">
 	            		<input type="password" class="form-control" placeholder="Nuova password" name="new-password" required="true"/>
-	            
+					</div>
+                
+                	<div class="form-group">
 	            	    <input type="password" class="form-control" placeholder="Ripeti nuova password" name="new-password-confirmed" required="true"/>
 					</div>
 
-					<button type="button" class="btn btn-default" data-dismiss="modal">Annulla</button>
-					<button type="submit" class="btn btn-primary">Conferma</button>
+					<div class="btn-group btn-group-justified" role="group" aria-label="...">
+  						<div class="btn-group col-lg-6" role="group">
+							<button type="button" class="btn btn-default btn-sm" data-dismiss="modal">Annulla</button>
+						</div>
+						<div class="btn-group col-lg-6" role="group">
+							<button type="submit" class="btn btn-primary btn-sm">Conferma</button>
+						</div>
+					</div>
 				</form>
 
 			</div>
@@ -193,15 +229,16 @@
 					<div class="form-group">
 						<input type="text" class="form-control" placeholder="Nuovo nickname" name="new-nickname" autofocus="true" required="required"/>
 					</div>
-
+					
 					<div class="btn-group btn-group-justified" role="group" aria-label="...">
-  						<div class="btn-group" role="group">
-							<button type="button" class="btn btn-default" data-dismiss="modal">Annulla</button>
+  						<div class="btn-group col-lg-6" role="group">
+							<button type="button" class="btn btn-default btn-sm" data-dismiss="modal">Annulla</button>
 						</div>
-						<div class="btn-group" role="group">
-							<button type="submit" class="btn btn-primary">Conferma</button>
+						<div class="btn-group col-lg-6" role="group">
+							<button type="submit" class="btn btn-primary btn-sm">Conferma</button>
 						</div>
 					</div>
+
 				</form>
 
 			</div>
@@ -210,13 +247,81 @@
 	  </div>
 	</div>
 	
-	<script type="text/javascript">
+	<!-- change profile picture modal -->
+	<div id="change-profile-picture-modal" class="modal fade" role="dialog">
+	  <div class="modal-dialog">
 
-	</script>
+	    <!-- Modal content-->
+	    <div class="modal-content">
+			<div class="modal-header">
+				<button type="button" class="close" data-dismiss="modal">&times;</button>
+				<h4 class="modal-title">Cambia Immagine del profilo</h4>
+			</div>
+			<div class="modal-body">
+
+				<form role="form" method="POST" th:action="@{/change-profile-picture}" enctype="multipart/form-data" id="change-image-form">
+				
+					<div class="form-group col-lg-12">
+						<div class="col-lg-6 col-lg-offset-3">
+							<img id="image-preview" class="img-thumbnail hidden"/>
+						</div>
+					</div>
+				
+		            <div class="form-group col-lg-12">
+		            	<div class="col-lg-6 col-lg-offset-3">
+			            	<input type="file" id="input-image-preview" name="file" accept="image/x-png,image/gif,image/jpeg"/>
+		            	</div>
+		            </div>
+		        
+					<div class="form-group btn-group btn-group-justified" role="group" aria-label="...">
+  						<div class="btn-group col-lg-6" role="group">
+							<button type="button" class="btn btn-default btn-sm" data-dismiss="modal">Annulla</button>
+						</div>
+						<div class="btn-group col-lg-6" role="group">
+							<button type="submit" class="btn btn-primary btn-sm">Conferma</button>
+						</div>
+					</div>
+					
+					<hr></hr>
+		        
+		        	<div class="form-group col-lg-12">	
+						<div class="btn-group col-lg-6 col-lg-offset-3" role="group">
+							<button type="submit" class="btn btn-primary btn-xs btn-block col-lg-6 col-lg-offset-3" onclick="return clearImage();">Rimuovi immagine</button>
+						</div>
+		        	</div>
+
+					<hr></hr>
+				</form>
+
+			</div>
+	    </div>
+
+	  </div>
+	</div>
 	
 	<!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
 	<script src="https://code.jquery.com/jquery.js"></script>
 	<!-- Include all compiled plugins (below), or include individual files as needed -->
 	<script th:src="@{/js/bootstrap.min.js}"></script>
+	
+	<script>
+		function clearImage(){
+			$("#change-image-form").reset();
+			return true;
+		}
+		
+		document.getElementById("input-image-preview").onchange = function () {
+		    var reader = new FileReader();
+
+		    reader.onload = function (e) {
+		        var dom_img = document.getElementById("image-preview");
+		        
+		        dom_img.src = e.target.result;
+		        dom_img.classList.remove("hidden");
+		    };
+
+		    reader.readAsDataURL(this.files[0]);
+		};
+	</script>
 </body>
 </html>

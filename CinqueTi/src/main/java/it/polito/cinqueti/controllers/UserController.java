@@ -5,11 +5,6 @@ import java.util.List;
 import java.util.UUID;
 
 import javax.servlet.ServletContext;
-import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Size;
-
-import org.hibernate.validator.constraints.NotBlank;
-import org.hibernate.validator.constraints.NotEmpty;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
@@ -249,12 +244,7 @@ public class UserController {
     	
         return "profile";
     }
-    /*
-    @RequestMapping(value = "/change-nickname", method = RequestMethod.GET)
-    public String changeNickname(Model model){
-    	return "change-nickname";
-    }
-    */
+
     @RequestMapping(value = "/change-nickname", method = RequestMethod.POST)
     public String changeNickname(
     		@RequestParam(value = "new-nickname", required = true) String newNickname,
@@ -263,29 +253,22 @@ public class UserController {
     	User currentUser = userService.findByEmail(securityService.findLoggedInUsername());
     	
     	if (newNickname.length() == 0){
-    		model.addAttribute("emptyNickname", true);
+    		model.addAttribute("emptyNickname", "Il nickname deve essere di almeno 1 carattere.");
+    	}
+    	else if (newNickname.compareTo(currentUser.getNickname()) == 0){
+	    		model.addAttribute("alreadyInUseNickname", "Scegliere un nickname diverso da quello gi&agrave; in uso.");
     	}
     	else{
-	    	if (newNickname.compareTo(currentUser.getNickname()) == 0){
-	    		model.addAttribute("alreadyInUseNickname", true);
-	    	}
-	    	else{
-	    		userService.updateUserNewNickname(currentUser, newNickname);
-	    		
-	    		model.addAttribute("updatedNickname", true);
-	    	}
-	    }
+    		userService.updateUserNewNickname(currentUser, newNickname);
+    		
+    		model.addAttribute("updatedNickname", "Nickname cambiato.");
+    	}
     	
     	model.addAttribute("user", currentUser);
     	
-    	return "profile";
+    	return "redirect:profile";
     }
-    /*
-    @RequestMapping(value = "/change-password", method = RequestMethod.GET)
-    public String changePassword(Model model){
-    	return "change-password";
-    }
-    */
+
     @RequestMapping(value = "/change-password", method = RequestMethod.POST)
     public String changPassword(
     		@RequestParam(value = "old-password", required = true) String oldPassword,
@@ -296,10 +279,10 @@ public class UserController {
     	User currentUser = userService.findByEmail(securityService.findLoggedInUsername());
     	
     	if (oldPassword.length() == 0 || newPassword.length() == 0 || newPasswordConfirmed.length() == 0){
-    		model.addAttribute("emptyPassword", true);
+    		model.addAttribute("emptyPassword", "Le password non possono essere vuote.");
     	}
     	else if (newPassword.compareTo(newPasswordConfirmed) != 0){
-    		model.addAttribute("mismatchPassword", true);
+    		model.addAttribute("mismatchPassword", "Le password non coincidono.");
     	}
     	else if (newPassword.length() < minPasswordLength){
 	    	model.addAttribute("shortPassword", true);
@@ -318,7 +301,41 @@ public class UserController {
     	
     	model.addAttribute("user", currentUser);
     	
-    	return "profile";
+    	return "redirect:profile";
+    }
+    
+    @RequestMapping(value = "/change-profile-picture", method = RequestMethod.POST)
+    public String changProfilePicture(
+    		@RequestParam MultipartFile file,
+    		Model model){
+    	
+    	User currentUser = userService.findByEmail(securityService.findLoggedInUsername());
+    	
+    	byte[] image = parseImage(file);
+		
+		if (image == null){
+			model.addAttribute("user", currentUser);
+			model.addAttribute("notValidImage", "Immagine non valida.");
+            
+        	return "profile";
+		}
+		else{
+			if (image.length > 0)
+	        	currentUser.setImage(image);
+			else
+				currentUser.setImage(null);
+		}
+
+        boolean updated = updateNewUser(currentUser);
+        
+        model.addAttribute("user", currentUser);
+    	
+        if (updated == false) 
+            model.addAttribute("profilePictureUpdateProblems", "Si sono verificati dei problemi durante l'aggiornamento.");
+        else
+        	model.addAttribute("successfullProfilePictureUpdate", "Immagine del profilo aggiornata.");
+        
+        return "profile";
     }
     
     private boolean registerNewUser(User user){
@@ -393,6 +410,5 @@ public class UserController {
     	model.addAttribute("carSharingServices", carSharingServices);
     	
     	model.addAttribute("token", token);
-
     }
 }

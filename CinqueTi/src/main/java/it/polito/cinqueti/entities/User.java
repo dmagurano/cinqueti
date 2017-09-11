@@ -85,7 +85,7 @@ public class User implements UserDetails {
 	private String carSharing;
 	
 	@NotNull(groups = {ThirdPhaseValidation.class})
-	@Field("bike")
+	//@Field("bike")
 	private Bike bikeUsage;
 	
 	@NotNull(groups = {ThirdPhaseValidation.class})
