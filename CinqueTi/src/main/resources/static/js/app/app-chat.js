@@ -346,16 +346,16 @@ app.directive('chatMessage', function($compile, $timeout) {
 
 	var sent = 		'<li class="left clearfix admin_chat"><span class="chat-img1 pull-right"><img src="https://scontent-mxp1-1.xx.fbcdn.net/v/t1.0-9/995179_496393017119212_1942402182_n.jpg?oh=931db49c4f4f7c905efde31e3371f592&oe=59E4426F" alt="User Avatar" class="img-circle"/></span>' +
                     '<div class="chat-body2 clearfix" ng-switch on="message.alertId">' +
-                    '<p ng-switch-when="null" ng-bind-html="formatChatMessageOldAlert(message.message)">'+'</p>'+
+                    '<p ng-switch-when="null" ng-bind-html="formatChatMessage(message.message, 1)">'+'</p>'+
                     //'<p ng-switch-default>ok'+'{{formatChatMessage(message.message)}}'+'</p>'+
-                    '<p ng-switch-default ng-bind-html="formatChatMessage(message.message)">'+'</p>'+
+                    '<p ng-switch-default ng-bind-html="formatChatMessage(message.message, 0)">'+'</p>'+
                     '<div class="chat_time pull-left">{{message.date}}</div></div></li>';
 	  
 	var received = 	'<li class="left clearfix"><span class="chat-img1 pull-left"><img src="http://icons.iconarchive.com/icons/custom-icon-design/pretty-office-8/128/User-blue-icon.png" alt="User Avatar" class="img-circle"/></span>'+
 					'<div class="chat-nickname">'+'{{message.nickname}}'+'</div>' +
                     '<div class="chat-body1 clearfix" ng-switch on="message.alertId">'+
-                        '<p ng-switch-when="null" ng-bind-html="formatChatMessageOldAlert(message.message)">'+'</p>'+
-                        '<p ng-switch-default ng-bind-html="formatChatMessage(message.message)">'+'</p>'+
+                        '<p ng-switch-when="null" ng-bind-html="formatChatMessage(message.message, 1)">'+'</p>'+
+                        '<p ng-switch-default ng-bind-html="formatChatMessage(message.message, 0)">'+'</p>'+
                         '<div class="chat_time pull-right">{{message.date}}</div>' +
                     '</div></li>';
 	  
@@ -365,23 +365,17 @@ app.directive('chatMessage', function($compile, $timeout) {
 	    	message: '=message'
 	    },
         controller: function($scope, $sce) {
-            $scope.formatChatMessage = function(textMsg) {
-                textMsg = textMsg.replace("[", "<span class=\"label label-danger\">");
+            $scope.formatChatMessage = function(textMsg, old) {
+                if (old == 0)
+                    textMsg = textMsg.replace("[", "<span class=\"label label-danger\">");
+                else
+                    textMsg = textMsg.replace("[", "<span class=\"label label-warning\">");
                 textMsg = textMsg.replace("]", "</span>");
                 //textMsg = textMsg.replace("[", "<b>");
                 //textMsg = textMsg.replace("]", "</b>");
 
                 return $sce.trustAsHtml(textMsg);
             };
-            $scope.formatChatMessageOldAlert = function(textMsg) {
-                textMsg = textMsg.replace("[", "<span class=\"label label-warning\">");
-                textMsg = textMsg.replace("]", "</span>");
-                //textMsg = textMsg.replace("[", "<b>");
-                //textMsg = textMsg.replace("]", "</b>");
-
-                return $sce.trustAsHtml(textMsg);
-            };
-
 
         },
 	    replace: 'true',

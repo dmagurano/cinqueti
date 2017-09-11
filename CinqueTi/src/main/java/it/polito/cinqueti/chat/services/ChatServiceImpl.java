@@ -85,7 +85,7 @@ public class ChatServiceImpl implements ChatService {
 	}
 	
 	public void sendRate (ChatRate chatRate) {
-		String ratesList = "/topic/chat/rates/";
+//		String ratesList = "/topic/chat/rates/";
 		
 		Rate rate = new Rate(chatRate.getUsername(), chatRate.getValue());
 		
