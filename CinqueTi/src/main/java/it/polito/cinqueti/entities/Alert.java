@@ -5,6 +5,7 @@ import java.util.Date;
 import java.util.List;
 
 import org.springframework.data.annotation.Id;
+import org.springframework.data.annotation.Transient;
 
 public class Alert {
 	
@@ -14,6 +15,8 @@ public class Alert {
 	private Double lat;
 	private Double lng;
 	private List<Rate> rates;
+	@Transient
+	private Integer myRate;
 	private Date recvTimestamp;
 	private Date lastAccessTimestamp;
 	private String userEmail;
@@ -24,6 +27,7 @@ public class Alert {
 	
 	public Alert() {
 		this.rates = new ArrayList<Rate>();
+		this.myRate = 0;
 	}
 	
 	public Alert(Double lat, Double lng, String address, Date timestamp, String userEmail, String nickname, String type) {
@@ -36,6 +40,7 @@ public class Alert {
 		this.nickname = nickname;
 		this.type = type;
 		this.rates = new ArrayList<Rate>();
+		this.myRate = 0;
 	}
 	
 	public Alert(Double lat, Double lng, String address, Date start, Date access, String userEmail, String nickname, String type) {
@@ -48,6 +53,7 @@ public class Alert {
 		this.nickname = nickname;
 		this.type = type;
 		this.rates = new ArrayList<Rate>();
+		this.myRate = 0;
 	}
 	
 	public Double getLat() {
@@ -125,19 +131,11 @@ public class Alert {
 	public void setAddress(String address) {
 		this.address = address;
 	}
-
-	public Double getRates() {
-		if(rates.size() == 0)
-			return 0.0;
-		
-		Double sum = 0.0;
-		for (Rate r : rates){
-			sum += r.getValue();
-		}
-		
-		return sum/(double)rates.size();
+	
+	public List<Rate> getRates() {
+		return rates;
 	}
-
+	
 	public void setRate(String email, Integer value) {
 		for (int i = 0; i < rates.size(); i++){
 			Rate rate = rates.get(i);
@@ -151,4 +149,14 @@ public class Alert {
 		
 		this.rates.add(new Rate(email, value));
 	}
+
+	public Integer getMyRate() {
+		return myRate;
+	}
+
+	public void setMyRate(Integer myRate) {
+		this.myRate = myRate;
+	}
+	
+	
 }

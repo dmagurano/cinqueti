@@ -12,7 +12,8 @@ body {
 }
 
 .navbar {
-	border-radius: 0px;	
+	border-radius: 0px;
+    z-index: 9999;
 }
 
 .form-narrow {
