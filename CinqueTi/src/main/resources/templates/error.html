@@ -1,0 +1,23 @@
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+	<title>Errore</title>
+    <th:block th:include="fragments/common :: commonHeadFragment"></th:block>
+
+    <link rel="stylesheet" href="/css/bootstrap.css"/>
+
+</head>
+<body>
+	<div class="header"></div>
+	
+	<div th:replace="fragments/navbar :: navbar(linee)"></div>
+	
+
+	<!-- Page Content -->
+	<div style="text-align:center;">
+		<img src="assets/crying-robot.png" height="128" width="128"/>
+		<h1>Ooop! Si è verificato un errore!</h1>
+		<h3>Se il problema persiste contattare un amministratore.</h3>
+	</div>
+	<div th:replace="fragments/footer"></div>
+</body>
+</html>
