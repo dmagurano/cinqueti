@@ -15,8 +15,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
-import org.springframework.web.servlet.mvc.support.RedirectAttributesModelMap;
-
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import it.polito.cinqueti.entities.User;
 import it.polito.cinqueti.entities.VerificationToken;
 import it.polito.cinqueti.services.MailService;
@@ -61,7 +60,8 @@ public class UserController {
     
     @RequestMapping(value = {"/register-first-phase"}, method = RequestMethod.GET)
     public String getRegister(Model model) {
-    	model.addAttribute("user", new User());
+    	if (!model.containsAttribute("org.springframework.validation.BindingResult.user"))
+    		model.addAttribute("user", new User());
     	
         return "register-first-phase";
     }
@@ -70,86 +70,92 @@ public class UserController {
     public String postRegister(
     		@Validated(User.FirstPhaseValidation.class) User user,
     		BindingResult bindingResult,
-    		Model model) {
+    		RedirectAttributes redirectAttributes) {
     	
     	String token = null;
     	
     	if (bindingResult.hasErrors()) {
-            return "register-first-phase";
+    		redirectAttributes.addFlashAttribute("org.springframework.validation.BindingResult.user", bindingResult);
+    		
+            return "redirect:register-first-phase";
     	}
     	else{
         	token = UUID.randomUUID().toString();
     		
     		if (mailService.sendConfirmationEmail(user.getEmail(), token) == false){
-            	model.addAttribute("exceptionMessage", "Ci sono stati dei problemi durante la registrazione. "
+            	redirectAttributes.addFlashAttribute("exceptionMessage", "Ci sono stati dei problemi durante la registrazione. "
             			+ "Registrati.");
             	
-                return "register-first-phase";
+                return "redirect:register-first-phase";
     		}
     		else{
     			registerNewUser(user);
         		
         		userService.saveVerificationToken(user.getId(), token);
-    			
-	        	model.addAttribute("infoMessage", "Conferma il tuo account tramite la mail "
+        		
+	        	redirectAttributes.addFlashAttribute("infoMessage", "Conferma il tuo account tramite la mail "
 	        			+ "che abbiamo inviato sul tuo indirizzo di posta elettronica.");
-	        	
-	        	return "login";
+            	
+	        	return "redirect:login";
     		}
         }
     }
     
     @RequestMapping(value = "/register-second-phase", method = RequestMethod.GET)
     public String confirmRegistration(
-    		@RequestParam("token") String token,
-    		Model model,
-    		RedirectAttributesModelMap redirectAttributes){
+    		@RequestParam String token,
+    		Model model){
     	
-    	User databaseUser = checkVerificationToken(token);
-    	
-    	if (databaseUser == null){
-    		model.addAttribute("dangerMessage", "Il tuo token non è valido. Registrati.");
-    		
-    		return "bad-verification";
-    	}
-    	
-    	fillSecondPhaseModel(model, token);
-    	
-    	model.addAttribute("user", databaseUser);
+    	if (!model.containsAttribute("org.springframework.validation.BindingResult.user")){
+	    	User databaseUser = checkVerificationToken(token);
+	    	
+	    	if (databaseUser == null){
+	    		model.addAttribute("dangerMessage", "Il tuo token non è valido. Registrati.");
+	    		
+	    		return "bad-verification";
+	    	}
+	    	
+	    	model.addAttribute("token", token);
+	    	model.addAttribute("user", databaseUser);
+	    }
+
+    	fillSecondPhaseModel(model);
     	
     	return "register-second-phase";
     }
     
     @RequestMapping(value = "/register-second-phase", method = RequestMethod.POST)
     public String postRegisterSecondPhase(
-    		@RequestParam("token") String token,
-    		@Validated(User.SecondPhaseValidation.class) User user,
-    		BindingResult bindingResult, 
+    		@RequestParam String token,
     		@RequestParam MultipartFile file,
-    		Model model) {
+    		@Validated(User.SecondPhaseValidation.class) User user,
+    		BindingResult bindingResult,
+    		RedirectAttributes redirectAttributes) {
     	
     	User databaseUser = checkVerificationToken(token);
     	
     	if (databaseUser == null){
-    		model.addAttribute("dangerMessage", "Il tuo token non è valido. Registrati.");
+    		redirectAttributes.addFlashAttribute("dangerMessage", "Il tuo token non è valido. Registrati.");
     		
-    		return "bad-verification";
+    		return "redirect:bad-verification";
     	}
     	
     	if (bindingResult.hasErrors()) {
-    		fillSecondPhaseModel(model, token);
+    		redirectAttributes.addFlashAttribute("org.springframework.validation.BindingResult.user", bindingResult);
+    		redirectAttributes.addAttribute("token", token);
         	
-            return "register-second-phase";
+            return "redirect:register-second-phase";
     	}
     	else{
     		byte[] image = parseImage(file);
     		
     		if (image == null){
-    			fillSecondPhaseModel(model, token);
-            	
                 bindingResult.rejectValue("image", "user.registration.invalidImage");
                 
-            	return "register-second-phase";
+        		redirectAttributes.addFlashAttribute("org.springframework.validation.BindingResult.user", bindingResult);
+        		redirectAttributes.addAttribute("token", token);
+                
+            	return "redirect:register-second-phase";
     		}
     		else{
     			if (image.length > 0)
@@ -161,23 +167,36 @@ public class UserController {
     		databaseUser.setAge(user.getAge());
     		databaseUser.setEducation(user.getEducation());
     		databaseUser.setJob(user.getJob());
-            boolean updated = updateNewUser(databaseUser);
+            updateNewUser(databaseUser);
         	
-            if (updated == false) {
-            	fillSecondPhaseModel(model, token);
-            	
-                bindingResult.rejectValue("email", "user.registration.emailNotFound");
-                
-            	return "register-second-phase";
-            }
-            else{
-            	fillThirdPhaseModel(model, token);
-            	
-            	model.addAttribute("user", databaseUser);
-            	
-            	return "register-third-phase";
-            }
+        	redirectAttributes.addAttribute("token", token);
+        	redirectAttributes.addFlashAttribute("user", databaseUser);
+        	
+        	return "redirect:register-third-phase";
         }
+    }
+    
+    @RequestMapping(value = "register-third-phase", method = RequestMethod.GET)
+    public String getRegisterThirdPhase(
+    		@RequestParam("token") String token,
+    		Model model){
+    	
+    	if (!model.containsAttribute("org.springframework.validation.BindingResult.user")){
+	    	User databaseUser = checkVerificationToken(token);
+	    	
+	    	if (databaseUser == null){
+	    		model.addAttribute("dangerMessage", "Il tuo token non è valido. Registrati.");
+	    		
+	    		return "bad-verification";
+	    	}
+	    	
+	    	model.addAttribute("token", token);
+	    	model.addAttribute("user", databaseUser);
+	    }
+
+    	fillThirdPhaseModel(model);
+    	
+    	return "register-third-phase";
     }
     
     @RequestMapping(value = "/register-third-phase", method = RequestMethod.POST)
@@ -185,20 +204,21 @@ public class UserController {
     		@RequestParam("token") String token,
     		@Validated(User.ThirdPhaseValidation.class) User user,
     		BindingResult bindingResult,
-    		Model model) {
+    		RedirectAttributes redirectAttributes) {
     	
     	User databaseUser = checkVerificationToken(token);
     	
     	if (databaseUser == null){
-    		model.addAttribute("dangerMessage", "Il tuo token non è valido. Registrati.");
+    		redirectAttributes.addFlashAttribute("dangerMessage", "Il tuo token non è valido. Registrati.");
     		
-    		return "bad-verification";
+    		return "redirect:bad-verification";
     	}
     	
     	if (bindingResult.hasErrors()) {
-        	fillThirdPhaseModel(model, token);
+    		redirectAttributes.addFlashAttribute("org.springframework.validation.BindingResult.user", bindingResult);
+    		redirectAttributes.addAttribute("token", token);
         	
-            return "register-second-phase";
+            return "redirect:register-third-phase";
     	}
     	else{
     		databaseUser.setOwnCar(user.getOwnCar());
@@ -206,27 +226,27 @@ public class UserController {
     		databaseUser.setBikeUsage(user.getBikeUsage());
     		databaseUser.setPubTransport(user.getPubTransport());
     		databaseUser.setEnabled(true);
-            boolean updated = updateNewUser(databaseUser);
+            updateNewUser(databaseUser);
+            
+        	userService.removeVerificationToken(token);
         	
-            if (updated == false) {
-            	fillThirdPhaseModel(model, token);
-            	
-                bindingResult.rejectValue("email", "user.registration.emailNotFound");
-                
-            	return "register-second-phase";
-            }
-            else{
-            	userService.removeVerificationToken(token);
-            	
-            	securityService.autologin(databaseUser.getUsername(), databaseUser.getConfirmedPassword());
-            	
-            	return "redirect:profile";
-            }
+        	securityService.autologin(databaseUser.getUsername(), databaseUser.getConfirmedPassword());
+        	
+        	return "redirect:profile";
         }
+    }
+    
+    @RequestMapping(value = "/bad-verification", method = RequestMethod.GET)
+    public String getBadVerification() {
+    	return "bad-verification";
     }
 
     @RequestMapping(value = "/login", method = RequestMethod.GET)
-    public String login(Model model, String error, String logout) {
+    public String login(
+    		Model model, 
+    		String error, 
+    		String logout) {
+    	
         if (error != null)
             model.addAttribute("error", "Your username and password is invalid.");
 
@@ -248,23 +268,21 @@ public class UserController {
     @RequestMapping(value = "/change-nickname", method = RequestMethod.POST)
     public String changeNickname(
     		@RequestParam(value = "new-nickname", required = true) String newNickname,
-    		Model model){
+    		RedirectAttributes redirectAttributes){
     	
     	User currentUser = userService.findByEmail(securityService.findLoggedInUsername());
     	
     	if (newNickname.length() == 0){
-    		model.addAttribute("emptyNickname", "Il nickname deve essere di almeno 1 carattere.");
+    		redirectAttributes.addFlashAttribute("emptyNickname", "Il nickname deve essere di almeno 1 carattere.");
     	}
     	else if (newNickname.compareTo(currentUser.getNickname()) == 0){
-	    		model.addAttribute("alreadyInUseNickname", "Scegliere un nickname diverso da quello gi&agrave; in uso.");
+    		redirectAttributes.addFlashAttribute("alreadyInUseNickname", "Scegliere un nickname diverso da quello già in uso.");
     	}
     	else{
     		userService.updateUserNewNickname(currentUser, newNickname);
     		
-    		model.addAttribute("updatedNickname", "Nickname cambiato.");
+    		redirectAttributes.addFlashAttribute("updatedNickname", "Nickname cambiato.");
     	}
-    	
-    	model.addAttribute("user", currentUser);
     	
     	return "redirect:profile";
     }
@@ -273,33 +291,31 @@ public class UserController {
     public String changPassword(
     		@RequestParam(value = "old-password", required = true) String oldPassword,
     		@RequestParam(value = "new-password", required = true) String newPassword,
-    		@RequestParam(value = "new-password-confirmed", required = true) String newPasswordConfirmed, 
-    		Model model){
+    		@RequestParam(value = "new-password-confirmed", required = true) String newPasswordConfirmed,
+    		RedirectAttributes redirectAttributes){
     	
     	User currentUser = userService.findByEmail(securityService.findLoggedInUsername());
     	
     	if (oldPassword.length() == 0 || newPassword.length() == 0 || newPasswordConfirmed.length() == 0){
-    		model.addAttribute("emptyPassword", "Le password non possono essere vuote.");
+    		redirectAttributes.addFlashAttribute("emptyPassword", "Le password non possono essere vuote.");
     	}
     	else if (newPassword.compareTo(newPasswordConfirmed) != 0){
-    		model.addAttribute("mismatchPassword", "Le password non coincidono.");
+    		redirectAttributes.addFlashAttribute("mismatchPassword", "Le password non coincidono.");
     	}
     	else if (newPassword.length() < minPasswordLength){
-	    	model.addAttribute("shortPassword", true);
+    		redirectAttributes.addFlashAttribute("shortPassword", true);
     	}
     	else if (!userService.checkPassword(currentUser, oldPassword)){
-    		model.addAttribute("wrongOldPassword", true);
+    		redirectAttributes.addFlashAttribute("wrongOldPassword", true);
     	}
     	else if (oldPassword.compareTo(newPassword) == 0){
-    		model.addAttribute("samePassword", true);
+    		redirectAttributes.addFlashAttribute("samePassword", true);
     	}
     	else{
 	    	userService.updateUserNewPassword(currentUser, newPassword);
 	    	
-	    	model.addAttribute("updatedPassword", true);
+	    	redirectAttributes.addFlashAttribute("updatedPassword", true);
     	}
-    	
-    	model.addAttribute("user", currentUser);
     	
     	return "redirect:profile";
     }
@@ -307,17 +323,16 @@ public class UserController {
     @RequestMapping(value = "/change-profile-picture", method = RequestMethod.POST)
     public String changProfilePicture(
     		@RequestParam MultipartFile file,
-    		Model model){
+    		RedirectAttributes redirectAttributes){
     	
     	User currentUser = userService.findByEmail(securityService.findLoggedInUsername());
     	
     	byte[] image = parseImage(file);
 		
 		if (image == null){
-			model.addAttribute("user", currentUser);
-			model.addAttribute("notValidImage", "Immagine non valida.");
+			redirectAttributes.addFlashAttribute("notValidImage", "Immagine non valida.");
             
-        	return "profile";
+        	return "redirect:profile";
 		}
 		else{
 			if (image.length > 0)
@@ -325,17 +340,13 @@ public class UserController {
 			else
 				currentUser.setImage(null);
 		}
-
-        boolean updated = updateNewUser(currentUser);
-        
-        model.addAttribute("user", currentUser);
     	
-        if (updated == false) 
-            model.addAttribute("profilePictureUpdateProblems", "Si sono verificati dei problemi durante l'aggiornamento.");
+        if (updateNewUser(currentUser) == false) 
+        	redirectAttributes.addFlashAttribute("profilePictureUpdateProblems", "Si sono verificati dei problemi durante l'aggiornamento.");
         else
-        	model.addAttribute("successfullProfilePictureUpdate", "Immagine del profilo aggiornata.");
+        	redirectAttributes.addFlashAttribute("successfullProfilePictureUpdate", "Immagine del profilo aggiornata.");
         
-        return "profile";
+        return "redirect:profile";
     }
     
     private boolean registerNewUser(User user){
@@ -397,18 +408,14 @@ public class UserController {
     	return image;
     }
     
-    private void fillSecondPhaseModel(Model model, String token){
+    private void fillSecondPhaseModel(Model model){
     	model.addAttribute("educationLevels", educationLevels);
     	model.addAttribute("jobs", jobs);
-
-    	model.addAttribute("token", token);
     }
     
-    private void fillThirdPhaseModel(Model model, String token){
+    private void fillThirdPhaseModel(Model model){
     	model.addAttribute("fuelTypes", fuelTypes);
     	model.addAttribute("passTypes", passTypes);
     	model.addAttribute("carSharingServices", carSharingServices);
-    	
-    	model.addAttribute("token", token);
     }
 }

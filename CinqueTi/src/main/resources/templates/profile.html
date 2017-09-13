@@ -168,6 +168,7 @@
 			    </table>
 			</div>
 		</div>
+
 	</div>
 	
 	<div th:replace="fragments/footer"></div>
@@ -260,18 +261,8 @@
 			<div class="modal-body">
 
 				<form role="form" method="POST" th:action="@{/change-profile-picture}" enctype="multipart/form-data" id="change-image-form">
-				
-					<div class="form-group col-lg-12">
-						<div class="col-lg-6 col-lg-offset-3">
-							<img id="image-preview" class="img-thumbnail hidden"/>
-						</div>
-					</div>
-				
-		            <div class="form-group col-lg-12">
-		            	<div class="col-lg-6 col-lg-offset-3">
-			            	<input type="file" id="input-image-preview" name="file" accept="image/x-png,image/gif,image/jpeg"/>
-		            	</div>
-		            </div>
+
+					<th:block th:include="fragments/common :: inputImagePreview"></th:block>
 		        
 					<div class="form-group btn-group btn-group-justified" role="group" aria-label="...">
   						<div class="btn-group col-lg-6" role="group">
@@ -309,19 +300,6 @@
 			$("#change-image-form").reset();
 			return true;
 		}
-		
-		document.getElementById("input-image-preview").onchange = function () {
-		    var reader = new FileReader();
-
-		    reader.onload = function (e) {
-		        var dom_img = document.getElementById("image-preview");
-		        
-		        dom_img.src = e.target.result;
-		        dom_img.classList.remove("hidden");
-		    };
-
-		    reader.readAsDataURL(this.files[0]);
-		};
 	</script>
 </body>
 </html>

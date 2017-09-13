@@ -21,7 +21,7 @@
 	<div th:fragment="generalErrorsFragment">
 		<!--/* Show general error message when form contains errors */-->
 	    <th:block th:if="${#fields.hasErrors('${user.*}')}">
-	        <div th:replace="fragments/alert :: alert (type='danger', message='I dati inseriti non sono validi. Prova di nuovo.')">I dati inseriti non sono validi</div>
+	        <div th:replace="fragments/alert :: alert (type='danger', message='I dati inseriti non sono validi.')">I dati inseriti non sono validi.</div>
 	    </th:block>
 	    
 	    <th:block th:if="${exceptionMessage} != null">
@@ -43,6 +43,36 @@
                 <p>Hai già un account? <a href="login" th:href="@{/login}">Accedi</a></p>
             </div>
         </div>
+	</div>
+	
+	<div th:fragment="inputImagePreview">
+	
+		<div class="form-group col-lg-12">
+			<div class="col-lg-6 col-lg-offset-3">
+				<img id="image-preview" class="img-thumbnail hidden"/>
+			</div>
+		</div>
+	
+        <div class="form-group col-lg-12">
+        	<div class="col-lg-6 col-lg-offset-3">
+         		<input type="file" id="input-image-preview" name="file" accept="image/x-png,image/gif,image/jpeg"/>
+        	</div>
+        </div>
+		
+		<script>
+			document.getElementById("input-image-preview").onchange = function () {
+			    var reader = new FileReader();
+	
+			    reader.onload = function (e) {
+			        var dom_img = document.getElementById("image-preview");
+			        
+			        dom_img.src = e.target.result;
+			        dom_img.classList.remove("hidden");
+			    };
+	
+			    reader.readAsDataURL(this.files[0]);
+			};
+		</script>	
 	</div>       
 	
 </body>
