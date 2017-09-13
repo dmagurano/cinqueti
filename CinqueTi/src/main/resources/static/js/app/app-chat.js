@@ -42,6 +42,8 @@ app.controller('chatCtrl', ['$scope', '$location', '$interval', 'ChatSocket', '$
         $scope.participants = [];
         $scope.messages     = [];
         $scope.newMessage   = '';
+        $scope.addresses    = [];
+        $scope.chosenAddress= {};
 
         $scope.alerts       = [];
         //$scope.alertTypes   = ['cantiere', 'incidente', 'incendio', 'altro']; //TODO move on server side?
@@ -153,22 +155,34 @@ app.controller('chatCtrl', ['$scope', '$location', '$interval', 'ChatSocket', '$
                 var location = matches[1]; //get the tag string
                 $scope.newAlert.searchOff = true;
                 AddressResolver.query({location: location}, function(addresses) {
-                    //TODO multiple results
-                    var address = addresses[0];
-
-                    $scope.newAlert.alert.lat = address.lat;
-                    $scope.newAlert.alert.lng = address.lon;
-                    $scope.newAlert.alert.address = address.display_name;
-                    $scope.newAlert.alert.type = 'altro';
-
-                    // update text area with alert.address
-                    $scope.newMessage = textValue.replace(/\[.*?\]/g, "[" + address.display_name + "]");
-                    showAlertTypeSelector();
-                } //TODO , function() { error! }
+                        $scope.addresses = addresses;
+                        $scope.newAlert.alert.type = 'altro';
+                        $scope.chosenAddress = addresses[0]; // set the first result as the default one
+                        if (addresses.length == 1)
+                        {
+                            // just one result! Simply call the function in order to show the result to user
+                            $scope.chooseAlertInfo();
+                        }
+                        showAlertTypeSelector();
+                    }, function() {
+                        alert("Siamo spiacenti, non siamo riusciti a risolvere l'indirizzo");
+                        $scope.newMessage = '';
+                        $scope.newAlert.reset();
+                    }
                 );
 
             }
         };
+        
+        $scope.chooseAlertInfo = function () {
+            var address = $scope.chosenAddress;
+            $scope.newAlert.alert.lat = address.lat;
+            $scope.newAlert.alert.lng = address.lon;
+            $scope.newAlert.alert.address = address.display_name;
+
+            // update text area with alert.address
+            $scope.newMessage = $scope.newMessage.replace(/\[.*?\]/g, "[" + address.display_name + "]");
+        }
 
         $scope.quote = function (id) {
             if ($scope.newAlert.searchOff === true)
@@ -383,7 +397,6 @@ app.directive('chatMessage', function($compile, $timeout) {
 		        	el.append(mess);
 		        } else {
                     var mess = $compile(sent)(scope);
-                    console.log(mess);
                     el.append(mess);
 		        }
 	        }

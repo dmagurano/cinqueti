@@ -44,22 +44,31 @@
 				<!--chat_area-->
 				<div class="message_write">
 					<textarea ng-keypress="enterKeyListener($event)"   ng-model="newMessage" ng-change="monitorTextInput()" id="textArea" class="form-control" placeholder="type a message"></textarea>
-					<div id="alertsModal"  class="modal fade">
+					<div id="alertsModal" class="modal fade">
 						<div class="modal-dialog">
 							<div class="modal-content">
 						       <div class="modal-header">
-						         <h4 class="modal-title">Select your alert type</h4>
+						         <h4 class="modal-title">Ci sei quasi, ci servono solo alcune informazioni sulla tua segnalazione...</h4>
 						       </div>
 						       <div class="modal-body" id="modal-body">
-								   <div class="radio"  ng-repeat="atype in alertTypes">
-									   <label>
-										   <input ng-model="$parent.newAlert.alert.type" type="radio"  name="type" ng-value="atype">
-										   {{atype}}
-									   </label>
+								   <div ng-if="addresses.length > 1">
+									   <p>Il tuo indirizzo ha restituito più risultati validi! Seleziona quello richiesto:</p>
+									   <div class="radio" ng-repeat="address in addresses">
+										   <label><input type="radio" name="chosenAddress" ng-model='chosenAddress' ng-value="address">{{address.display_name}}</label>
+									   </div>
+								   </div>
+								   <div>
+									   <p>Cosa hai notato?</p>
+									   <div class="radio"  ng-repeat="atype in alertTypes">
+										   <label>
+											   <input ng-model="$parent.newAlert.alert.type" type="radio"  name="type" ng-value="atype">
+											   {{atype}}
+										   </label>
+									   </div>
 								   </div>
 						       </div>
 						       <div class="modal-footer">
-									<button type="button" class="btn btn-default" data-dismiss="modal" id="modal-select" >Select</button>
+									<button type="button" class="btn btn-default" data-dismiss="modal" id="modal-select" ng-click="chooseAlertInfo()">Select</button>
 						       </div>
 						    </div>
 					    </div>
