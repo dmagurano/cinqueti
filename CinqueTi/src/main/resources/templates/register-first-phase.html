@@ -14,18 +14,7 @@
 		<form id="form" class="form-narrow form-horizontal" method="post" th:action="@{/register-first-phase}" th:object="${user}" th:fragment="signupForm" enctype="multipart/form-data">
 		
 			<div th:replace="fragments/common :: generalErrorsFragment"></div>
-		
-		    <!--/* Show general error message when form contains errors */-->
-		    <!--
-		    <th:block th:if="${#fields.hasErrors('${user.*}')}">
-		        <div th:replace="fragments/alert :: alert (type='danger', message='I dati inseriti non sono validi. Prova di nuovo.')">I dati inseriti non sono validi</div>
-		    </th:block>
-		    
-		    <th:block th:if="${exceptionMessage} != null">
-		    	<div th:replace="fragments/alert :: alert (type='warning', message=${exceptionMessage})">Qualcosa è andato storto.</div>
-		    </th:block>
-		    -->
-		    
+	    
 		    <fieldset>
 		        <legend>Registrati</legend>
 		        

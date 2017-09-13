@@ -6,6 +6,7 @@ import java.util.Collection;
 import java.util.List;
 
 import javax.persistence.Lob;
+import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
@@ -13,7 +14,6 @@ import org.hibernate.validator.constraints.NotEmpty;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.annotation.Transient;
 import org.springframework.data.mongodb.core.index.Indexed;
-import org.springframework.data.mongodb.core.mapping.Field;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -70,7 +70,8 @@ public class User implements UserDetails {
 	private String gender;
 	
 	@NotNull(groups = {SecondPhaseValidation.class})
-	private int age;
+	@Min(value = 18, groups={SecondPhaseValidation.class})
+	private Integer age;
 	
 	@NotNull(groups = {SecondPhaseValidation.class})
     @NotEmpty(groups = {SecondPhaseValidation.class})
@@ -85,7 +86,6 @@ public class User implements UserDetails {
 	private String carSharing;
 	
 	@NotNull(groups = {ThirdPhaseValidation.class})
-	//@Field("bike")
 	private Bike bikeUsage;
 	
 	@NotNull(groups = {ThirdPhaseValidation.class})
@@ -190,11 +190,11 @@ public class User implements UserDetails {
 		this.gender = gender;
 	}
 
-	public int getAge() {
+	public Integer getAge() {
 		return age;
 	}
 
-	public void setAge(int age) {
+	public void setAge(Integer age) {
 		this.age = age;
 	}
 
