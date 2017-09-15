@@ -54,7 +54,7 @@
 								   <div ng-if="addresses.length > 1">
 									   <p>Il tuo indirizzo ha restituito più risultati validi! Seleziona quello richiesto:</p>
 									   <div class="radio" ng-repeat="address in addresses">
-										   <label><input type="radio" name="chosenAddress" ng-model='chosenAddress' ng-value="address">{{address.display_name}}</label>
+										   <label><input type="radio" name="chosenAddress" ng-model="$parent.$parent.chosenAddress" ng-value="address">{{address.display_name}}</label>
 									   </div>
 								   </div>
 								   <div>
@@ -68,20 +68,59 @@
 								   </div>
 						       </div>
 						       <div class="modal-footer">
-									<button type="button" class="btn btn-default" data-dismiss="modal" id="modal-select" ng-click="chooseAlertInfo()">Select</button>
+									<button type="button" class="btn btn-default" data-dismiss="modal" id="modal-select" ng-click="chooseAlertInfo()">Continua</button>
 						       </div>
 						    </div>
 					    </div>
 					</div>
+					<div id="tagModal" class="modal fade">
+						<div class="modal-dialog">
+							<div class="modal-content">
+								<div class="modal-header">
+									<h4 class="modal-title">Qualcosa non va? </h4>
+								</div>
+								<div class="modal-body" id="modal-body-tag">
+									<div>
+										<p>Inserisci l'indirizzo, anche parziale, per segnalare un problema agli altri utenti:</p>
+										<input type="text" class="form-control" ng-model="modalAddress" id="address" placeholder="Indirizzo">
+									</div>
+								</div>
+								<div class="modal-footer">
+									<button type="button" class="btn btn-default" data-dismiss="modal" id="modal-select-tag" ng-click="processModalAlert()">Continua</button>
+								</div>
+							</div>
+						</div>
+					</div>
 					<div class="clearfix"></div>
 					<div class="chat_bottom">
 						<a class="pull-left upload_btn"><i class="fa fa-cloud-upload" aria-hidden="true"></i>Add Image</a>
-						<a id="sendBtn" ng-click="sendMessage()" class="pull-right btn btn-success">Send</a>
+						<div class="pull-right btn-group row">
+							<div class="col-md-3"></div>
+							<div class="col-md-3"><a id="alertBtn" ng-click="showAddressModal()" class="btn btn-info">Segnala</a></div>
+							<div class="col-md-1"></div>
+							<div class="col-md-3"><a id="sendBtn" ng-click="sendMessage()" class="btn btn-success">Invia</a></div></div>
+						<div class="btn-group"></div>
 					</div>
+
 				</div>
 			</div>
+
 		</div>
+
 		<!--message_section-->
+		<div class="col-sm-9 col-sm-offset-3" id="suggestionsArea">
+			<div class="well">
+					<h5>Suggerimenti</h5>
+					<span class="label label-danger">Indirizzo</span> Segnalazione attiva. Puoi visualizzarla sulla mappa e interagire con essa.<br>
+					<span class="label label-warning">Indirizzo</span> Segnalazione scaduta. Non viene referenziata da tempo.<br>
+					<span class="label label-default">[Indirizzo]</span> Puoi usare questa sintassi per una nuova segnalazione.
+
+			</div>
+
+		</div>
 	</div>
+	<!--<button id="helpBtn" title="Aiuto" class="btn btn-info btn-circle btn-lg"><i class="glyphicon glyphicon-question-sign" style="vertical-align:middle"></i></button>-->
+	<a id="helpBtn" href="#" class="btn btn-info btn-md help-btn" role="button" data-toggle="tooltip" data-placement="left" ng-click="focusOnHelp()">Aiuto</a>
+
 	
 	

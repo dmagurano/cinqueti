@@ -22,7 +22,7 @@ app.controller('HeaderCtrl', [ '$scope', '$location',
         }
 }]);
 
-app.controller('chatCtrl', ['$scope', '$location', '$interval', 'ChatSocket', '$routeParams', 'AddressResolver', 'ToolsResolver',
+app.controller('chatCtrl', ['$scope', '$location', '$interval', 'ChatSocket', '$routeParams', 'AddressResolver', 'ToolsResolver', '$window',
 	function($scope, $location, $interval, chatSocket,$routeParams, AddressResolver, ToolsResolver) {
         angular.extend($scope, {
             turin: {
@@ -44,7 +44,7 @@ app.controller('chatCtrl', ['$scope', '$location', '$interval', 'ChatSocket', '$
         $scope.newMessage   = '';
         $scope.addresses    = [];
         $scope.chosenAddress= {};
-
+        $scope.modalAddress = '';
         $scope.alerts       = [];
         //$scope.alertTypes   = ['cantiere', 'incidente', 'incendio', 'altro']; //TODO move on server side?
         $scope.alertTypes   = ToolsResolver.alertTypes;
@@ -52,8 +52,12 @@ app.controller('chatCtrl', ['$scope', '$location', '$interval', 'ChatSocket', '$
         // alert input monitor variables
         $scope.newAlert     = {
             searchOff: false,
+            inputType: '',
             alert: {},
-            reset: function() {this.searchOff = false; this.alert = {};}
+            reset: function() {
+                this.searchOff = false; this.alert = {}; this.inputType = '';
+                $scope.chosenAddress = {}; $scope.addresses = [];
+            }
         };
         // alert reference variables
         $scope.alertRef     = {
@@ -133,18 +137,13 @@ app.controller('chatCtrl', ['$scope', '$location', '$interval', 'ChatSocket', '$
                     if ($scope.alertRef.quoting)
                     {
                         // first case: the user attempt to remove the reference
-                        // TODO remove only the tag
                         $scope.alertRef.reset();
-                        $scope.newMessage = '';
                     }
                     else
                     {
                         // second case: the user attempt to remove the alert
                         $scope.newAlert.reset();
                     }
-
-
-
                     return;
                 }
             }
@@ -153,24 +152,7 @@ app.controller('chatCtrl', ['$scope', '$location', '$interval', 'ChatSocket', '$
             if (matches) {
                 // new alert found!
                 var location = matches[1]; //get the tag string
-                $scope.newAlert.searchOff = true;
-                AddressResolver.query({location: location}, function(addresses) {
-                        $scope.addresses = addresses;
-                        $scope.newAlert.alert.type = 'altro';
-                        $scope.chosenAddress = addresses[0]; // set the first result as the default one
-                        if (addresses.length == 1)
-                        {
-                            // just one result! Simply call the function in order to show the result to user
-                            $scope.chooseAlertInfo();
-                        }
-                        showAlertTypeSelector();
-                    }, function() {
-                        alert("Siamo spiacenti, non siamo riusciti a risolvere l'indirizzo");
-                        $scope.newMessage = '';
-                        $scope.newAlert.reset();
-                    }
-                );
-
+                $scope.buildAlertRequestFromAddress(location, "keyboard");
             }
         };
         
@@ -181,7 +163,51 @@ app.controller('chatCtrl', ['$scope', '$location', '$interval', 'ChatSocket', '$
             $scope.newAlert.alert.address = address.display_name;
 
             // update text area with alert.address
-            $scope.newMessage = $scope.newMessage.replace(/\[.*?\]/g, "[" + address.display_name + "]");
+            // if the input type is "keyboard" we have to replace only the user address between "[" "]"
+            // if the input type is "modal" we have to concatenate the "[" "address" "]"
+            if ($scope.newAlert.inputType === "keyboard")
+                $scope.newMessage = $scope.newMessage.replace(/\[.*?\]/g, "[" + address.display_name + "]");
+            else
+                $scope.newMessage = $scope.newMessage + "[" + address.display_name + "] ";
+        }
+
+        $scope.showAddressModal = function () {
+            // used by 'Segnala' btn (alertBtn)
+            showAlertAddressSelector();
+        }
+
+        $scope.focusOnHelp = function() {
+            $location.hash("suggestionsArea");
+            $anchorScroll();
+        }
+
+        $scope.processModalAlert = function () {
+            if ($scope.modalAddress.length == 0)
+                return;
+            $scope.buildAlertRequestFromAddress($scope.modalAddress, "modal");
+            $scope.modalAddress = '';
+        }
+
+        $scope.buildAlertRequestFromAddress = function(queryAddress, inputType) {
+            var location = queryAddress; //get the tag string
+            $scope.newAlert.searchOff = true;
+            $scope.newAlert.inputType = inputType; // used for replacing / insert tag into the user message
+            AddressResolver.query({location: location}, function(addresses) {
+                    $scope.addresses = addresses;
+                    $scope.newAlert.alert.type = 'altro';
+                    $scope.chosenAddress = addresses[0]; // set the first result as the default one
+                    if (addresses.length == 1)
+                    {
+                        // just one result! Simply call the function in order to show the result to user
+                        $scope.chooseAlertInfo();
+                    }
+                    showAlertTypeSelector();
+                }, function() {
+                    alert("Siamo spiacenti, non siamo riusciti a risolvere l'indirizzo");
+                    $scope.newMessage = '';
+                    $scope.newAlert.reset();
+                }
+            );
         }
 
         $scope.quote = function (id) {
@@ -344,6 +370,13 @@ function showAlertTypeSelector() {
     });
 }
 
+function showAlertAddressSelector() {
+    $('#tagModal').modal({
+        backdrop: 'static',
+        keyboard: false
+    });
+}
+
 function isToday (date) {
     var now = new Date();
     if (date.toDateString() == now.toDateString())
@@ -463,6 +496,7 @@ app.directive('chatAlert', function($compile, $timeout) {
     };
 
 });
+
 
 app.factory('AddressResolver', ['$resource', function ($resource) {
     //return $resource('https://nominatim.openstreetmap.org/search?q=:location,torino&format=json');

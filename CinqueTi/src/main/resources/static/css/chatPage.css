@@ -6,6 +6,26 @@
     z-index: 9999;
 }
 
+#tagModal {
+    z-index: 9999;
+}
+
+#suggestionsArea {
+    margin-top: 10px;
+}
+
+.help-btn {
+    cursor: pointer;
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+}
+
+.label {
+    min-width: 65px;
+    display: inline-block;
+}
+
 #custom-search-input {
   background: #e8e6e7 none repeat scroll 0 0;
   margin: 0;
@@ -208,6 +228,7 @@
 .chat_bottom {
   float: left;
   margin-top: 13px;
+  margin-bottom: 3px;
   width: 100%;
 }
 .upload_btn {

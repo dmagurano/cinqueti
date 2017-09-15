@@ -119,10 +119,6 @@ public class ChatServiceImpl implements ChatService {
 			return cm;
 		}).collect(Collectors.toList());
 		
-		for (ChatMessage msg: chmsgs)
-		{
-			
-		}
 		messagingTemplate.convertAndSendToUser(user, chatMessagesList, chmsgs);
 				
 //		// Generate an iterator. Start just after the last element.
