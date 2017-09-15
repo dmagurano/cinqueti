@@ -14,77 +14,8 @@
 		    <h3 th:text="'Ciao ' + ${user.nickname} + ', questo è il tuo profilo.'"></h3>
 		    
 		    <div class="col-lg-3 col-md-2">
-				<th:block th:if="${alreadyInUseNickname}">   
-			        <div th:replace="fragments/alert :: alert (type='danger', message=${alreadyInUseNickname})">
-			        	Scegliere un nickname diverso da quello gi&agrave; in uso.
-			        </div>
-		        </th:block>
-	
-				<th:block th:if="${emptyNickname}">
-			        <div th:replace="fragments/alert :: alert (type='danger', message=${emptyNickname})">
-			        	Il nickname deve essere di almeno 1 carattere.
-			        </div>
-		        </th:block>
-	
-				<th:block th:if="${updatedNickname}">   
-			        <div th:replace="fragments/alert :: alert (type='success', message=${updatedNickname})">
-			        	Nickname cambiato.
-			        </div>
-		        </th:block>
-
-		        <th:block th:if="${mismatchPassword}">   
-			        <div th:replace="fragments/alert :: alert (type='danger', message=${mismatchPassword})">
-			        	Le password non coincidono.
-			        </div>
-		        </th:block>
-
-		        <th:block th:if="${emptyPassword}">   
-			        <div th:replace="fragments/alert :: alert (type='danger', message=${emptyPassword})">
-			        	Le password non possono essere vuote.
-			        </div>
-		        </th:block>
-		        
-				<th:block th:if="${wrongOldPassword}">   
-			        <div th:replace="fragments/alert :: alert (type='danger', message='Password attuale errata.')">
-			        	Password attuale errata.
-			        </div>
-		        </th:block>
-		        
-				<th:block th:if="${shortPassword}">   
-			        <div th:replace="fragments/alert :: alert (type='danger', message='Password troppo corta.')">
-			        	Password troppo corta.
-			        </div>
-		        </th:block>
-		        
-				<th:block th:if="${samePassword}">   
-			        <div th:replace="fragments/alert :: alert (type='danger', message='La nuova password deve essere diversa da quella attuale.')">
-			        	La nuova password deve essere diversa da quella attuale.
-			        </div>
-		        </th:block>
-		        
-				<th:block th:if="${updatedPassword}">   
-			        <div th:replace="fragments/alert :: alert (type='success', message='Password cambiata.')">
-			        	Password cambiata.
-			        </div>
-		        </th:block>
-		        
-				<th:block th:if="${notValidImage}">   
-			        <div th:replace="fragments/alert :: alert (type='danger', message='Immagine non valida.')">
-			        	Immagine non valida.
-			        </div>
-		        </th:block>
-		        
-				<th:block th:if="${profilePictureUpdateProblems}">   
-			        <div th:replace="fragments/alert :: alert (type='danger', message='Si sono verificati dei problemi durante l aggiornamento dell immagine del profilo.')">
-			        	Si sono verificati dei problemi durante l'aggiornamento dell immagine del profilo.
-			        </div>
-		        </th:block>
-		        
-				<th:block th:if="${successfullProfilePictureUpdate}">   
-			        <div th:replace="fragments/alert :: alert (type='success', message='Immagine del profilo aggiornata.')">
-			        	Immagine del profilo aggiornata.
-			        </div>
-		        </th:block>
+		    
+		    	<div th:replace="fragments/common :: generalErrorsFragment"></div>
 
 			    <div class="thumbnail">
 					<img th:if="${user.getImage() != null}" 

@@ -6,7 +6,6 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -30,31 +29,33 @@ public class UserServiceImpl implements UserService {
     private SecurityService securityService;
 
 	@Override
-	public void registerNewUser(User user) throws Exception {
-		if (emailExist(user.getEmail()))
-            throw new Exception("There is already an account with email adress: " +  user.getEmail());
-    	
+	public void saveUser(User user){
     	List<String> roles = new ArrayList<String>();
     	roles.add("ROLE_USER");
     	
-        user.setPassword(bCryptPasswordEncoder.encode(user.getPassword()));
+        //user.setPassword(bCryptPasswordEncoder.encode(user.getPassword()));
         user.setAuthorities(roles);
-        userRepository.save(user);
-	}
-
-	@Override
-	public void updateNewUser(User user) throws Exception {
-		if (!emailExist(user.getEmail()))
-            throw new Exception("There is no account with email adress: " +  user.getEmail());
-    	
+        
         userRepository.save(user);
 	}
     
-    private boolean emailExist(String email) {
+	@Override
+    public boolean emailIsTaken(String email) {
         User user = this.findByEmail(email);
+        
         if (user != null) {
             return true;
         }
+        else{
+        	user = new User();
+        	user.setEmail(email);
+        	
+        	VerificationToken databaseToken = verificationTokenRepository.findByEmail(email);
+        	
+        	if (databaseToken != null)
+        		return true;
+        }
+        
         return false;
     }
     
@@ -103,26 +104,35 @@ public class UserServiceImpl implements UserService {
 	}
 
 	@Override
-	public VerificationToken getVerificationToken(String verificationToken) {
-		return verificationTokenRepository.findByToken(verificationToken);
+	public VerificationToken getVerificationToken(String token) {
+		return verificationTokenRepository.findByToken(token);
 	}
 
+	/*
 	@Override
 	public User getUser(String verificationToken) {
-		String userId = verificationTokenRepository.findByToken(verificationToken).getUserId();
+		String userId = verificationTokenRepository.findByToken(verificationToken).getUser().getId();
 		
 		return userRepository.findById(userId);
 	}
+	*/
 
 	@Override
-	public void saveVerificationToken(String userId, String token) {
-		VerificationToken verificationToken = new VerificationToken(token, userId);
+	public void saveVerificationToken(User user, String token) {
+		user.setPassword(bCryptPasswordEncoder.encode(user.getPassword()));
+		
+		VerificationToken verificationToken = new VerificationToken(token, user);
 		
 		verificationTokenRepository.save(verificationToken);
 	}
 
 	@Override
-	public void removeVerificationToken(String token) {
-		verificationTokenRepository.deleteByToken(token);
+	public void removeVerificationToken(VerificationToken token) {
+		verificationTokenRepository.deleteByToken(token.getToken());
+	}
+
+	@Override
+	public void updateVerificationToken(VerificationToken token) {
+		verificationTokenRepository.save(token);
 	}
 }

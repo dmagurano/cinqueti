@@ -4,19 +4,22 @@ import java.sql.Timestamp;
 import java.util.Calendar;
 import java.util.Date;
 
+import org.springframework.data.annotation.Id;
+
 // http://www.baeldung.com/registration-verify-user-by-email
 public class VerificationToken {
 
 	private final Integer EXPIRE_HOURS = 24;
 	
+	@Id
 	private String token;
 	
-	private String userId;
+	private User user;
 	
 	private Date expiryDate;
 	
-	public VerificationToken(String token, String userId) {
-		this.userId = userId;
+	public VerificationToken(String token, User user) {
+		this.setUser(user);
 		this.token = token;
 		this.expiryDate = calculateExpiryDate(EXPIRE_HOURS);
 	}
@@ -29,12 +32,12 @@ public class VerificationToken {
 		this.token = token;
 	}
 
-	public String getUserId() {
-		return userId;
+	public User getUser() {
+		return user;
 	}
 
-	public void setUserId(String userId) {
-		this.userId = userId;
+	public void setUser(User user) {
+		this.user = user;
 	}
 
 	public Date getExpiryDate() {

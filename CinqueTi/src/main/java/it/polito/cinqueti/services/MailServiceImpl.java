@@ -14,14 +14,17 @@ public class MailServiceImpl implements MailService{
 	@Override
 	public boolean sendConfirmationEmail(String userEmail, String token) {
 		
-		String subject = "CinqueTi - Confirm registration";
+		String subject = "CinqueTi - Conferma il tuo account";
+		
+		String emailText = "Per confermare il tuo account su CinqueTi clicca sul seguente link.";
+		
 		String confirmationUrl = "https://localhost:8443/"
 				+ "register-second-phase?token=" + token;
 		
 		SimpleMailMessage email = new SimpleMailMessage();
 		email.setTo(userEmail);
 		email.setSubject(subject);
-		email.setText(confirmationUrl);
+		email.setText(emailText + "\n\n" + confirmationUrl);
 		
 		try{
 			javaMailSender.send(email);

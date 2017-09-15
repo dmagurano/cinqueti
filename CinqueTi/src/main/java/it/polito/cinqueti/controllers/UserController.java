@@ -80,44 +80,51 @@ public class UserController {
             return "redirect:register-first-phase";
     	}
     	else{
-        	token = UUID.randomUUID().toString();
+			if (userService.emailIsTaken(user.getEmail())){
+				redirectAttributes.addFlashAttribute("exceptionMessage", "Indirizzo email già in uso. Cambiare indirizzo email.");
+	        	
+	        	return "redirect:register-first-phase";
+			}
+			
+			token = UUID.randomUUID().toString();
+			
+    		userService.saveVerificationToken(user, token);
     		
     		if (mailService.sendConfirmationEmail(user.getEmail(), token) == false){
-            	redirectAttributes.addFlashAttribute("exceptionMessage", "Ci sono stati dei problemi durante la registrazione. "
-            			+ "Registrati.");
+    			userService.removeVerificationToken(userService.getVerificationToken(token));
+    			
+            	redirectAttributes.addFlashAttribute("exceptionMessage", "Ci sono stati dei problemi "
+            			+ "durante l'invio dell'email di conferma. Registrati.");
             	
                 return "redirect:register-first-phase";
     		}
-    		else{
-    			registerNewUser(user);
-        		
-        		userService.saveVerificationToken(user.getId(), token);
-        		
-	        	redirectAttributes.addFlashAttribute("infoMessage", "Conferma il tuo account tramite la mail "
-	        			+ "che abbiamo inviato sul tuo indirizzo di posta elettronica.");
-            	
-	        	return "redirect:login";
-    		}
+    		
+        	redirectAttributes.addFlashAttribute("infoMessage", "Conferma il tuo account tramite l'email "
+        			+ "che abbiamo inviato sul tuo indirizzo di posta elettronica.");
+        	
+        	return "redirect:login";
         }
     }
     
     @RequestMapping(value = "/register-second-phase", method = RequestMethod.GET)
     public String confirmRegistration(
-    		@RequestParam String token,
+    		@RequestParam(required = true) String token,
     		Model model){
+    	User databaseUser = null;
     	
     	if (!model.containsAttribute("org.springframework.validation.BindingResult.user")){
-	    	User databaseUser = checkVerificationToken(token);
+	    	databaseUser = getDatabaseToken(token).getUser();
 	    	
 	    	if (databaseUser == null){
-	    		model.addAttribute("dangerMessage", "Il tuo token non è valido. Registrati.");
+	    		model.addAttribute("exceptionMessage", "Il tuo token non è valido. Registrati.");
 	    		
 	    		return "bad-verification";
 	    	}
 	    	
-	    	model.addAttribute("token", token);
 	    	model.addAttribute("user", databaseUser);
 	    }
+    	
+    	model.addAttribute("token", token);
 
     	fillSecondPhaseModel(model);
     	
@@ -126,19 +133,21 @@ public class UserController {
     
     @RequestMapping(value = "/register-second-phase", method = RequestMethod.POST)
     public String postRegisterSecondPhase(
-    		@RequestParam String token,
+    		@RequestParam(required = true) String token,
     		@RequestParam MultipartFile file,
     		@Validated(User.SecondPhaseValidation.class) User user,
     		BindingResult bindingResult,
     		RedirectAttributes redirectAttributes) {
     	
-    	User databaseUser = checkVerificationToken(token);
+    	VerificationToken databaseToken = getDatabaseToken(token);
     	
-    	if (databaseUser == null){
-    		redirectAttributes.addFlashAttribute("dangerMessage", "Il tuo token non è valido. Registrati.");
+    	if (databaseToken == null){
+    		redirectAttributes.addFlashAttribute("exceptionMessage", "Il tuo token non è valido. Registrati.");
     		
     		return "redirect:bad-verification";
     	}
+
+    	User databaseUser = databaseToken.getUser();
     	
     	if (bindingResult.hasErrors()) {
     		redirectAttributes.addFlashAttribute("org.springframework.validation.BindingResult.user", bindingResult);
@@ -167,7 +176,9 @@ public class UserController {
     		databaseUser.setAge(user.getAge());
     		databaseUser.setEducation(user.getEducation());
     		databaseUser.setJob(user.getJob());
-            updateNewUser(databaseUser);
+    		
+    		databaseToken.setUser(databaseUser);
+            userService.updateVerificationToken(databaseToken);
         	
         	redirectAttributes.addAttribute("token", token);
         	redirectAttributes.addFlashAttribute("user", databaseUser);
@@ -178,21 +189,22 @@ public class UserController {
     
     @RequestMapping(value = "register-third-phase", method = RequestMethod.GET)
     public String getRegisterThirdPhase(
-    		@RequestParam("token") String token,
+    		@RequestParam(required = true) String token,
     		Model model){
     	
     	if (!model.containsAttribute("org.springframework.validation.BindingResult.user")){
-	    	User databaseUser = checkVerificationToken(token);
+	    	User databaseUser = getDatabaseToken(token).getUser();
 	    	
 	    	if (databaseUser == null){
-	    		model.addAttribute("dangerMessage", "Il tuo token non è valido. Registrati.");
+	    		model.addAttribute("exceptionMessage", "Il tuo token non è valido. Registrati.");
 	    		
 	    		return "bad-verification";
 	    	}
 	    	
-	    	model.addAttribute("token", token);
 	    	model.addAttribute("user", databaseUser);
 	    }
+    	
+    	model.addAttribute("token", token);
 
     	fillThirdPhaseModel(model);
     	
@@ -201,18 +213,20 @@ public class UserController {
     
     @RequestMapping(value = "/register-third-phase", method = RequestMethod.POST)
     public String postRegisterThirdPhase(
-    		@RequestParam("token") String token,
+    		@RequestParam(required = true) String token,
     		@Validated(User.ThirdPhaseValidation.class) User user,
     		BindingResult bindingResult,
     		RedirectAttributes redirectAttributes) {
     	
-    	User databaseUser = checkVerificationToken(token);
+    	VerificationToken databaseToken = getDatabaseToken(token);
     	
-    	if (databaseUser == null){
-    		redirectAttributes.addFlashAttribute("dangerMessage", "Il tuo token non è valido. Registrati.");
+    	if (databaseToken == null){
+    		redirectAttributes.addFlashAttribute("exceptionMessage", "Il tuo token non è valido. Registrati.");
     		
     		return "redirect:bad-verification";
     	}
+
+    	User databaseUser = databaseToken.getUser();
     	
     	if (bindingResult.hasErrors()) {
     		redirectAttributes.addFlashAttribute("org.springframework.validation.BindingResult.user", bindingResult);
@@ -226,11 +240,13 @@ public class UserController {
     		databaseUser.setBikeUsage(user.getBikeUsage());
     		databaseUser.setPubTransport(user.getPubTransport());
     		databaseUser.setEnabled(true);
-            updateNewUser(databaseUser);
-            
-        	userService.removeVerificationToken(token);
+        	
+        	userService.saveUser(databaseUser);
+            userService.removeVerificationToken(databaseToken);
         	
         	securityService.autologin(databaseUser.getUsername(), databaseUser.getConfirmedPassword());
+        	
+        	redirectAttributes.addFlashAttribute("successMessage", "Registrazione completata con successo.");
         	
         	return "redirect:profile";
         }
@@ -273,15 +289,15 @@ public class UserController {
     	User currentUser = userService.findByEmail(securityService.findLoggedInUsername());
     	
     	if (newNickname.length() == 0){
-    		redirectAttributes.addFlashAttribute("emptyNickname", "Il nickname deve essere di almeno 1 carattere.");
+    		redirectAttributes.addFlashAttribute("exceptionMessage", "Il nickname deve essere di almeno 1 carattere.");
     	}
     	else if (newNickname.compareTo(currentUser.getNickname()) == 0){
-    		redirectAttributes.addFlashAttribute("alreadyInUseNickname", "Scegliere un nickname diverso da quello già in uso.");
+    		redirectAttributes.addFlashAttribute("exceptionMessage", "Scegliere un nickname diverso da quello già in uso.");
     	}
     	else{
     		userService.updateUserNewNickname(currentUser, newNickname);
     		
-    		redirectAttributes.addFlashAttribute("updatedNickname", "Nickname cambiato.");
+    		redirectAttributes.addFlashAttribute("successMessage", "Nickname cambiato con successo.");
     	}
     	
     	return "redirect:profile";
@@ -297,24 +313,24 @@ public class UserController {
     	User currentUser = userService.findByEmail(securityService.findLoggedInUsername());
     	
     	if (oldPassword.length() == 0 || newPassword.length() == 0 || newPasswordConfirmed.length() == 0){
-    		redirectAttributes.addFlashAttribute("emptyPassword", "Le password non possono essere vuote.");
+    		redirectAttributes.addFlashAttribute("exceptionMessage", "Le password non possono essere vuote.");
     	}
     	else if (newPassword.compareTo(newPasswordConfirmed) != 0){
-    		redirectAttributes.addFlashAttribute("mismatchPassword", "Le password non coincidono.");
+    		redirectAttributes.addFlashAttribute("exceptionMessage", "Le password non coincidono.");
     	}
     	else if (newPassword.length() < minPasswordLength){
-    		redirectAttributes.addFlashAttribute("shortPassword", true);
+    		redirectAttributes.addFlashAttribute("exceptionMessage", "La nuova password deve essere di almeno 8 caratteri.");
     	}
     	else if (!userService.checkPassword(currentUser, oldPassword)){
-    		redirectAttributes.addFlashAttribute("wrongOldPassword", true);
+    		redirectAttributes.addFlashAttribute("dangerMessage", "La vecchia password è errata.");
     	}
     	else if (oldPassword.compareTo(newPassword) == 0){
-    		redirectAttributes.addFlashAttribute("samePassword", true);
+    		redirectAttributes.addFlashAttribute("exceptionMessage", "La nuova password non può essere uguale alla vecchia.");
     	}
     	else{
 	    	userService.updateUserNewPassword(currentUser, newPassword);
 	    	
-	    	redirectAttributes.addFlashAttribute("updatedPassword", true);
+	    	redirectAttributes.addFlashAttribute("successMessage", "Password aggiornata.");
     	}
     	
     	return "redirect:profile";
@@ -330,7 +346,7 @@ public class UserController {
     	byte[] image = parseImage(file);
 		
 		if (image == null){
-			redirectAttributes.addFlashAttribute("notValidImage", "Immagine non valida.");
+			redirectAttributes.addFlashAttribute("exceptionMessage", "Immagine non valida.");
             
         	return "redirect:profile";
 		}
@@ -341,48 +357,26 @@ public class UserController {
 				currentUser.setImage(null);
 		}
     	
-        if (updateNewUser(currentUser) == false) 
-        	redirectAttributes.addFlashAttribute("profilePictureUpdateProblems", "Si sono verificati dei problemi durante l'aggiornamento.");
-        else
-        	redirectAttributes.addFlashAttribute("successfullProfilePictureUpdate", "Immagine del profilo aggiornata.");
+        userService.saveUser(currentUser);
+        
+        redirectAttributes.addFlashAttribute("successMessage", "Immagine del profilo aggiornata.");
         
         return "redirect:profile";
     }
     
-    private boolean registerNewUser(User user){
-    	try{
-    		userService.registerNewUser(user);
-    	}
-    	catch(Exception e){
-    		e.printStackTrace();
-    		return false;
-    	}
+    private VerificationToken getDatabaseToken(String token){
+    	VerificationToken databaseToken = userService.getVerificationToken(token);
     	
-    	return true;
-    }
-    
-    private boolean updateNewUser(User user){
-    	try{
-    		userService.updateNewUser(user);
-    	}
-    	catch(Exception e){
-    		e.printStackTrace();
-    		return false;
-    	}
-    	
-    	return true;
-    }
-    
-    private User checkVerificationToken(String token){
-    	VerificationToken verificationToken = userService.getVerificationToken(token);
-    	
-    	if ( verificationToken == null)
+    	if ( databaseToken == null)
     		return null;
     	
-    	if ( verificationToken.isExpired() )
+    	if ( databaseToken.isExpired() ){
+    		userService.removeVerificationToken(databaseToken);
+    		
     		return null;
+    	}
     	
-    	return userService.getUser(token);
+    	return databaseToken;
     }
     
     private byte[] parseImage(MultipartFile multipartFile){

@@ -20,17 +20,27 @@
 	
 	<div th:fragment="generalErrorsFragment">
 		<!--/* Show general error message when form contains errors */-->
-	    <th:block th:if="${#fields.hasErrors('${user.*}')}">
-	        <div th:replace="fragments/alert :: alert (type='danger', message='I dati inseriti non sono validi.')">I dati inseriti non sono validi.</div>
+	    
+	    <th:block th:if="${infoMessage} != null">
+	    	<div th:replace="fragments/alert :: alert (type='info', message=${infoMessage})"></div>
+	    </th:block>
+	    
+	    <th:block th:if="${successMessage} != null">
+	    	<div th:replace="fragments/alert :: alert (type='success', message=${successMessage})"></div>
 	    </th:block>
 	    
 	    <th:block th:if="${exceptionMessage} != null">
-	    	<div th:replace="fragments/alert :: alert (type='warning', message=${exceptionMessage})">Qualcosa è andato storto.</div>
+	    	<div th:replace="fragments/alert :: alert (type='warning', message=${exceptionMessage})"></div>
 	    </th:block>
+	    
+	    <th:block th:if="${dangerMessage} != null">
+	    	<div th:replace="fragments/alert :: alert (type='danger', message=${dangerMessage})"></div>
+	    </th:block>
+	    
 	</div>
 	
-
-
+	
+	
 	<div th:fragment="tailRegistrationFragment">
 		<div class="form-group">
             <div class="col-lg-offset-2 col-lg-10">
@@ -44,6 +54,8 @@
             </div>
         </div>
 	</div>
+
+
 	
 	<div th:fragment="inputImagePreview">
 	

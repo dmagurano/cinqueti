@@ -15,19 +15,9 @@
     
         <form class="form-signin" role="form" method="POST" th:action="@{/login}">
         
-            <div class="alert alert-danger" th:if="${param.error}">
-                <p th:text="${#strings.arraySplit(session[SPRING_SECURITY_LAST_EXCEPTION], ':')[1]}">
-                	Credenziali non valide.
-                </p>
-            </div>
-                
-		    <th:block th:if="${infoMessage} != null">
-		    	<div th:replace="fragments/alert :: alert (type='info', message=${infoMessage})">Alert</div>
-		    </th:block>
-		    
-		    <th:block th:if="${dangerMessage} != null">
-		    	<div th:replace="fragments/alert :: alert (type='danger', message=${dangerMessage})">Alert</div>
-		    </th:block>
+            <div class="alert alert-danger" th:if="${param.error}" th:text="#{user.login.invalidCredential}"></div>
+            
+            <div th:replace="fragments/common :: generalErrorsFragment"></div>
 
             <h2 class="form-signin-heading">Accedi</h2>
             
