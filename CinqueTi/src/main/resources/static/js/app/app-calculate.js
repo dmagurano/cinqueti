@@ -37,8 +37,8 @@ app.controller('CalculateController', ['$scope', 'PathsDataProvider', 'leafletBo
             //build destination query by replacing space for +
             var dst_addr = $scope.destination.replace(/ /g, "+");
 
-            PathsDataProvider.setSource(pathPrefix+src_addr+",+Torino,+IT&category=&outFields=*&forStorage=false&f=pjson");  //add ArcGis suffix
-            PathsDataProvider.setDestination(pathPrefix+dst_addr+",+Torino,+IT&category=&outFields=*&forStorage=false&f=pjson");
+            PathsDataProvider.setSource(pathPrefix+src_addr+"&category=&outFields=*&forStorage=false&f=pjson");  //add ArcGis suffix
+            PathsDataProvider.setDestination(pathPrefix+dst_addr+"&category=&outFields=*&forStorage=false&f=pjson");
 
 
             //var self = this;
@@ -89,7 +89,7 @@ app.factory('PathsDataProvider', [ '$http', '$window',
 
         function getSuggestions(srcAddress){
             console.log("CIAO:: "+srcAddress);
-            return $http.get("https://geocode.arcgis.com/arcgis/rest/services/World/GeocodeServer/suggest?text=Torino,"+srcAddress+"&f=pjson&sourceCountry=ITA").then(
+            return $http.get("https://geocode.arcgis.com/arcgis/rest/services/World/GeocodeServer/suggest?text="+srcAddress+"&f=pjson&searchExtent=7.465761,44.948028,7.875002,45.163394&sourceCountry=ITA").then(
                 function(resp){
 
                     var data = resp.data.suggestions;
@@ -209,7 +209,7 @@ app.factory('PathsDataProvider', [ '$http', '$window',
                                 focus: false,
                                 draggable: false,
                                 icon:{
-                                    iconUrl: 'http://icons.iconarchive.com/icons/everaldo/crystal-clear/72/Action-flag-icon.png',
+                                    iconUrl: '../assets/flag-128.png',
                                     shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png',
                                     iconSize: [48, 48],
                                     iconAnchor: [12, 41],
@@ -255,7 +255,7 @@ app.factory('PathsDataProvider', [ '$http', '$window',
                                 focus: false,
                                 draggable: false,
                                 icon:{
-                                    iconUrl: 'http://icons.iconarchive.com/icons/icons8/ios7/72/Sports-Finish-Flag-icon.png',
+                                    iconUrl: '../assets/finish-flag-128.png',
                                     shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png',
                                     iconSize: [48, 48],
                                     iconAnchor: [12, 41],
@@ -306,7 +306,7 @@ app.factory('PathsDataProvider', [ '$http', '$window',
                                     focus: false,
                                     draggable: false,
                                     icon:{
-                                        iconUrl: 'http://icons.iconarchive.com/icons/icons8/ios7/72/Sports-Finish-Flag-icon.png',
+                                        iconUrl: '../assets/finish-flag-128.png',
                                         shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png',
                                         iconSize: [48, 48],
                                         iconAnchor: [12, 41],
@@ -352,7 +352,9 @@ app.factory('PathsDataProvider', [ '$http', '$window',
                 }).catch(function errorCallback(error){
 
                     //Handle the error by showing an alert box 'Nessun risultato'
-                    $window.alert("Nessun risultato");
+                    //$window.alert("Nessun risultato");
+                    showAlertTypeSelector();
+                    
                 });
 
 
@@ -384,4 +386,12 @@ function createPolyline(mode,line){
     }
 
     return polyline
+}
+
+
+function showAlertTypeSelector() {
+    $('#warning').modal({
+        backdrop: 'static',
+        keyboard: false
+    });
 }

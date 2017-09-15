@@ -268,3 +268,17 @@ app.directive('myDirective', function () {
   };
   */
 });
+
+app.filter('linesFilter', function () {
+	  return function (items,searchLine) {
+	    var filtered = [];
+	    
+	    for (var i = 0; i < items.length; i++) {
+	      var item = items[i];
+	      if (searchLine === item.line) {
+	        filtered.push(item);
+	      }
+	    }
+	    return filtered;
+	  };
+});
