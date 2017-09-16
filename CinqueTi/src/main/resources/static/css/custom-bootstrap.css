@@ -128,3 +128,8 @@ body {
 #warning{
 	z-index:9999;
 }
+
+/* modal over navbar */
+.modal-over-navbar{
+	z-index: 9995;
+}
