@@ -2,8 +2,10 @@ package it.polito.cinqueti.entities;
 
 public class Bike {
 
+	//@NotNull(groups = User.ThirdPhaseValidation.class)
 	private boolean owned;
 	
+	//@NotNull(groups = User.ThirdPhaseValidation.class)
 	private boolean sharing;
 	
 	public Bike(boolean owned, boolean sharing){

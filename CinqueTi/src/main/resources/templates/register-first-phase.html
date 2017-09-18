@@ -16,7 +16,7 @@
 			<div th:replace="fragments/common :: generalErrorsFragment"></div>
 			
 		    <th:block th:if="${#fields.hasErrors('${user.*}')}">
-		        <div th:replace="fragments/alert :: alert (type='danger', message='I dati inseriti non sono validi.')">I dati inseriti non sono validi.</div>
+		        <div th:replace="fragments/alert :: alert (type='danger', message='I dati inseriti non sono validi.')"></div>
 		    </th:block>
 	    
 		    <fieldset>
@@ -26,7 +26,7 @@
 		            <label for="email" class="col-lg-2 control-label">Email</label>
 		            <div class="col-lg-10">
 		                <input type="text" class="form-control" id="email" placeholder="Indirizzo email" th:field="*{email}" required="required"/>
-		                <span class="help-block" th:if="${#fields.hasErrors('email')}" th:errors="*{email}">Email non valida</span>
+		                <span class="help-block" th:if="${#fields.hasErrors('email')}" th:errors="*{email}"></span>
 		            </div>
 		        </div>
 		        
@@ -34,7 +34,7 @@
 		            <label for="password" class="col-lg-2 control-label">Password</label>
 		            <div class="col-lg-10">
 		                <input type="password" class="form-control" id="password" placeholder="Password" th:field="*{password}" required="required"/>
-		                <span class="help-block" th:if="${#fields.hasErrors('password')}" th:errors="*{password}">Password non valida</span>
+		                <span class="help-block" th:if="${#fields.hasErrors('password')}" th:errors="*{password}"></span>
 		            </div>
 		        </div>
 		        
@@ -42,8 +42,7 @@
 		            <label for="confirmedPassword" class="col-lg-2 control-label">Conferma password</label>
 		            <div class="col-lg-10">
 		                <input type="password" class="form-control" id="confirmedPassword" placeholder="Ripeti password" th:field="*{confirmedPassword}" required="required"/>
-		                <span class="help-block" th:if="${#fields.hasErrors('password')}" th:errors="*{password}">Password non valida</span>
-		                <span class="help-block" th:each="err : ${#fields.errors('global')}" th:text="${err}">L'input non è valido</span>
+		                <span class="help-block" th:if="${#fields.hasErrors('password')}" th:errors="*{password}"></span>
 		            </div>
 		        </div>
 		        

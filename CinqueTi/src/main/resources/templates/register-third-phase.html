@@ -22,36 +22,43 @@
 		    <fieldset>
 		        <legend>Informazioni trasporti</legend>
 
-				<div class="form-group form-inline" th:classappend="${#fields.hasErrors('ownCar')}? 'has-error'">
+				<div class="form-group form-inline">
 					<div class="col-lg-12">
 			           	<label for="car" class="col-lg-2 control-label">Auto propria</label>
-			            <input id="car" type="checkbox" class="form-control" value=""/>
+			            <input id="car" type="checkbox" class="form-control" value="" th:checked="${#fields.hasErrors('ownCar.registrationYear')} or ${#fields.hasErrors('ownCar.fuelType')}"/>
 			            
-			            <span class="help-block" th:if="${#fields.hasErrors('ownCar')}" th:errors="*{ownCar}">Informazioni non valide</span>
+			            <!-- 
+			            <span class="help-block" th:if="${#fields.hasErrors('ownCar')}" th:errors="*{ownCar}"></span>
+			            -->
 		            </div>
 				</div>
 
-		        <div id="divCar" class="form-group" th:classappend="${#fields.hasErrors('ownCar')}? 'has-error'" style="display: none;">
+				<div id="divCar" class="form-group" th:style="not (${#fields.hasErrors('ownCar.registrationYear')} or ${#fields.hasErrors('ownCar.fuelType')}) ? 'display: none;'">
 		        	<label class="col-lg-2 control-label">Dettagli auto</label>
 		        	<div class="col-lg-10">
-		        	
-						<label for="carYear" class="radio-inline col-lg-6">Anno Immatricolazione</label>
-						<div class="form-group col-lg-6">
-				        	<input type="number" value="1900" class="form-control col-lg-6" placeholder="1900-2017" id="carYear" min="1900" max="2017" th:field="*{ownCar.registrationYear}"/>
+
+						<div th:classappend="${#fields.hasErrors('ownCar.registrationYear')}? 'has-error'">		        	
+							<label for="carYear" class="radio-inline col-lg-6">Anno Immatricolazione</label>
+							<div class="form-group col-lg-6">
+					        	<input type="number" value="1900" class="form-control col-lg-6" placeholder="1900-2017" id="registrationYear" min="1900" max="2017" th:field="*{ownCar.registrationYear}"/>
+					        </div>
+					        <span class="help-block" th:if="${#fields.hasErrors('ownCar.registrationYear')}" th:errors="*{ownCar.registrationYear}"></span>
 				        </div>
 				        
-		        		<label for="carFuel" class="radio-inline col-lg-6">Carburante</label>
-						<div class="form-group col-lg-6">
-			           		<select class="form-control col-lg-6" id="carFuel" th:field="*{ownCar.fuelType}">
-				           		<option value="" selected="selected">Scegli</option>
-				           		
-				           		<option th:each="fuelType : ${fuelTypes}" th:value="${fuelType}">
-							    	<th:block th:text="${fuelType}"></th:block>
-							    </option>
-							    
-							    <option value="other">Altro</option>
-							</select>
+				        <div th:classappend="${#fields.hasErrors('ownCar.fuelType')}? 'has-error'">
+			        		<label for="carFuel" class="radio-inline col-lg-6">Carburante</label>
+							<div class="form-group col-lg-6">
+				           		<select class="form-control col-lg-6" id="fuelType" th:field="*{ownCar.fuelType}">
+					           		<option value="" selected="selected">Scegli</option>
+					           		
+					           		<option th:each="fuelType : ${fuelTypes}" th:value="${fuelType}">
+								    	<th:block th:text="${fuelType}"></th:block>
+								    </option>
+								</select>
+							</div>
+							<span class="help-block" th:if="${#fields.hasErrors('ownCar.fuelType')}" th:errors="*{ownCar.fuelType}"></span>
 						</div>
+						
 				       	
 			       	</div>
 			       	
@@ -59,44 +66,50 @@
 		        
 		        <div class="form-group" th:classappend="${#fields.hasErrors('carSharing')}? 'has-error'">
 		            <label for="carSharing" class="col-lg-2 control-label">Servizio car sharing</label>
+		            
 		            <div class="col-lg-10">    
 		                <select class="form-control" id="carSharing" th:field="*{carSharing}">
-		                	<option value="none" style="display:none">Non usato</option>
+		                	<option value="" selected="selected">Scegli</option>
 		                	
 						    <option th:each="carSharingService : ${carSharingServices}" th:value="${carSharingService}">
 						    	<th:block th:text="${carSharingService}"></th:block>
 						    </option>
 						    
-						    <option value="Other">Other</option>
 						</select>
-		                <span class="help-block" th:if="${#fields.hasErrors('carSharing')}" th:errors="*{carSharing}">Servizio car sharing non valido</span>
+		                <span class="help-block" th:if="${#fields.hasErrors('carSharing')}" th:errors="*{carSharing}"></span>
 		            </div>
+		            
 		        </div>
 		        
-		        <div class="form-group" th:classappend="${#fields.hasErrors('bikeUsage')}? 'has-error'">
+		        <div class="form-group" th:classappend="${#fields.hasErrors('bikeUsage.owned')} or ${#fields.hasErrors('bikeUsage.sharing')} ? has-error">
 		           	<div id="bikeDiv" class="col-lg-12">
 		           		<label class="col-lg-2 control-label">Utilizzo bici</label>
 		           		
-		           		<label for="owned" class="radio-inline">Propria</label>
-		            	<input id="owned" type="checkbox" th:field="*{bikeUsage.owned}"/>
+		           		<label for="bikeUsage.owned" class="radio-inline control-label">Propria</label>
+		            	<input id="bikeUsage.owned" type="checkbox" th:field="*{bikeUsage.owned}"/>
 		            	
-		            	<label for="sharing" class="radio-inline">Bike sharing</label>
-		            	<input id="sharing" type="checkbox" th:field="*{bikeUsage.sharing}"/>
+		            	<label for="bikeUsage.sharing" class="radio-inline control-label">Bike sharing</label>
+		            	<input id="bikeUsage.sharing" type="checkbox" th:field="*{bikeUsage.sharing}"/>
+		            
+		            	<span class="help-block" th:if="${#fields.hasErrors('bikeUsage.owned')}" th:errors="*{bikeUsage.owned}"></span>
+		            	<span class="help-block" th:if="${#fields.hasErrors('bikeUsage.sharing')}" th:errors="*{bikeUsage.sharing}"></span>
 		            </div>
 		        </div>
 		        
-		        <div class="form-group" th:classappend="${#fields.hasErrors('pubTransport')}? 'has-error'">
+		        <div class="form-group" th:classappend="${#fields.hasErrors('pubTransport')}? 'has-error'">  
 		            <label for="pubTransport" class="col-lg-2 control-label">Trasporti pubblici</label>
+		            
 		            <div class="col-lg-10">
 		                <select class="form-control" id="pubTransport" th:field="*{pubTransport}">
-						    <option value="none">Mai usato</option>
+						    <option value="" selected="selected">Scegli</option>
 						    
 						    <option th:each="passType : ${passTypes}" th:value="${passType}">
 						    	<th:block th:text="${passType}"></th:block>
 						    </option>
 						    
 						</select>
-		                <span class="help-block" th:if="${#fields.hasErrors('pubTransport')}" th:errors="*{pubTransport}">Trasporto pubblico non valido</span>
+						
+		                <span class="help-block" th:if="${#fields.hasErrors('pubTransport')}" th:errors="*{pubTransport}"></span>
 		            </div>
 		        </div>
 		        
@@ -113,13 +126,15 @@
 		    $('#car').change(function () {
 		        if (this.checked){ 
 		           $('#divCar').fadeIn('slow');
-		           $('#carYear').prop('required', true);
-		           $('#carFuel').prop('required', true);
+		           $('#registrationYear').prop('required', true);
+		           $('#fuelType').prop('required', true);
 		        }
 		        else{
 		            $('#divCar').fadeOut('slow');
-					$('#carYear').prop('required', false);
-					$('#carFuel').prop('required', false);
+					$('#registrationYear').prop('required', false);
+					$('#fuelType').prop('required', false);
+					$('#fuelType').prop('selectedIndex', 0);
+					$('#registrationYear').val('');
 		        }
 		    });
 		});

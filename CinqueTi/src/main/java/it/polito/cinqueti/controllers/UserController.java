@@ -52,8 +52,8 @@ public class UserController {
     @Value("#{'${user.car.fuelTypes}'.split(',')}")
 	private List<String> fuelTypes;
     
-    @Value("#{'${user.passTypes}'.split(',')}")
-	private List<String> passTypes;
+    @Value("#{'${user.pubTransport}'.split(',')}")
+	private List<String> pubTransports;
     
     // two phase registration
     // http://blog.codeleak.pl/2014/08/validation-groups-in-spring-mvc.html
@@ -109,17 +109,19 @@ public class UserController {
     @RequestMapping(value = "/register-second-phase", method = RequestMethod.GET)
     public String confirmRegistration(
     		@RequestParam(required = true) String token,
-    		Model model){
-    	User databaseUser = null;
+    		Model model,
+    		RedirectAttributes redirectAttributes){
     	
     	if (!model.containsAttribute("org.springframework.validation.BindingResult.user")){
-	    	databaseUser = getDatabaseToken(token).getUser();
-	    	
-	    	if (databaseUser == null){
-	    		model.addAttribute("exceptionMessage", "Il tuo token non è valido. Registrati.");
-	    		
-	    		return "bad-verification";
-	    	}
+    		VerificationToken databaseToken = getDatabaseToken(token);
+    		
+    		if (databaseToken == null){
+    			redirectAttributes.addFlashAttribute("exceptionMessage", "Il tuo token non è valido. Registrati.");
+    		
+    			return "redirect:bad-verification";
+    		}
+    		
+	    	User databaseUser = databaseToken.getUser();
 	    	
 	    	model.addAttribute("user", databaseUser);
 	    }
@@ -154,6 +156,22 @@ public class UserController {
     		redirectAttributes.addAttribute("token", token);
         	
             return "redirect:register-second-phase";
+    	}
+    	else if ( !educationLevels.contains(user.getEducation())){
+    		bindingResult.rejectValue("education", "user.registration.invalidEducation");
+            
+    		redirectAttributes.addFlashAttribute("org.springframework.validation.BindingResult.user", bindingResult);
+    		redirectAttributes.addAttribute("token", token);
+            
+        	return "redirect:register-second-phase";
+    	}
+    	else if ( !jobs.contains(user.getJob())){
+    		bindingResult.rejectValue("job", "user.registration.invalidJob");
+            
+    		redirectAttributes.addFlashAttribute("org.springframework.validation.BindingResult.user", bindingResult);
+    		redirectAttributes.addAttribute("token", token);
+            
+        	return "redirect:register-second-phase";
     	}
     	else{
     		byte[] image = parseImage(file);
@@ -218,6 +236,9 @@ public class UserController {
     		BindingResult bindingResult,
     		RedirectAttributes redirectAttributes) {
     	
+    	// TODO
+    	// error on car attributes -> uncheck -> error again on car attributes
+    	
     	VerificationToken databaseToken = getDatabaseToken(token);
     	
     	if (databaseToken == null){
@@ -233,6 +254,38 @@ public class UserController {
     		redirectAttributes.addAttribute("token", token);
         	
             return "redirect:register-third-phase";
+    	}
+    	else if( user.getOwnCar().getRegistrationYear() != null && !fuelTypes.contains(user.getOwnCar().getFuelType())){
+            bindingResult.rejectValue("ownCar.fuelType", "user.registration.invalidFuel");
+            
+    		redirectAttributes.addFlashAttribute("org.springframework.validation.BindingResult.user", bindingResult);
+    		redirectAttributes.addAttribute("token", token);
+            
+        	return "redirect:register-third-phase";
+    	}
+    	else if( user.getOwnCar().getFuelType() != null && user.getOwnCar().getRegistrationYear() == null ){
+            bindingResult.rejectValue("ownCar.registrationYear", "NotNull");
+            
+    		redirectAttributes.addFlashAttribute("org.springframework.validation.BindingResult.user", bindingResult);
+    		redirectAttributes.addAttribute("token", token);
+            
+        	return "redirect:register-third-phase";
+    	}
+    	else if ( !carSharingServices.contains(user.getCarSharing()) ){
+            bindingResult.rejectValue("carSharing", "user.registration.invalidCarSharing");
+            
+    		redirectAttributes.addFlashAttribute("org.springframework.validation.BindingResult.user", bindingResult);
+    		redirectAttributes.addAttribute("token", token);
+            
+        	return "redirect:register-third-phase";
+    	}
+    	else if ( !pubTransports.contains(user.getPubTransport()) ){
+            bindingResult.rejectValue("pubTransport", "user.registration.invalidPubTransport");
+            
+    		redirectAttributes.addFlashAttribute("org.springframework.validation.BindingResult.user", bindingResult);
+    		redirectAttributes.addAttribute("token", token);
+            
+        	return "redirect:register-third-phase";
     	}
     	else{
     		databaseUser.setOwnCar(user.getOwnCar());
@@ -266,8 +319,9 @@ public class UserController {
         if (error != null)
             model.addAttribute("error", "Your username and password is invalid.");
 
-        if (logout != null)
-            model.addAttribute("message", "You have been logged out successfully.");
+        // not used, as after logout user is redirected to home page
+        //if (logout != null)
+        //    model.addAttribute("message", "You have been logged out successfully.");
 
         return "login";
     }
@@ -409,7 +463,7 @@ public class UserController {
     
     private void fillThirdPhaseModel(Model model){
     	model.addAttribute("fuelTypes", fuelTypes);
-    	model.addAttribute("passTypes", passTypes);
+    	model.addAttribute("passTypes", pubTransports);
     	model.addAttribute("carSharingServices", carSharingServices);
     }
 }

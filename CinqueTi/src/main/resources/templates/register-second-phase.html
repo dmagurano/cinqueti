@@ -16,7 +16,7 @@
 			<div th:replace="fragments/common :: generalErrorsFragment"></div>
 			
 		    <th:block th:if="${#fields.hasErrors('${user.*}')}">
-		        <div th:replace="fragments/alert :: alert (type='danger', message='I dati inseriti non sono validi.')">I dati inseriti non sono validi.</div>
+		        <div th:replace="fragments/alert :: alert (type='danger', message='I dati inseriti non sono validi.')"></div>
 		    </th:block>
 				    
 		    <fieldset>
@@ -26,7 +26,7 @@
 		            <label for="nickname" class="col-lg-2 control-label">Nickname</label>
 		            <div class="col-lg-10">
 		                <input type="text" class="form-control" id="nickname" placeholder="Nickname" th:field="*{nickname}" required="required"/>
-		                <span class="help-block" th:if="${#fields.hasErrors('nickname')}" th:errors="*{nickname}">Wrong or empty nickname chosen</span>
+		                <span class="help-block" th:if="${#fields.hasErrors('nickname')}" th:errors="*{nickname}"></span>
 		            </div>
 		        </div>
 		        
@@ -34,20 +34,21 @@
 		            <label for="gender" class="col-lg-2 control-label">Sesso</label>
 		            <div class="col-lg-10">
 		                <select class="form-control" id="gender" th:field="*{gender}">
-		                	<option value="" style="display:none"></option>
-						    <option value="maschio">M</option>
-						    <option value="femmina">F</option>
-						    <option value="altro">Altro</option>
+		                	<option value="" selected="selected">Scegli</option>
+		                	
+						    <option value="M">M</option>
+						    <option value="F">F</option>
+						    <option value="other">Altro</option>
 						</select>
-		                <span class="help-block" th:if="${#fields.hasErrors('gender')}" th:errors="*{gender}">Nessun sesso scelto</span>
+		                <span class="help-block" th:if="${#fields.hasErrors('gender')}" th:errors="*{gender}"></span>
 		            </div>
 		        </div>
 		        
 		        <div class="form-group" th:classappend="${#fields.hasErrors('age')}? 'has-error'">
 		            <label for="age" class="col-lg-2 control-label">Età</label>
 		            <div class="col-lg-10">
-		                <input type="number" class="form-control" id="age" min="1" max="200" th:field="*{age}" required="required"/>
-		                <span class="help-block" th:if="${#fields.hasErrors('age')}" th:errors="*{age}">Età non valida</span>
+		                <input type="number" class="form-control" id="age" min="10" max="110" th:field="*{age}" required="required"/>
+		                <span class="help-block" th:if="${#fields.hasErrors('age')}" th:errors="*{age}"></span>
 		            </div>
 		        </div>
 		        
@@ -57,7 +58,7 @@
 		            	
 		            	<th:block th:include="fragments/common :: inputImagePreview"></th:block>
 		            	
-		                <span class="help-block" th:if="${#fields.hasErrors('image')}" th:errors="*{image}">Il file non è un'immagine</span>
+		                <span class="help-block" th:if="${#fields.hasErrors('image')}" th:errors="*{image}"></span>
 		            </div>
 		        </div>
 	        	
@@ -65,14 +66,14 @@
 		            <label for="education" class="col-lg-2 control-label">Livello istruzione</label>
 		            <div class="col-lg-10">
 		                <select class="form-control" id="education" th:field="*{education}" required="required">
-		                	<option value="" style="display:none"></option>
+		                	<option value="" selected="selected">Scegli</option>
 		                	
 						    <option th:each="educationLevel : ${educationLevels}" th:value="${educationLevel}">
 						    	<th:block th:text="${educationLevel}"></th:block>
 						    </option>
 						    
 						</select>
-		                <span class="help-block" th:if="${#fields.hasErrors('education')}" th:errors="*{education}">Livello istruzione non valida</span>
+		                <span class="help-block" th:if="${#fields.hasErrors('education')}" th:errors="*{education}"></span>
 		            </div>
 		        </div>
 		        
@@ -80,17 +81,14 @@
 		            <label for="job" class="col-lg-2 control-label">Ambito Lavorativo</label>
 		            <div class="col-lg-10">
 		                <select class="form-control" id="job" th:field="*{job}" required="required">
-		                	<option value="" style="display:none"></option>
+		                	<option value="" selected="selected">Scegli</option>
 		                	
 						    <option th:each="job : ${jobs}" th:value="${job}">
 						    	<th:block th:text="${job}"></th:block>
 						    </option>
 						    
-						    <option value="Other">Altro</option>
-						    <option value="None">Nessun lavoro</option>
-						    
 						</select>
-		                <span class="help-block" th:if="${#fields.hasErrors('job')}" th:errors="*{job}">Occupazione non valida</span>
+		                <span class="help-block" th:if="${#fields.hasErrors('job')}" th:errors="*{job}"></span>
 		            </div>
 		        </div>
 		        

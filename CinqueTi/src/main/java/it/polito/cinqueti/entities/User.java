@@ -4,13 +4,14 @@ import java.util.ArrayList;
 import java.util.Base64;
 import java.util.Collection;
 import java.util.List;
-
 import javax.persistence.Lob;
-import javax.validation.constraints.Min;
+import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Pattern;
 import javax.validation.constraints.Size;
 
 import org.hibernate.validator.constraints.NotEmpty;
+import org.hibernate.validator.constraints.Range;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.annotation.Transient;
 import org.springframework.data.mongodb.core.index.Indexed;
@@ -67,10 +68,12 @@ public class User implements UserDetails {
 	
 	@NotNull(groups = {SecondPhaseValidation.class})
     @NotEmpty(groups = {SecondPhaseValidation.class})
+	@Pattern( groups = SecondPhaseValidation.class, regexp = "^(M|F|other)$" )
 	private String gender;
 	
+	// an Integer cannot be @NotEmpty as it is not a string, collection, map or array
 	@NotNull(groups = {SecondPhaseValidation.class})
-	@Min(value = 18, groups={SecondPhaseValidation.class})
+	@Range(min=10, max=110, groups={SecondPhaseValidation.class})
 	private Integer age;
 	
 	@NotNull(groups = {SecondPhaseValidation.class})
@@ -80,17 +83,21 @@ public class User implements UserDetails {
 	@NotNull(groups = {SecondPhaseValidation.class})
     @NotEmpty(groups = {SecondPhaseValidation.class})
 	private String job;
-	
-	private Car ownCar;
-	
-	private String carSharing;
-	
+
 	@NotNull(groups = {ThirdPhaseValidation.class})
-	private Bike bikeUsage;
+	@NotEmpty(groups = {ThirdPhaseValidation.class})
+	private String carSharing;
 	
 	@NotNull(groups = {ThirdPhaseValidation.class})
     @NotEmpty(groups = {ThirdPhaseValidation.class})
 	private String pubTransport;
+
+	@NotNull(groups = {ThirdPhaseValidation.class})
+	@Valid
+	private Bike bikeUsage;
+
+	@Valid
+	private Car ownCar;
 	
 	@Lob
 	private byte[] image;
@@ -117,7 +124,6 @@ public class User implements UserDetails {
 	@JsonIgnore
 	@Override
 	public Collection<Role> getAuthorities() {
-		// TODO Auto-generated method stub
 		return this.roles;
 	}
 	
@@ -214,14 +220,6 @@ public class User implements UserDetails {
 		this.job = job;
 	}
 
-	public Car getOwnCar() {
-		return ownCar;
-	}
-
-	public void setOwnCar(Car ownCar) {
-		this.ownCar = ownCar;
-	}
-
 	public String getCarSharing() {
 		return carSharing;
 	}
@@ -285,5 +283,13 @@ public class User implements UserDetails {
 
 	public void setEnabled(boolean enabled) {
 		this.enabled = enabled;
+	}
+	
+	public Car getOwnCar() {
+		return ownCar;
+	}
+
+	public void setOwnCar(Car ownCar) {
+		this.ownCar = ownCar;
 	}
 }

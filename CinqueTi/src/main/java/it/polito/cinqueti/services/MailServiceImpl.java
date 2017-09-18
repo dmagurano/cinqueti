@@ -21,10 +21,12 @@ public class MailServiceImpl implements MailService{
 		String confirmationUrl = "https://localhost:8443/"
 				+ "register-second-phase?token=" + token;
 		
+		String recommendationText = "N.B. completa la registrazione prima di usare l'applicazione.";
+		
 		SimpleMailMessage email = new SimpleMailMessage();
 		email.setTo(userEmail);
 		email.setSubject(subject);
-		email.setText(emailText + "\n\n" + confirmationUrl);
+		email.setText(emailText + "\n\n" + confirmationUrl + "\n\n" + recommendationText);
 		
 		try{
 			javaMailSender.send(email);
