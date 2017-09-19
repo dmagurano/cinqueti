@@ -48,12 +48,12 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
          	 .antMatchers("/profile/**","/chat/**").authenticated()
              .anyRequest().permitAll()
              .and()
-         .formLogin()
+         .formLogin().defaultSuccessUrl("/",true)
              .loginPage("/login")
              .permitAll()
              .and()
          .logout()
-             .logoutSuccessUrl("/welcome")
+             .logoutSuccessUrl("/")
              .permitAll();
 		 http.requiresChannel().anyRequest().requiresSecure();
 	}

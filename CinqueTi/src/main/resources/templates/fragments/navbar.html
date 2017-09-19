@@ -28,10 +28,12 @@
 <!-- 	            <li><a href="#">Action</a></li> -->
 <!-- 	            <li><a href="#">Another action</a></li> -->
 <!-- 	            <li><a href="#">Something else here</a></li> -->
-	           		<li th:each="topic : ${topics}"><a th:attr="
+<!--	           		<li th:each="topic : ${topics}"><a th:attr="
                            ng-click='chatOpen(\''
                            + ${topic} +
-                           '\')'"  th:text="${topic}"> </a> </li>
+                           '\')'"  th:text="${topic}"> </a> </li>-->
+					<li th:each="topic : ${topics}"><a th:attr="
+                           href='/chat/#!/' + ${topic} + ''   "  th:text="${topic}"> </a> </li>
 	           	</ul>	
 	         </li>   
           </ul>

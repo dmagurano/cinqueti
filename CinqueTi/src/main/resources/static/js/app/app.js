@@ -32,11 +32,13 @@ app.config(function ($routeProvider, $locationProvider) {
 
 app.controller('HeaderCtrl', [ '$scope', '$location', '$window',
 	function HeaderCtrl($scope, $location, $window) { 
-	    $scope.isActive = function (viewLocation) { 
+	    $scope.isActive = function (viewLocation) {
 	    	 return viewLocation === $location.path();
 	    };
-
+        // TODO remove this
         $scope.chatOpen = function (topic) {
             $window.location.href = "/chat/#!/" + topic;
         }
+
+
 }]);

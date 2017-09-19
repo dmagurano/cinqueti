@@ -13,13 +13,15 @@ app.config(function ($routeProvider,$locationProvider) {
 
 app.controller('HeaderCtrl', [ '$scope', '$location','$window',
 	function HeaderCtrl($scope, $location,$window) {
-	    $scope.isActive = function (viewLocation) { 
+	    $scope.isActive = function (viewLocation) {
 	    	 return viewLocation === $location.path();
 	    };
-	    
+        // TODO remove this
 	    $scope.chatOpen = function (topic) {
             $window.location.href = "/chat/#!/" + topic;
-        }
+        };
+
+
 }]);
 
 app.controller('chatCtrl', ['$scope', '$location', '$interval', 'ChatSocket', '$routeParams', 'AddressResolver', 'ToolsResolver', '$timeout',
@@ -421,13 +423,13 @@ function isToday (date) {
         return false;
 };
 
-app.directive('chatMessage', function($compile,$parse) {
+app.directive('chatMessage', function($compile) {
 
-	var sent = 		'<li  class="left clearfix admin_chat"><span class="chat-img1 pull-right"><img src="https://scontent-mxp1-1.xx.fbcdn.net/v/t1.0-9/995179_496393017119212_1942402182_n.jpg?oh=931db49c4f4f7c905efde31e3371f592&oe=59E4426F" alt="User Avatar" class="img-circle"/></span>' +
+	var sent = 		'<li ng-click=\"centerMapOnAlert({id: message.alertId})\"class="left clearfix admin_chat"><span class="chat-img1 pull-right"><img src="https://scontent-mxp1-1.xx.fbcdn.net/v/t1.0-9/995179_496393017119212_1942402182_n.jpg?oh=931db49c4f4f7c905efde31e3371f592&oe=59E4426F" alt="User Avatar" class="img-circle"/></span>' +
                     '<div class="chat-body2 clearfix" ng-switch on="message.alertId">' +
                     '<p ng-switch-when="null" ng-bind-html="formatChatMessage(message.message, message.alertId, 1)">'+'</p>'+
                     //'<p ng-switch-default>ok'+'{{formatChatMessage(message.message)}}'+'</p>'+
-                    '<p ng-switch-default ng-click=\"centerMapOnAlert({id: message.alertId})\" ng-bind-html="formatChatMessage(message.message, message.alertId, 0)">'+'</p>'
+                    '<p ng-switch-default ng-bind-html="formatChatMessage(message.message, message.alertId, 0)">'+'</p>'
                     '<div class="chat_time pull-left">{{message.date}}</div></div></li>';
 	  
 	var received = 	'<li class="left clearfix"><span class="chat-img1 pull-left"><img src="http://icons.iconarchive.com/icons/custom-icon-design/pretty-office-8/128/User-blue-icon.png" alt="User Avatar" class="img-circle"/></span>'+
@@ -446,7 +448,6 @@ app.directive('chatMessage', function($compile,$parse) {
 	    },
         controller: function($scope, $sce) {
             $scope.formatChatMessage = function(textMsg, id, old) {
-
                 if (old == 0)
                     textMsg = textMsg.replace("[", "<span class=\"label label-danger\">");
                 else
@@ -463,13 +464,8 @@ app.directive('chatMessage', function($compile,$parse) {
                     var mess = $compile(received)(scope);
 		        	el.append(mess);
 		        } else {
-                    //var mess = $compile(sent)(scope);
-                    //el.append(mess);
-                    scope.$watch(attr.content, function() {
-                        el.append(sent)
-                        el.html($parse(attr.content)(scope));
-                        $compile(el.contents())(scope);
-                    }, true);
+                    var mess = $compile(sent)(scope);
+                    el.append(mess);
 		        }
 	        }
 	    }
