@@ -86,9 +86,10 @@ app.factory('PathsDataProvider', [ '$http', '$window',
 
         var currentPath = [];
 
+        //Used for get suggestions while user typing the address
 
         function getSuggestions(srcAddress){
-            console.log("CIAO:: "+srcAddress);
+
             return $http.get("https://geocode.arcgis.com/arcgis/rest/services/World/GeocodeServer/suggest?text="+srcAddress+"&f=pjson&searchExtent=7.465761,44.948028,7.875002,45.163394&sourceCountry=ITA").then(
                 function(resp){
 
@@ -100,10 +101,10 @@ app.factory('PathsDataProvider', [ '$http', '$window',
                     return suggestions;
                 }).catch(function(){
 
-                    //TODO handle error
+                    //There are problems: no response or error in response
+                    bootstrap_alert_warning("");
             });
 
-            //return ['red','yellow','white'];
         }
 
 
@@ -353,8 +354,8 @@ app.factory('PathsDataProvider', [ '$http', '$window',
 
                     //Handle the error by showing an alert box 'Nessun risultato'
                     //$window.alert("Nessun risultato");
-                    showAlertTypeSelector();
-                    
+                    //showAlertTypeSelector();
+                    bootstrap_alert_warning("Nessun risultato trovato!");
                 });
 
 
@@ -388,10 +389,16 @@ function createPolyline(mode,line){
     return polyline
 }
 
-
+/* If you want to use modal instead alert
 function showAlertTypeSelector() {
     $('#warning').modal({
         backdrop: 'static',
         keyboard: false
     });
+}*/
+
+
+//Function for show alert in case of error
+function bootstrap_alert_warning(message){
+    $('#alert_placeholder').html('<div class="alert alert-warning"><a class="close" data-dismiss="alert">×</a><span>'+message+'</span></div>');
 }

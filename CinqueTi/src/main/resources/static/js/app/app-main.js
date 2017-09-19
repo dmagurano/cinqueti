@@ -111,7 +111,8 @@ app.factory('LinesDataProvider', ['$resource', '$filter',
                     lines = d;
                     return lines;
                 }).catch(function(error){
-                    lines = error; //TODO gestire errore
+                    //lines = error;
+                    bootstrap_alert_warning("Ci sono problemi. Riprovare più tardi");
                 });
                 return data;
             },
@@ -269,6 +270,7 @@ app.directive('myDirective', function () {
   */
 });
 
+/*
 app.filter('linesFilter', function () {
 	  return function (items,searchLine) {
 	    var filtered = [];
@@ -281,4 +283,4 @@ app.filter('linesFilter', function () {
 	    }
 	    return filtered;
 	  };
-});
+});*/
