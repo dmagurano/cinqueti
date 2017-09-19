@@ -1,0 +1,7 @@
+Informazioni Linee: migliorare grafica
+Calcolo Percorsi: allineare partenza e arrivo
+Calcolo Percorsi: required sugli input
+Calcolo Percorsi: errore nell'aggiornamento delle informazioni sulle linee sulla mappa
+Chat: impostare immagine del profilo nella chat
+Chat: andata ad altra chat e ritorno a quella di partenza non compaio nella lista degli utenti
+Chat: immagine del profilo nella lista degli utenti 
