@@ -10,6 +10,8 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
+import org.springframework.validation.FieldError;
+import org.springframework.validation.ObjectError;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -236,9 +238,6 @@ public class UserController {
     		BindingResult bindingResult,
     		RedirectAttributes redirectAttributes) {
     	
-    	// TODO
-    	// error on car attributes -> uncheck -> error again on car attributes
-    	
     	VerificationToken databaseToken = getDatabaseToken(token);
     	
     	if (databaseToken == null){
@@ -255,23 +254,39 @@ public class UserController {
         	
             return "redirect:register-third-phase";
     	}
-    	else if( user.getOwnCar().getRegistrationYear() != null && !fuelTypes.contains(user.getOwnCar().getFuelType())){
-            bindingResult.rejectValue("ownCar.fuelType", "user.registration.invalidFuel");
+    	else if( !(user.getCarYear() == null && user.getCarFuel().isEmpty()) ){
+    		boolean valid = true;
+    		
+    		if (user.getCarYear() == null){    		
+	            bindingResult.rejectValue("carYear", "NotNull");
+	            valid = false;
+    		}
+    		else if (user.getCarFuel() == null){    		
+	            bindingResult.rejectValue("carFuel", "NotNull");
+	            valid = false;
+    		}
+    		else if(user.getCarFuel().isEmpty()){
+    			bindingResult.rejectValue("carFuel", "NotEmpty");
+	            valid = false;
+    		}
+    		else if(user.getCarYear() < 1900 || user.getCarYear() > 2017){
+    			bindingResult.rejectValue("carYear", "user.registration.invalidCarYear");
+	            valid = false;
+    		}
+    		else if(!fuelTypes.contains(user.getCarFuel())){
+    			bindingResult.rejectValue("carFuel", "user.registration.invalidCarFuel");
+	            valid = false;
+    		}
             
-    		redirectAttributes.addFlashAttribute("org.springframework.validation.BindingResult.user", bindingResult);
-    		redirectAttributes.addAttribute("token", token);
-            
-        	return "redirect:register-third-phase";
+    		if ( !valid ){
+	    		redirectAttributes.addFlashAttribute("org.springframework.validation.BindingResult.user", bindingResult);
+	    		redirectAttributes.addAttribute("token", token);
+	            
+	        	return "redirect:register-third-phase";
+    		}
     	}
-    	else if( user.getOwnCar().getFuelType() != null && user.getOwnCar().getRegistrationYear() == null ){
-            bindingResult.rejectValue("ownCar.registrationYear", "NotNull");
-            
-    		redirectAttributes.addFlashAttribute("org.springframework.validation.BindingResult.user", bindingResult);
-    		redirectAttributes.addAttribute("token", token);
-            
-        	return "redirect:register-third-phase";
-    	}
-    	else if ( !carSharingServices.contains(user.getCarSharing()) ){
+    	
+    	if ( !carSharingServices.contains(user.getCarSharing()) ){
             bindingResult.rejectValue("carSharing", "user.registration.invalidCarSharing");
             
     		redirectAttributes.addFlashAttribute("org.springframework.validation.BindingResult.user", bindingResult);
@@ -288,7 +303,8 @@ public class UserController {
         	return "redirect:register-third-phase";
     	}
     	else{
-    		databaseUser.setOwnCar(user.getOwnCar());
+    		databaseUser.setCarFuel(user.getCarFuel());
+    		databaseUser.setCarYear(user.getCarYear());
     		databaseUser.setCarSharing(user.getCarSharing());
     		databaseUser.setBikeUsage(user.getBikeUsage());
     		databaseUser.setPubTransport(user.getPubTransport());

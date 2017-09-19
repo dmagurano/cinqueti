@@ -65,14 +65,14 @@
 			    			<td>Ambito lavorativo</td>
 			    			<td th:text="${user.job}"></td>
 			    		</tr>
-			    		<tr th:if="${user.ownCar.registrationYear} != null">
+			    		<tr th:if="not ${user.carFuel == ''}">
 				    		<tr>
 				    			<td>Auto</td>
-				    			<td th:text="'Anno di registrazione: ' + ${user.ownCar.registrationYear}"></td>
+				    			<td th:text="'Anno di registrazione: ' + ${user.carYear}"></td>
 				    		</tr>
 				    		<tr>
 				    			<td></td>
-				    			<td th:text="'Carburante: ' + ${user.ownCar.fuelType}"></td>
+				    			<td th:text="'Carburante: ' + ${user.carFuel}"></td>
 				    		</tr>
 			    		</tr>
 			    		<tr>
