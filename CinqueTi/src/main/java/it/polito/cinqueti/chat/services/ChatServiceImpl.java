@@ -59,9 +59,9 @@ public class ChatServiceImpl implements ChatService {
 		String chatMessagesList = "/topic/chat/"+ topic;
 		String alertTopic = "/topic/chat/alerts";
 		
-	    // TODO purge alert from message
 		Alert alert = msg.extractAlert();
 		if (alert != null){
+			// case 1: new alert
 			// save the alert into the db
 			alertRepository.save(alert);
 			// the alert object has been updated: it contains the alertId assigned by mongo
@@ -70,8 +70,12 @@ public class ChatServiceImpl implements ChatService {
 	    
 	    Message mess = new Message(msg.getMessage(), topic, msg.getUsername(), msg.getNickname(), msg.getDate());
 	    
-	    if (msg.getAlertId() != null)	// reference to existing alert
-	    	mess.setAlertId(msg.getAlertId());
+	    if (msg.getAlertId() != null)	// case 2: reference to existing alert
+	    {
+	    	// check if the alert is still alive
+	    	if (!retireAlertIfExpired(msg.getAlertId()))
+	    		mess.setAlertId(msg.getAlertId()); // valid reference if the alert is not expired
+	    }
 	    else if (alert != null)	// 	new alert
 	    {
 	    	// update the references with the id assigned by mongo
@@ -84,12 +88,45 @@ public class ChatServiceImpl implements ChatService {
 	    messagingTemplate.convertAndSend(chatMessagesList, msg);
 	}
 	
+	// return: true if the alert is expired, false otherwise
+	public boolean retireAlertIfExpired(String id) {
+		String alertTopic = "/topic/chat/alerts";
+		// check if the alert is still alive
+    	Alert dbAlert = alertRepository.findById(id);
+    	boolean expired = false;
+    	if (dbAlert == null)
+    		expired = true; // already expired
+    	else 
+    	{
+    		Long minutesBetween = ((new Date()).getTime() - dbAlert.getLastAccessTimestamp().getTime()) / (60*1000) % 60;
+    		if (minutesBetween > expireAfter)
+    		{
+    			expired = true; // expired right now
+    			alertRepository.deleteAlertById(id);
+    		}
+    	}
+    	if (expired)
+    	{
+    		messagingTemplate.convertAndSend(alertTopic, new Alert(id,"remove")); // send a special alert to everyone in order to retire the old alert
+    		return true;
+    	}
+    	// the alert is not expired
+    	// update the lastAccessTimestamp and sync to db
+    	dbAlert.setLastAccess();
+		alertRepository.save(dbAlert);
+    	return false;
+
+    		
+	}
+	
 	public void sendRate (ChatRate chatRate) {
-//		String ratesList = "/topic/chat/rates/";
-		
-		Rate rate = new Rate(chatRate.getUsername(), chatRate.getValue());
-		
-		alertRepository.updateUserRate(chatRate.getAlertId(), rate);
+		// check if the rated alert is still alive 	
+		if(!retireAlertIfExpired(chatRate.getAlertId()))
+		{
+			// it's alive! Rate it
+			Rate rate = new Rate(chatRate.getUsername(), chatRate.getValue());
+			alertRepository.updateUserRate(chatRate.getAlertId(), rate);
+		}
 	}
 	
 	public void retrieveLastMessages (String topic, String user) {
@@ -142,7 +179,7 @@ public class ChatServiceImpl implements ChatService {
 			Long minutesBetween = ((new Date()).getTime() - alert.getLastAccessTimestamp().getTime()) / (60 * 1000) % 60;
 			// TODO remove next comment
 			// optional: for debug purpose use the next line to get 5 seconds interval
-			//Long minutesBetween = ((new Date()).getTime() - alert.getLastAccessTimestamp().getTime()) / (1000) % 60;
+//			Long minutesBetween = ((new Date()).getTime() - alert.getLastAccessTimestamp().getTime()) / (1000) % 60;
 			if (minutesBetween > expireAfter)
 			{
 				// delete the item from db and then remove it from list

@@ -11,8 +11,8 @@ app.config(function ($routeProvider,$locationProvider) {
     //$locationProvider.html5Mode(true);
 });
 
-app.controller('HeaderCtrl', [ '$scope', '$location',
-	function HeaderCtrl($scope, $location) { 
+app.controller('HeaderCtrl', [ '$scope', '$location','$window',
+	function HeaderCtrl($scope, $location,$window) {
 	    $scope.isActive = function (viewLocation) { 
 	    	 return viewLocation === $location.path();
 	    };
@@ -22,10 +22,10 @@ app.controller('HeaderCtrl', [ '$scope', '$location',
         }
 }]);
 
-app.controller('chatCtrl', ['$scope', '$location', '$interval', 'ChatSocket', '$routeParams', 'AddressResolver', 'ToolsResolver', '$window',
-	function($scope, $location, $interval, chatSocket,$routeParams, AddressResolver, ToolsResolver) {
+app.controller('chatCtrl', ['$scope', '$location', '$interval', 'ChatSocket', '$routeParams', 'AddressResolver', 'ToolsResolver', '$timeout',
+	function($scope, $location, $interval, chatSocket,$routeParams, AddressResolver, ToolsResolver, $timeout) {
         angular.extend($scope, {
-            turin: {
+            mapcenter: {
                 lat: 45.07,
                 lng: 7.69,
                 zoom: 13
@@ -45,8 +45,8 @@ app.controller('chatCtrl', ['$scope', '$location', '$interval', 'ChatSocket', '$
         $scope.addresses    = [];
         $scope.chosenAddress= {};
         $scope.modalAddress = '';
+        $scope.infoMessage  = '';
         $scope.alerts       = [];
-        //$scope.alertTypes   = ['cantiere', 'incidente', 'incendio', 'altro']; //TODO move on server side?
         $scope.alertTypes   = ToolsResolver.alertTypes;
         $scope.topic = $routeParams.topic;
         // alert input monitor variables
@@ -177,8 +177,9 @@ app.controller('chatCtrl', ['$scope', '$location', '$interval', 'ChatSocket', '$
         }
 
         $scope.focusOnHelp = function() {
-            $location.hash("suggestionsArea");
-            $anchorScroll();
+            //$location.hash("suggestionsArea");
+            //$anchorScroll();
+
         }
 
         $scope.processModalAlert = function () {
@@ -189,10 +190,19 @@ app.controller('chatCtrl', ['$scope', '$location', '$interval', 'ChatSocket', '$
         }
 
         $scope.buildAlertRequestFromAddress = function(queryAddress, inputType) {
-            var location = queryAddress; //get the tag string
             $scope.newAlert.searchOff = true;
             $scope.newAlert.inputType = inputType; // used for replacing / insert tag into the user message
-            AddressResolver.query({location: location}, function(addresses) {
+            AddressResolver.query({location: queryAddress}, function(addresses) {
+                    if (addresses.length === 0)
+                    {
+                        // no result found
+                        $scope.infoMessage = 'Oh no! Non siamo riusciti a trovare nulla che assomigliasse all\'indirizzo \"' + queryAddress + '\". Controlla di averlo digitato correttamente.' +
+                            ' Inoltre ti ricordiamo che il servizio è disponibile solo nei comuni coperti dall\'azienda GTT.';
+                        $scope.newMessage = '';
+                        $scope.newAlert.reset();
+                        $timeout(function () { $scope.infoMessage = '';},10000);
+                        return;
+                    }
                     $scope.addresses = addresses;
                     $scope.newAlert.alert.type = 'altro';
                     $scope.chosenAddress = addresses[0]; // set the first result as the default one
@@ -203,11 +213,21 @@ app.controller('chatCtrl', ['$scope', '$location', '$interval', 'ChatSocket', '$
                     }
                     showAlertTypeSelector();
                 }, function() {
-                    alert("Siamo spiacenti, non siamo riusciti a risolvere l'indirizzo");
+                    $scope.infoMessage = 'Oh no! Non siamo riusciti a trovare nulla che assomigliasse all\'indirizzo \"' + queryAddress + '\". Controlla di averlo digitato correttamente.' +
+                        ' Inoltre ti ricordiamo che il servizio è disponibile solo nei comuni coperti dall\'azienda GTT.';
                     $scope.newMessage = '';
                     $scope.newAlert.reset();
                 }
             );
+        }
+
+        $scope.centerMapOnAlert = function(id) {
+            var alert = $scope.alerts[id];
+            if (alert == null || alert == undefined)
+                return; // the alert is expired
+            $scope.mapcenter.lat = alert.lat;
+            $scope.mapcenter.lng = alert.lng;
+            $scope.mapcenter.zoom = 15;
         }
 
         $scope.quote = function (id) {
@@ -250,7 +270,10 @@ app.controller('chatCtrl', ['$scope', '$location', '$interval', 'ChatSocket', '$
 
         $scope.enterKeyListener = function(keyEvent) {
         	if (keyEvent.which === 13)
-        	   $scope.sendMessage();
+            {
+                $scope.sendMessage();
+                keyEvent.preventDefault();
+            }
         };
 
             
@@ -308,11 +331,24 @@ app.controller('chatCtrl', ['$scope', '$location', '$interval', 'ChatSocket', '$
                 /* subscribing to the alerts */
                 chatSocket.subscribe('/topic/chat/alerts', function (alertMessage) {
                     var alert = (JSON.parse(alertMessage.body));
+                    if (alert.type === 'remove')
+                    {
+                        //an alert is expired! Remove it and show a popup to the user
+                        var expired = $scope.alerts[alert.id];
+                        if (expired == null || expired == undefined)
+                            return;
+                        $scope.infoMessage = "Ops, la segnalazione è scaduta!";
+                        $scope.alerts.splice(alert.id,1);
+                        $scope.markers = $scope.markers.filter(function(marker){return (marker.id !== alert.id)});
+                        $timeout(function(){$scope.infoMessage = '';}, 5000);
+                        return;
+                    }
                     alert.rates.avg = printRates(alert.rates);
                     $scope.alerts[alert.id] = alert;
                     //extract the icon name starting from the alert type position in alertTypes array
                     var alertIcon = "" + $scope.alertTypes.indexOf(alert.type) + ".png"
                     $scope.markers.push({
+                        id: alert.id,
                         getMessageScope: function() {return $scope; },
                         icon: {
                             iconUrl: '../assets/alert-markers/' + alertIcon,
@@ -385,13 +421,13 @@ function isToday (date) {
         return false;
 };
 
-app.directive('chatMessage', function($compile, $timeout) {
+app.directive('chatMessage', function($compile,$parse) {
 
-	var sent = 		'<li class="left clearfix admin_chat"><span class="chat-img1 pull-right"><img src="https://scontent-mxp1-1.xx.fbcdn.net/v/t1.0-9/995179_496393017119212_1942402182_n.jpg?oh=931db49c4f4f7c905efde31e3371f592&oe=59E4426F" alt="User Avatar" class="img-circle"/></span>' +
+	var sent = 		'<li  class="left clearfix admin_chat"><span class="chat-img1 pull-right"><img src="https://scontent-mxp1-1.xx.fbcdn.net/v/t1.0-9/995179_496393017119212_1942402182_n.jpg?oh=931db49c4f4f7c905efde31e3371f592&oe=59E4426F" alt="User Avatar" class="img-circle"/></span>' +
                     '<div class="chat-body2 clearfix" ng-switch on="message.alertId">' +
-                    '<p ng-switch-when="null" ng-bind-html="formatChatMessage(message.message, 1)">'+'</p>'+
+                    '<p ng-switch-when="null" ng-bind-html="formatChatMessage(message.message, message.alertId, 1)">'+'</p>'+
                     //'<p ng-switch-default>ok'+'{{formatChatMessage(message.message)}}'+'</p>'+
-                    '<p ng-switch-default ng-bind-html="formatChatMessage(message.message, 0)">'+'</p>'+
+                    '<p ng-switch-default ng-click=\"centerMapOnAlert({id: message.alertId})\" ng-bind-html="formatChatMessage(message.message, message.alertId, 0)">'+'</p>'
                     '<div class="chat_time pull-left">{{message.date}}</div></div></li>';
 	  
 	var received = 	'<li class="left clearfix"><span class="chat-img1 pull-left"><img src="http://icons.iconarchive.com/icons/custom-icon-design/pretty-office-8/128/User-blue-icon.png" alt="User Avatar" class="img-circle"/></span>'+
@@ -405,32 +441,35 @@ app.directive('chatMessage', function($compile, $timeout) {
 	return {
 	    restrict: 'EA',
 	    scope: {
-	    	message: '=message'
+	    	message: '=message',
+            centerMapOnAlert: '&'
 	    },
         controller: function($scope, $sce) {
-            $scope.formatChatMessage = function(textMsg, old) {
+            $scope.formatChatMessage = function(textMsg, id, old) {
+
                 if (old == 0)
                     textMsg = textMsg.replace("[", "<span class=\"label label-danger\">");
                 else
                     textMsg = textMsg.replace("[", "<span class=\"label label-warning\">");
                 textMsg = textMsg.replace("]", "</span>");
-                //textMsg = textMsg.replace("[", "<b>");
-                //textMsg = textMsg.replace("]", "</b>");
-
                 return $sce.trustAsHtml(textMsg);
             };
 
         },
 	    replace: 'true',
-	    //transclude: 'true', //TODO remove this
 	    compile: function(tElem, tAttr) {
 	    	return function(scope, el, attr, ctrl, trans) {
 		        if (scope.message.username != scope.$parent.$parent.username) {
                     var mess = $compile(received)(scope);
 		        	el.append(mess);
 		        } else {
-                    var mess = $compile(sent)(scope);
-                    el.append(mess);
+                    //var mess = $compile(sent)(scope);
+                    //el.append(mess);
+                    scope.$watch(attr.content, function() {
+                        el.append(sent)
+                        el.html($parse(attr.content)(scope));
+                        $compile(el.contents())(scope);
+                    }, true);
 		        }
 	        }
 	    }

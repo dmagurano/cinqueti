@@ -22,12 +22,18 @@ public class Alert {
 	private String userEmail;
 	private String nickname;
 	private String address;
-
 	private String type;
 	
 	public Alert() {
 		this.rates = new ArrayList<Rate>();
 		this.myRate = 0;
+	}
+	
+	public Alert(String id, String type) {
+		this.rates = new ArrayList<Rate>();
+		this.myRate = 0;
+		this.id = id;
+		this.type = type;	
 	}
 	
 	public Alert(Double lat, Double lng, String address, Date timestamp, String userEmail, String nickname, String type) {

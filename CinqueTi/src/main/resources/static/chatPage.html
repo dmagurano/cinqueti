@@ -2,14 +2,23 @@
 	
 	<div class="container">
 		<div class="col-lg-12" id="chat-map">
-			<leaflet lf-center="turin" defaults="defaults" markers="markers" paths="paths" bounds="bounds" height="300px"></leaflet>
+			<leaflet lf-center="mapcenter" defaults="defaults" markers="markers" paths="paths" bounds="bounds" height="300px"></leaflet>
 		</div>
 	</div>
-	
 	<br></br>
 			
 	<div class="container">
+		<div class="row" ng-hide="(infoMessage.length==0)" >
+			<div class="col-lg-1"></div>
+			<div class="col-lg-12">
+				<div id="infomsg" class="alert alert-danger alert-dismissable fade in" ng-model="infoMessage">
+					<a class="close" data-dismiss="alert" aria-label="close">&times;</a><strong>{{infoMessage}}!</strong>
+				</div>
+			</div>
+			<div class="col-lg-1"></div>
+		</div>
 		<div class="col-sm-3">
+
 			<div class="row">
 				<div class="dropdown all_conversation">
 					<button class="dropdown-toggle" type="button" id="dropdownMenu2" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
@@ -38,12 +47,12 @@
 			<div class="row">
 				<div class="chat_area">
 					<ul id="chatMessages" class="list-unstyled">
-						<chat-message ng-repeat="message in messages" message="message"  ></chat-message>
+						<chat-message ng-repeat="message in messages" message="message" centerMapOnAlert="centerMapOnAlert(id)" ></chat-message>
 					</ul>
 				</div>
 				<!--chat_area-->
 				<div class="message_write">
-					<textarea ng-keypress="enterKeyListener($event)"   ng-model="newMessage" ng-change="monitorTextInput()" id="textArea" class="form-control" placeholder="type a message"></textarea>
+					<textarea ng-keypress="enterKeyListener($event)"   ng-model="newMessage" ng-change="monitorTextInput()" id="textArea" class="form-control" placeholder="Inserisci un messaggio"></textarea>
 					<div id="alertsModal" class="modal fade">
 						<div class="modal-dialog">
 							<div class="modal-content">
@@ -120,7 +129,9 @@
 		</div>
 	</div>
 	<!--<button id="helpBtn" title="Aiuto" class="btn btn-info btn-circle btn-lg"><i class="glyphicon glyphicon-question-sign" style="vertical-align:middle"></i></button>-->
-	<a id="helpBtn" href="#" class="btn btn-info btn-md help-btn" role="button" data-toggle="tooltip" data-placement="left" ng-click="focusOnHelp()">Aiuto</a>
+	<a id="helpBtn" class="btn btn-info btn-md help-btn" role="button" data-toggle="tooltip" data-placement="left" ng-click="focusOnHelp()">Aiuto</a>
+
+
 
 	
 	
