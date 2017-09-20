@@ -17,83 +17,11 @@
 
 			<div th:replace="fragments/common :: generalErrorsFragment"></div>
 
-<<<<<<< HEAD
 			<div class="thumbnail">
 				<img th:if="${user.getImage() != null}"
 					 th:src="@{'data:image/*;base64,'+${user.generateBase64Image()}}" alt="..."/>
 				<img th:if="${user.getImage() == null}"
 					 src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQlQiU1yEonftm27j6_3hYC69EMvxwuFQrTJ1cgIFJMwF4tyCnG" alt="..."/>
-=======
-				<hr></hr>
-
-				<button type="button" class="btn btn-default btn-block" data-toggle="modal" data-target="#change-nickname-modal">Cambia Nickname</button>
-
-				<hr></hr>
-
-				<button type="button" class="btn btn-default btn-block" data-toggle="modal" data-target="#change-profile-picture-modal">Cambia Immagine del profilo</button>
-
-		    </div>
-		    
-			<div class="col-lg-9 col-md-10">
-				<table class="table table-user-information">
-			    	<tbody>
-			    		<tr>
-			    			<td>Email</td>
-			    			<td th:text="${user.email}"></td>
-			    		</tr>
-			    		<tr>
-			    			<td>Nickname</td>
-			    			<td th:text="${user.nickname}"></td>
-			    		</tr>
-			    		<tr>
-			    			<td>Sesso</td>
-			    			<td th:text="${user.gender}"></td>
-			    		</tr>
-			    		<tr>
-			    			<td>Età</td>
-			    			<td th:text="${user.age}"></td>
-			    		</tr>
-			    		<tr>
-			    			<td>Livello Istruzione</td>
-			    			<td th:text="${user.education}"></td>
-			    		</tr>
-			    		<tr>
-			    			<td>Ambito lavorativo</td>
-			    			<td th:text="${user.job}"></td>
-			    		</tr>
-			    		<tr th:if="not ${user.carFuel == ''}">
-				    		<tr>
-				    			<td>Auto</td>
-				    			<td th:text="'Anno di registrazione: ' + ${user.carYear}"></td>
-				    		</tr>
-				    		<tr>
-				    			<td></td>
-				    			<td th:text="'Carburante: ' + ${user.carFuel}"></td>
-				    		</tr>
-			    		</tr>
-			    		<tr>
-			    			<td>Servizio di car sharing</td>
-			    			<td th:if="${user.carSharing} != none" th:text="${user.carSharing}"></td>
-			    			<td th:if="${user.carSharing} == none" th:text="'Non usato'"></td>
-			    		</tr>
-			    		<tr>
-			    			<td>Bici</td>
-			    			<td th:if="${user.bikeUsage.owned} == true" th:text="'Posseduta'"></td>
-			    			<td th:if="${user.bikeUsage.owned} == false" th:text="'Non posseduta'"></td>
-			    		</tr>
-			    		<tr>
-			    			<td>Servizio di bike sharing</td>
-			    			<td th:if="${user.bikeUsage.sharing} == true" th:text="'Usato'"></td>
-			    			<td th:if="${user.bikeUsage.sharing} == false" th:text="'Non usato'"></td>
-			    		</tr>
-			    		<tr>
-			    			<td>Trasporto pubblico</td>
-			    			<td th:if="${user.pubTransport} != none" th:text="${user.pubTransport}"></td>
-			    			<td th:if="${user.pubTransport} == none" th:text="'Non usato'"></td>
-			    		</tr>
-			    	</tbody>
-			    </table>
->>>>>>> branch 'master' of https://github.com/dmagurano/cinqueti.git
 			</div>
 
 			<hr></hr>
