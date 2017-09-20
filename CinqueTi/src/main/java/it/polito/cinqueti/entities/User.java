@@ -96,8 +96,13 @@ public class User implements UserDetails {
 	@Valid
 	private Bike bikeUsage;
 
-	@Valid
-	private Car ownCar;
+	//@Valid
+	//private Car ownCar;
+	
+	//optional
+	private String carFuel;
+	//optional
+	private Integer carYear;
 	
 	@Lob
 	private byte[] image;
@@ -112,7 +117,7 @@ public class User implements UserDetails {
 	
 	public User() {
 		setEnabled(false);
-		ownCar = new Car();
+		//ownCar = new Car();
 		bikeUsage = new Bike();
 	}
 
@@ -284,12 +289,29 @@ public class User implements UserDetails {
 	public void setEnabled(boolean enabled) {
 		this.enabled = enabled;
 	}
-	
+	/*
 	public Car getOwnCar() {
 		return ownCar;
 	}
 
 	public void setOwnCar(Car ownCar) {
 		this.ownCar = ownCar;
+	}
+	*/
+
+	public String getCarFuel() {
+		return carFuel;
+	}
+
+	public void setCarFuel(String carFuel) {
+		this.carFuel = carFuel;
+	}
+
+	public Integer getCarYear() {
+		return carYear;
+	}
+
+	public void setCarYear(Integer carYear) {
+		this.carYear = carYear;
 	}
 }
