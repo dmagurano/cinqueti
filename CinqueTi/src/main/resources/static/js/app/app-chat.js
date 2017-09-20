@@ -146,6 +146,7 @@ app.controller('chatCtrl', ['$scope', '$location', '$interval', 'ChatSocket', '$
                         // second case: the user attempt to remove the alert
                         $scope.newAlert.reset();
                     }
+                    $scope.newMessage = '';
                     return;
                 }
             }
@@ -224,13 +225,14 @@ app.controller('chatCtrl', ['$scope', '$location', '$interval', 'ChatSocket', '$
         }
 
         $scope.centerMapOnAlert = function(id) {
+            console.log("done! " + id);
             var alert = $scope.alerts[id];
             if (alert == null || alert == undefined)
                 return; // the alert is expired
             $scope.mapcenter.lat = alert.lat;
             $scope.mapcenter.lng = alert.lng;
             $scope.mapcenter.zoom = 15;
-        }
+        };
 
         $scope.quote = function (id) {
             if ($scope.newAlert.searchOff === true)
@@ -371,7 +373,7 @@ app.controller('chatCtrl', ['$scope', '$location', '$interval', 'ChatSocket', '$
                 // });
                   
             }, function(error) {
-                toaster.pop('error', 'Error', 'Connection error ' + error);
+
                 
             });
         };
@@ -425,11 +427,11 @@ function isToday (date) {
 
 app.directive('chatMessage', function($compile) {
 
-	var sent = 		'<li ng-click=\"centerMapOnAlert({id: message.alertId})\"class="left clearfix admin_chat"><span class="chat-img1 pull-right"><img src="https://scontent-mxp1-1.xx.fbcdn.net/v/t1.0-9/995179_496393017119212_1942402182_n.jpg?oh=931db49c4f4f7c905efde31e3371f592&oe=59E4426F" alt="User Avatar" class="img-circle"/></span>' +
+	var sent = 		'<li class="left clearfix admin_chat"><span class="chat-img1 pull-right"><img src="https://scontent-mxp1-1.xx.fbcdn.net/v/t1.0-9/995179_496393017119212_1942402182_n.jpg?oh=931db49c4f4f7c905efde31e3371f592&oe=59E4426F" alt="User Avatar" class="img-circle"/></span>' +
                     '<div class="chat-body2 clearfix" ng-switch on="message.alertId">' +
                     '<p ng-switch-when="null" ng-bind-html="formatChatMessage(message.message, message.alertId, 1)">'+'</p>'+
                     //'<p ng-switch-default>ok'+'{{formatChatMessage(message.message)}}'+'</p>'+
-                    '<p ng-switch-default ng-bind-html="formatChatMessage(message.message, message.alertId, 0)">'+'</p>'
+                    '<p ng-switch-default ng-click="centerMapOnAlert({id:message.alertId})" ng-bind-html="formatChatMessage(message.message, message.alertId, 0)">'+'</p>'
                     '<div class="chat_time pull-left">{{message.date}}</div></div></li>';
 	  
 	var received = 	'<li class="left clearfix"><span class="chat-img1 pull-left"><img src="http://icons.iconarchive.com/icons/custom-icon-design/pretty-office-8/128/User-blue-icon.png" alt="User Avatar" class="img-circle"/></span>'+
@@ -444,7 +446,7 @@ app.directive('chatMessage', function($compile) {
 	    restrict: 'EA',
 	    scope: {
 	    	message: '=message',
-            centerMapOnAlert: '&'
+            centerMapOnAlert: '&centerMapOnAlert'
 	    },
         controller: function($scope, $sce) {
             $scope.formatChatMessage = function(textMsg, id, old) {

@@ -26,6 +26,10 @@
     display: inline-block;
 }
 
+.label-danger {
+    cursor: pointer;
+}
+
 textarea {
     resize: none;
 }
