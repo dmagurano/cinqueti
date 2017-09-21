@@ -43,3 +43,14 @@ body {
 code {
     font-size: 80%;
 }
+
+
+.custom-popup .leaflet-popup-content-wrapper {
+    background: whitesmoke;
+    color: black;
+    font-size:16px;
+    line-height:24px;
+    font-family: Arial;
+    border-style: solid;
+    border-color: #2795e7;
+}

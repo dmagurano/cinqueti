@@ -60,14 +60,14 @@ app.controller('MainCtrl', [ '$scope', 'LinesDataProvider', 'leafletBoundsHelper
 
                 LinesDataProvider.queryBusStop.query({stop: clickedBusStopId},function(busStopLines){
 
-                var busStopLinesHTML = "<br>Other lines:";
+                var busStopLinesHTML = "<br>Altre linee:";
                 angular.forEach(busStopLines, function(value, key){
-                    busStopLinesHTML += "<br>"+value;
+                    busStopLinesHTML += "<br><img src='../assets/bus_popup.png' width='20px'>"+"&nbsp;&nbsp;"+value+"</img>";
                 });
 
                 var popup = args.leafletObject._popup;
 
-                popup.setContent("Bus stop: <strong>" + clickedBusStopId + "</strong>" + busStopLinesHTML);
+                popup.setContent("<span style='color: #2795e7;'><strong>"+"FERMATA  "+"</strong></span><strong>" + clickedBusStopId + "</strong>" + busStopLinesHTML);
 
             });
 
@@ -143,14 +143,14 @@ app.factory('LinesDataProvider', ['$resource', '$filter',
                         type : "polyline",
                         weight: 4,
                         color: 'green',
-                        message: "Line: <strong>" + id + "</strong>",
+                        message: "Linea: <strong>" + id + "</strong>",
                         latlngs : []
                     },
                     return_path : {
                         type : "polyline",
                         weight: 4,
                         color: 'blue',
-                        message: "Line: <strong>" + id + "</strong>",
+                        message: "Linea: <strong>" + id + "</strong>",
                         latlngs : []
                     }
                 };
@@ -160,9 +160,6 @@ app.factory('LinesDataProvider', ['$resource', '$filter',
                 var stops_res = this.query(id);
 
                 for(var i = 0; i<stops_res.length; i++){
-
-                    if(end && requestedDirection === 'going')
-                        break;
 
                     var stop = stops_res[i];
                     var point = new Object();
@@ -179,8 +176,11 @@ app.factory('LinesDataProvider', ['$resource', '$filter',
                         if (stop.id === lastProcessedBusId){
                             direction = "return";
                             end = true;
+                            if(end && requestedDirection === 'going')
+                                break;
+
                             if(requestedDirection === "return")
-                                markers = {}; //empty markers in order to consider going stops
+                                markers = {}; //empty markers in order to consider going stop
                         }
 
                         else
@@ -227,7 +227,7 @@ app.factory('LinesDataProvider', ['$resource', '$filter',
                     var marker = {
                         lat: point.lat,
                         lng: point.lng,
-                        message: "Bus stop: <strong>" + stop.id + "</strong>",
+                        message: "<span style='color: #2795e7;'><strong>"+"FERMATA"+"</strong></span><strong>" + stop.id + "</strong>",
                         focus: false,
                         draggable: false,
                         icon:{

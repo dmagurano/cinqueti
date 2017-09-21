@@ -1,27 +1,16 @@
-app.controller('CalculateController', ['$scope', 'PathsDataProvider', 'leafletBoundsHelpers',
-    function ($scope, PathsDataProvider, leafletBoundsHelpers) {
-        angular.extend($scope, {
-            turin: {
-                        lat: 45.07,
-                        lng: 7.69,
-                        zoom: 13
-            },
-            bounds: {},
-            paths: {},
-            markers: {},
-            defaults: {
-                tileLayer: "https://api.mapbox.com/styles/v1/mapbox/streets-v10/tiles/256/{z}/{x}/{y}?access_token=pk.eyJ1IjoiZGF2cjA5MTAiLCJhIjoiY2owemk4N2FmMDJ1ZzMzbno3YjZxZDN3YyJ9.eJdGDM0goIVXcFmMrQX8og",
-            },
-            legend: {
-                position: 'bottomleft',
-                colors: [ 'blue', 'orange'],
-                labels: [ 'A piedi', 'Bus' ]
-            }
-        });
+app.controller('CalculateController', ['$scope', 'PathsDataProvider', 'leafletBoundsHelpers', 'leafletData',
+    function ($scope, PathsDataProvider, leafletBoundsHelpers,leafletData) {
+
+        var self = $scope;
+        initialize_map($scope);
 
         $scope.pathDetailsVisibility = true;
         $scope.pathDetails = PathsDataProvider.getPathDetails();
         this.calculate = function(){
+
+
+            //Refresh the map otherwise precedent informations will be present (e.g. popup line)
+            initialize_map(self);
 
             //Use Nominatim service to get lat and long for the address
             //var pathPrefix = "https://nominatim.openstreetmap.org/search?q=";
@@ -129,7 +118,7 @@ app.factory('PathsDataProvider', [ '$http', '$window',
                     //Check if the address exists
                     if (srcData.length == 0){
 
-                        $window.alert("Indirizzo sorgente non trovato");
+                        //$window.alert("Indirizzo sorgente non trovato");
                         return $http.promise.reject();
 
                     }
@@ -155,7 +144,7 @@ app.factory('PathsDataProvider', [ '$http', '$window',
 
                     if (dstData.length == 0){
 
-                        $window.alert("Indirizzo destinazione non trovato");
+                        //$window.alert("Indirizzo destinazione non trovato");
                         return $http.promise.reject();
                     }
                     else {
@@ -379,7 +368,7 @@ function createPolyline(mode,line){
     if (mode == 0){
         polyline.color = "orange";
         polyline.dashArray = "";
-        polyline.message = "Line: "+line;
+        polyline.message = "Linea: "+"<strong>"+line+"</strong>";
     }
     else{
         polyline.color = "blue";
@@ -401,4 +390,27 @@ function showAlertTypeSelector() {
 //Function for show alert in case of error
 function bootstrap_alert_warning(message){
     $('#alert_placeholder').html('<div class="alert alert-warning"><a class="close" data-dismiss="alert">×</a><span>'+message+'</span></div>');
+}
+
+function initialize_map(self){
+
+    angular.extend(self, {
+        turin: {
+            lat: 45.07,
+            lng: 7.69,
+            zoom: 13
+        },
+        bounds: {},
+        paths: {},
+        markers: {},
+        defaults: {
+            tileLayer: "https://api.mapbox.com/styles/v1/mapbox/streets-v10/tiles/256/{z}/{x}/{y}?access_token=pk.eyJ1IjoiZGF2cjA5MTAiLCJhIjoiY2owemk4N2FmMDJ1ZzMzbno3YjZxZDN3YyJ9.eJdGDM0goIVXcFmMrQX8og",
+        },
+        legend: {
+            position: 'bottomleft',
+            colors: [ 'blue', 'orange'],
+            labels: [ 'A piedi', 'Bus' ]
+        }
+    });
+
 }

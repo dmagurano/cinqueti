@@ -46,23 +46,23 @@
     <div>
         <form id="search-form">
             <div class="input-group">
-                <span class="input-group-addon"><img src="../assets/flag-128.png" width="20px"> Partenza</span>
-                <input ng-model="source" list="srcSuggestions" ng-change="getSrcSuggestions()" type="text" class="form-control" placeholder="Source" aria-describedby="basic-addon1">
+                <span class="input-group-addon"><img src="../assets/flag-128.png" width="20px"></span>
+                <input ng-model="source" list="srcSuggestions" ng-change="getSrcSuggestions()" type="text" class="form-control" placeholder="Partenza" required="required" aria-describedby="basic-addon1">
                 <datalist id="srcSuggestions">
                     <option ng-repeat="srcSuggestion in srcSuggestions" value="{{srcSuggestion}}">
                 </datalist>
             </div>
             <br>
             <div class="input-group">
-                <span class="input-group-addon"><img src="../assets/finish-flag-128.png" width="20px"> Arrivo</span>
-                <input ng-model="destination" list="dstSuggestions" ng-change="getDstSuggestions()" type="text" class="form-control" placeholder="Destination" aria-describedby="basic-addon1">
+                <span class="input-group-addon"><img src="../assets/finish-flag-128.png" width="20px"></span>
+                <input ng-model="destination" list="dstSuggestions" ng-change="getDstSuggestions()" type="text" class="form-control" placeholder="Arrivo" required="required" aria-describedby="basic-addon1">
                 <datalist id="dstSuggestions">
                     <option ng-repeat="dstSuggestion in dstSuggestions" value="{{dstSuggestion}}">
                 </datalist>
             </div>
             <br>
             <div id = "alert_placeholder"></div>
-            <button ng-click="ctrl.calculate()" type="button" class="btn btn-default btn-block">Vai!</button>
+            <button ng-click="ctrl.calculate()" type="submit" class="btn btn-default btn-block">Vai!</button>
         </form>
 
         <div style="margin-top: 20px" class="panel panel-default" ng-hide="pathDetailsVisibility">
@@ -99,6 +99,6 @@
     </div>
 </div>
 
-<div class="col-lg-7">
-    <leaflet lf-center="turin" defaults="defaults" bounds="bounds" paths="paths" markers="markers" legend="legend" height="480px"></leaflet>
+<div class="col-lg-7 custom-popup" id="div_map">
+    <leaflet lf-center="turin" defaults="defaults" bounds="bounds" paths="paths" markers="markers" legend="legend" height="480px" id="leaf_map"></leaflet>
 </div>
