@@ -1,9 +1,9 @@
 /*
-    TODO
-        different colour for on foot or by bus (better: different colour for each line)
-        update table containing path details
-        make edges follow the roads
-*/
+ TODO
+ different colour for on foot or by bus (better: different colour for each line)
+ update table containing path details
+ make edges follow the roads
+ */
 
 var app = angular.module('App', ['ngRoute', 'ngResource', 'ui-leaflet'])
 
@@ -24,21 +24,21 @@ app.config(function ($routeProvider, $locationProvider) {
             controller: 'MainCtrl',
             controllerAs: 'ctrl'
         })
-        //.otherwise({ redirectTo: "/" });
+    //.otherwise({ redirectTo: "/" });
 
     // configure html5 to get links working on jsfiddle
-    	//$locationProvider.html5Mode(true);
+    //$locationProvider.html5Mode(true);
 });
 
 app.controller('HeaderCtrl', [ '$scope', '$location', '$window',
-	function HeaderCtrl($scope, $location, $window) { 
-	    $scope.isActive = function (viewLocation) {
-	    	 return viewLocation === $location.path();
-	    };
+    function HeaderCtrl($scope, $location, $window) {
+        $scope.isActive = function (viewLocation) {
+            return viewLocation === $location.path();
+        };
         // TODO remove this
         $scope.chatOpen = function (topic) {
             $window.location.href = "/chat/#!/" + topic;
         }
 
 
-}]);
+    }]);

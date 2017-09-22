@@ -1,31 +1,31 @@
 var app = angular.module('App', ['ngRoute','ui-leaflet', 'ngResource'])
 
 app.config(function ($routeProvider,$locationProvider) {
-	  $routeProvider
-      .when('/:topic', {
-          templateUrl:'/chatPage.html',
-          controller: 'chatCtrl'
-          
-      })
+    $routeProvider
+        .when('/:topic', {
+            templateUrl:'/chatPage.html',
+            controller: 'chatCtrl'
+
+        })
     // configure html5 to get links working on jsfiddle
     //$locationProvider.html5Mode(true);
 });
 
 app.controller('HeaderCtrl', [ '$scope', '$location','$window',
-	function HeaderCtrl($scope, $location,$window) {
-	    $scope.isActive = function (viewLocation) {
-	    	 return viewLocation === $location.path();
-	    };
+    function HeaderCtrl($scope, $location,$window) {
+        $scope.isActive = function (viewLocation) {
+            return viewLocation === $location.path();
+        };
         // TODO remove this
-	    $scope.chatOpen = function (topic) {
+        $scope.chatOpen = function (topic) {
             $window.location.href = "/chat/#!/" + topic;
         };
 
 
-}]);
+    }]);
 
 app.controller('chatCtrl', ['$scope', '$location', '$interval', 'ChatSocket', '$routeParams', 'AddressResolver', 'ToolsResolver', '$timeout', '$anchorScroll',
-	function($scope, $location, $interval, chatSocket,$routeParams, AddressResolver, ToolsResolver, $timeout, $anchorScroll) {
+    function($scope, $location, $interval, chatSocket,$routeParams, AddressResolver, ToolsResolver, $timeout, $anchorScroll) {
 
         angular.extend($scope, {
             mapcenter: {
@@ -35,7 +35,7 @@ app.controller('chatCtrl', ['$scope', '$location', '$interval', 'ChatSocket', '$
             },
             legend: {
                 position: 'bottomright',
-                colors: ['#ff9900', '#00cc66', '#cc0000','#3366cc'],
+                colors: ['#ff9900', '#a6d785', '#cc0000','#4169e1'],
                 labels: ['Cantiere','Incidente','Incendio','Altro']
             },
             markers: [],
@@ -45,7 +45,7 @@ app.controller('chatCtrl', ['$scope', '$location', '$interval', 'ChatSocket', '$
                 tileLayer: "https://api.mapbox.com/styles/v1/mapbox/streets-v10/tiles/256/{z}/{x}/{y}?access_token=pk.eyJ1IjoiZGF2cjA5MTAiLCJhIjoiY2owemk4N2FmMDJ1ZzMzbno3YjZxZDN3YyJ9.eJdGDM0goIVXcFmMrQX8og",
             }
         });
-        //$scope.colors = ['#ff9900', '#00cc66', '#cc0000','#3366cc','#00ccff', '#cc33ff'];
+        //$scope.colors = ['#ff9900', '#a6d785', '#cc0000','#3366cc','#00ccff', '#cc33ff'];
 
         $scope.username     = '';
         $scope.participants = [];
@@ -82,31 +82,31 @@ app.controller('chatCtrl', ['$scope', '$location', '$interval', 'ChatSocket', '$
 //            $scope.topic = topic;
 //          }
 //        );
-         
+
         $scope.$watch('messages', function() {
-        //serve affinche venga chiamata la funzione dopo il
-        //render dell'interfaccia
-    	   $scope.$evalAsync(function() {
-           		updateChat();
-           });
-        },true);
-        /*
-        $scope.$watch('alerts', function() {
             //serve affinche venga chiamata la funzione dopo il
             //render dell'interfaccia
             $scope.$evalAsync(function() {
                 updateChat();
             });
         },true);
-        */
-        
+        /*
+         $scope.$watch('alerts', function() {
+         //serve affinche venga chiamata la funzione dopo il
+         //render dell'interfaccia
+         $scope.$evalAsync(function() {
+         updateChat();
+         });
+         },true);
+         */
+
         $scope.sendMessage = function() {
-        	var messageToServer;
+            var messageToServer;
             // check if: something is ready to send && the message contains something different from whitespace
             // otherwise do nothing
             if (!($scope.newMessage.length > 0 && $scope.newMessage.match(/^\s+$/) === null))
                 return;
-        	if ($scope.alertRef.quoting === false)
+            if ($scope.alertRef.quoting === false)
             {
                 messageToServer = JSON.stringify({
                     'message': $scope.newMessage,
@@ -124,11 +124,11 @@ app.controller('chatCtrl', ['$scope', '$location', '$interval', 'ChatSocket', '$
                 });
                 $scope.alertRef.reset();
             }
-        	chatSocket.send( 
-        			"/app/chat", 
-        			{},
-        			messageToServer
-        	);
+            chatSocket.send(
+                "/app/chat",
+                {},
+                messageToServer
+            );
             $scope.newMessage = '';
             //$("#textArea").focus();
         };
@@ -166,7 +166,7 @@ app.controller('chatCtrl', ['$scope', '$location', '$interval', 'ChatSocket', '$
                 $scope.buildAlertRequestFromAddress(location, "keyboard");
             }
         };
-        
+
         $scope.chooseAlertInfo = function () {
             var address = $scope.chosenAddress;
             $scope.newAlert.alert.lat = address.lat;
@@ -280,37 +280,37 @@ app.controller('chatCtrl', ['$scope', '$location', '$interval', 'ChatSocket', '$
         };
 
         $scope.enterKeyListener = function(keyEvent) {
-        	if (keyEvent.which === 13)
+            if (keyEvent.which === 13)
             {
                 $scope.sendMessage();
                 keyEvent.preventDefault();
             }
         };
 
-            
+
         var initStompClient = function() {
             chatSocket.init('/transportsChat');
-            
+
             chatSocket.connect(function(frame) {
-                  
+
                 $scope.username = frame.headers['user-name'];
 
                 chatSocket.subscribe("/topic/presence/" + $scope.topic , function(message) {
                     $scope.participants = JSON.parse(message.body).users;
                 });
-                  
+
                 /* subscribing to the chat topic */
                 chatSocket.subscribe('/topic/chat/' + $scope.topic , function(mess) {
-                    var message = (JSON.parse(mess.body)); 
+                    var message = (JSON.parse(mess.body));
                     var date = new Date(message.date);
                     message.date = isToday(date) ? date.toLocaleTimeString() : date.toLocaleString();
                     $scope.messages.push(message);
                 });
 
-                    /* to retrieve last messages */
+                /* to retrieve last messages */
                 chatSocket.subscribe('/user/queue/' + $scope.topic , function(messArr) {
-                     var messageA = (JSON.parse(messArr.body));
-                     messageA.forEach(function(message) {
+                    var messageA = (JSON.parse(messArr.body));
+                    messageA.forEach(function(message) {
                         var date = new Date(message.date);
                         message.date = isToday(date) ? date.toLocaleTimeString() : date.toLocaleString();
                         $scope.messages.push(message);
@@ -373,20 +373,20 @@ app.controller('chatCtrl', ['$scope', '$location', '$interval', 'ChatSocket', '$
                 } );
 
                 /* sending user join message */
-                chatSocket.send( "/app/join", {}, JSON.stringify({'name': $scope.username,'topicName': $scope.topic}) );  
-                  
+                chatSocket.send( "/app/join", {}, JSON.stringify({'name': $scope.username,'topicName': $scope.topic}) );
+
                 // chatSocket.subscribe("/user/exchange/amq.direct/errors", function(message) {
                 //     toaster.pop('error', "Error", message.body);
                 // });
-                  
+
             }, function(error) {
 
-                
+
             });
         };
-          
+
         initStompClient();
-}]);
+    }]);
 
 //function parseMessage(mess){
 //    var message = (JSON.parse(mess.body));
@@ -396,8 +396,8 @@ app.controller('chatCtrl', ['$scope', '$location', '$interval', 'ChatSocket', '$
 //};
 
 function updateChat() {
-	var chatdiv = $('.chat_area');
-	chatdiv.scrollTop(chatdiv.get(0).scrollHeight);
+    var chatdiv = $('.chat_area');
+    chatdiv.scrollTop(chatdiv.get(0).scrollHeight);
 }
 
 function printRates(rates) {
@@ -428,33 +428,33 @@ function isToday (date) {
     var now = new Date();
     if (date.toDateString() == now.toDateString())
         return true;
-    else 
+    else
         return false;
 };
 
 app.directive('chatMessage', function($compile) {
 
-	var sent = 		'<li class="left clearfix admin_chat"><span class="chat-img1 pull-right"><img src="https://scontent-mxp1-1.xx.fbcdn.net/v/t1.0-9/995179_496393017119212_1942402182_n.jpg?oh=931db49c4f4f7c905efde31e3371f592&oe=59E4426F" alt="User Avatar" class="img-circle"/></span>' +
-                    '<div class="chat-body2 clearfix" ng-switch on="message.alertId">' +
-                    '<p ng-switch-when="null" ng-bind-html="formatChatMessage(message.message, message.alertId, 1)">'+'</p>'+
-                    //'<p ng-switch-default>ok'+'{{formatChatMessage(message.message)}}'+'</p>'+
-                    '<p ng-switch-default ng-click="centerMapOnAlert({id:message.alertId})" ng-bind-html="formatChatMessage(message.message, message.alertId, 0)">'+'</p>'
-                    '<div class="chat_time pull-left">{{message.date}}</div></div></li>';
-	  
-	var received = 	'<li class="left clearfix"><span class="chat-img1 pull-left"><img src="http://icons.iconarchive.com/icons/custom-icon-design/pretty-office-8/128/User-blue-icon.png" alt="User Avatar" class="img-circle"/></span>'+
-					'<div class="chat-nickname">'+'{{message.nickname}}'+'</div>' +
-                    '<div class="chat-body1 clearfix" ng-switch on="message.alertId">'+
-                        '<p ng-switch-when="null" ng-bind-html="formatChatMessage(message.message, 1)">'+'</p>'+
-                        '<p ng-switch-default ng-bind-html="formatChatMessage(message.message, 0)">'+'</p>'+
-                        '<div class="chat_time pull-right">{{message.date}}</div>' +
-                    '</div></li>';
-	  
-	return {
-	    restrict: 'EA',
-	    scope: {
-	    	message: '=message',
+    var sent = 		'<li class="left clearfix admin_chat"><span class="chat-img1 pull-right"><img src="https://scontent-mxp1-1.xx.fbcdn.net/v/t1.0-9/995179_496393017119212_1942402182_n.jpg?oh=931db49c4f4f7c905efde31e3371f592&oe=59E4426F" alt="User Avatar" class="img-circle"/></span>' +
+        '<div class="chat-body2 clearfix" ng-switch on="message.alertId">' +
+        '<p ng-switch-when="null" ng-bind-html="formatChatMessage(message.message, message.alertId, 1)">'+'</p>'+
+        //'<p ng-switch-default>ok'+'{{formatChatMessage(message.message)}}'+'</p>'+
+        '<p ng-switch-default ng-click="centerMapOnAlert({id:message.alertId})" ng-bind-html="formatChatMessage(message.message, message.alertId, 0)">'+'</p>'
+        '<div class="chat_time pull-left">{{message.date}}</div></div></li>';
+
+    var received = 	'<li class="left clearfix"><span class="chat-img1 pull-left"><img src="http://icons.iconarchive.com/icons/custom-icon-design/pretty-office-8/128/User-blue-icon.png" alt="User Avatar" class="img-circle"/></span>'+
+        '<div class="chat-nickname">'+'{{message.nickname}}'+'</div>' +
+        '<div class="chat-body1 clearfix" ng-switch on="message.alertId">'+
+        '<p ng-switch-when="null" ng-bind-html="formatChatMessage(message.message, 1)">'+'</p>'+
+        '<p ng-switch-default ng-bind-html="formatChatMessage(message.message, 0)">'+'</p>'+
+        '<div class="chat_time pull-right">{{message.date}}</div>' +
+        '</div></li>';
+
+    return {
+        restrict: 'EA',
+        scope: {
+            message: '=message',
             centerMapOnAlert: '&centerMapOnAlert'
-	    },
+        },
         controller: function($scope, $sce) {
             $scope.formatChatMessage = function(textMsg, id, old) {
                 if (old == 0)
@@ -466,18 +466,18 @@ app.directive('chatMessage', function($compile) {
             };
 
         },
-	    replace: 'true',
-	    compile: function(tElem, tAttr) {
-	    	return function(scope, el, attr, ctrl, trans) {
-		        if (scope.message.username != scope.$parent.$parent.username) {
+        replace: 'true',
+        compile: function(tElem, tAttr) {
+            return function(scope, el, attr, ctrl, trans) {
+                if (scope.message.username != scope.$parent.$parent.username) {
                     var mess = $compile(received)(scope);
-		        	el.append(mess);
-		        } else {
+                    el.append(mess);
+                } else {
                     var mess = $compile(sent)(scope);
                     el.append(mess);
-		        }
-	        }
-	    }
+                }
+            }
+        }
     };
 
 });
@@ -491,7 +491,7 @@ app.directive('chatAlert', function($compile, $timeout) {
             submit: '&'
         },
         replace: 'true',
-        // TODO add functionalities
+        /*
         template: "<div><b>" + "{{alert.type.toUpperCase()}}" + "</b>"
         + " <button ng-click=\"quote({id: alert.id})\">Citami</button><br>"
         + "{{alert.address}}" + "<br>"
@@ -512,7 +512,8 @@ app.directive('chatAlert', function($compile, $timeout) {
         + "			<label class=\"star star-1\" for=\"star-1\"></label>"
         + "		</form>"
         + "	</div>"
-        +"<br></div>",
+        +"<br></div>",*/
+        templateUrl: "/directives/alert.html",
         controller: function($scope) {
 
             $scope.printDateTime = function(timestamp){
@@ -544,7 +545,7 @@ app.directive('chatAlert', function($compile, $timeout) {
 
 app.factory('AddressResolver', ['$resource', function ($resource) {
     //return $resource('https://nominatim.openstreetmap.org/search?q=:location,torino&format=json');
-	return $resource('/rest/address?address=:location');
+    return $resource('/rest/address?address=:location');
 }]);
 
 app.factory('ToolsResolver', ['$resource', function ($resource) {
@@ -556,36 +557,36 @@ app.factory('ToolsResolver', ['$resource', function ($resource) {
 }]);
 
 app.factory('ChatSocket', ['$rootScope', function($rootScope) {
-            var stompClient;
-            
-            var wrappedSocket = {
-                    
-                    init: function(url) {
-                        stompClient = Stomp.over(new SockJS(url));
-                    },
-                    connect: function(successCallback, errorCallback) {
-                        
-                        stompClient.connect({}, function(frame) {
-                            $rootScope.$apply(function() {
-                                successCallback(frame);
-                            });
-                        }, function(error) {
-                            $rootScope.$apply(function(){
-                                errorCallback(error);
-                            });
-                        });
-                    },
-                    subscribe : function(destination, callback) {
-                        stompClient.subscribe(destination, function(message) {
-                              $rootScope.$apply(function(){
-                                  callback(message);
-                              });
-                          });   
-                    },
-                    send: function(destination, headers, object) {
-                        stompClient.send(destination, headers, object);
-                    }
-            }
-            
-            return wrappedSocket;
+    var stompClient;
+
+    var wrappedSocket = {
+
+        init: function(url) {
+            stompClient = Stomp.over(new SockJS(url));
+        },
+        connect: function(successCallback, errorCallback) {
+
+            stompClient.connect({}, function(frame) {
+                $rootScope.$apply(function() {
+                    successCallback(frame);
+                });
+            }, function(error) {
+                $rootScope.$apply(function(){
+                    errorCallback(error);
+                });
+            });
+        },
+        subscribe : function(destination, callback) {
+            stompClient.subscribe(destination, function(message) {
+                $rootScope.$apply(function(){
+                    callback(message);
+                });
+            });
+        },
+        send: function(destination, headers, object) {
+            stompClient.send(destination, headers, object);
+        }
+    }
+
+    return wrappedSocket;
 }]);

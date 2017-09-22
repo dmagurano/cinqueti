@@ -271,3 +271,25 @@ textarea {
   color: #fff;
   cursor:pointer;
 }
+
+label.star {
+    font-size: 29px;
+}
+
+label {
+    margin-bottom: 0px;
+}
+
+.leaflet-popup-content p {
+    margin: 1px !important;
+}
+.leaflet-popup-content ul {
+    list-style-type: none;
+    font-weight: bold;
+    margin-bottom: 0px !important;
+}
+
+a[id^='quote'] {
+    color:white !important;
+}
+
