@@ -1,4 +1,4 @@
-app.controller('CalculateController', ['$scope', 'PathsDataProvider', 'leafletBoundsHelpers', 'leafletData',
+app.controller('CalculateController', ['$scope', 'PathsDataProvider', 'leafletBoundsHelpers',
     function ($scope, PathsDataProvider, leafletBoundsHelpers,leafletData) {
 
         var self = $scope;
