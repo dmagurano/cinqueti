@@ -184,6 +184,12 @@ app.controller('chatCtrl', ['$scope', '$location', '$interval', 'ChatSocket', '$
 
         $scope.showAddressModal = function () {
             // used by 'Segnala' btn (alertBtn)
+            if ($scope.newAlert.searchOff == true)
+            {
+                $scope.infoMessage = 'Hai già inserito una segnalazione nel messaggio. Per cambiarla rimuovi il tag';
+                $timeout(function () { $scope.infoMessage = '';},5000);
+                return;
+            }
             showAlertAddressSelector();
         }
 

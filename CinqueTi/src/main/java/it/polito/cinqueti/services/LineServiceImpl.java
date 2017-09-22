@@ -72,7 +72,9 @@ public class LineServiceImpl implements LineService {
 	@Override
 	public List<OSMDecodedAddress> getAddressInformation(String query) {
 		RestTemplate restTemplate = new RestTemplate();
-		OSMDecodedAddress[] resultsArray = restTemplate.getForObject("https://nominatim.openstreetmap.org/search?q=" + query + " torino&county=to&addressdetails=1&format=json", OSMDecodedAddress[].class);
+		OSMDecodedAddress[] resultsArray = restTemplate.getForObject(
+				"https://nominatim.openstreetmap.org/search?q=" + query + " torino&county=to&addressdetails=1&format=json", 
+				OSMDecodedAddress[].class);
 		ArrayList<OSMDecodedAddress> results = new ArrayList<OSMDecodedAddress>(Arrays.asList(resultsArray));
 		return filterOSMResults(results, query);
 	}

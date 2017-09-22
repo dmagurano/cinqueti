@@ -22,8 +22,10 @@
 				<li ng-class="{ active: isActive('/')}"><a href="/#!/">Informazioni Linee</a></li>
 				<li ng-class="{ active: isActive('/calculate')}"><a href="/#!/calculate">Calcolo Percorsi</a></li>
 				<!--         	<li th:class="${activeTab == 'chat'}? 'active' : null"><a href="">Chat e segnalazioni</a></li> -->
-				<li th:class="${activeTab == 'chat'}? 'active dropdown' : null">
-					<a  class="dropdown-toggle" data-toggle="dropdown">Chat e segnalazioni <b class="caret"></b></a>
+				<li th:class="${activeTab == 'chat'}? 'active dropdown' : 'dropdown'">
+					<a  class="dropdown-toggle" data-toggle="dropdown">Chat e segnalazioni
+						<b class="caret"></b>
+					</a>
 					<ul class="dropdown-menu">
 						<!-- 	            <li><a href="#">Action</a></li> -->
 						<!-- 	            <li><a href="#">Another action</a></li> -->
@@ -32,8 +34,9 @@
                                                    ng-click='chatOpen(\''
                                                    + ${topic} +
                                                    '\')'"  th:text="${topic}"> </a> </li>-->
-						<li th:each="topic : ${topics}"><a th:attr="
-                           href='/chat/#!/' + ${topic} + ''   "  th:text="${topic}"> </a> </li>
+						<li th:each="topic : ${topics}">
+							<a th:attr="href='/chat/#!/' + ${topic} + ''   "  th:text="${topic}"> </a>
+						</li>
 					</ul>
 				</li>
 			</ul>

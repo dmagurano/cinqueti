@@ -4,233 +4,239 @@
 	<title>Profilo</title>
 
 	<th:block th:include="fragments/common :: commonHeadFragment"></th:block>
+
+	<link rel="stylesheet" href="/css/bootstrap.css"/>
 </head>
 <body>
-<div th:replace="fragments/navbar"></div>
+	<div th:replace="fragments/navbar"></div>
 
-<div class="container">
-	<div id="form"  th:object="${user}" th:fragment="profile">
+	<div class="container">
+		<div id="form"  th:object="${user}" th:fragment="profile">
 
-		<h3 th:text="'Ciao ' + ${user.nickname} + ', questo è il tuo profilo.'"></h3>
+			<h3 th:text="'Ciao ' + ${user.nickname} + ', questo è il tuo profilo.'"></h3>
 
-		<div class="col-lg-3 col-md-2">
+			<div class="col-lg-3 col-md-2">
 
-			<div th:replace="fragments/common :: generalErrorsFragment"></div>
+				<div th:replace="fragments/common :: generalErrorsFragment"></div>
 
-			<div class="thumbnail">
-				<img th:if="${user.getImage() != null}"
-					 th:src="@{'data:image/*;base64,'+${user.generateBase64Image()}}" alt="..."/>
-				<img th:if="${user.getImage() == null}"
-					 src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQlQiU1yEonftm27j6_3hYC69EMvxwuFQrTJ1cgIFJMwF4tyCnG" alt="..."/>
+				<div class="thumbnail">
+					<img th:if="${user.getImage() != null}"
+						 th:src="@{'data:image/*;base64,'+${user.generateBase64Image()}}" alt="..."/>
+					<img th:if="${user.getImage() == null}"
+						 src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQlQiU1yEonftm27j6_3hYC69EMvxwuFQrTJ1cgIFJMwF4tyCnG" alt="..."/>
+				</div>
+
+				<hr></hr>
+
+				<button type="button" class="btn btn-default btn-block" data-toggle="modal" data-target="#change-password-modal">Cambia Password</button>
+
+				<hr></hr>
+
+				<button type="button" class="btn btn-default btn-block" data-toggle="modal" data-target="#change-nickname-modal">Cambia Nickname</button>
+
+				<hr></hr>
+
+				<button type="button" class="btn btn-default btn-block" data-toggle="modal" data-target="#change-profile-picture-modal">Cambia Immagine del profilo</button>
+
 			</div>
 
-			<hr></hr>
-
-			<button type="button" class="btn btn-default btn-block" data-toggle="modal" data-target="#change-password-modal">Cambia Password</button>
-
-			<hr></hr>
-
-			<button type="button" class="btn btn-default btn-block" data-toggle="modal" data-target="#change-nickname-modal">Cambia Nickname</button>
-
-			<hr></hr>
-
-			<button type="button" class="btn btn-default btn-block" data-toggle="modal" data-target="#change-profile-picture-modal">Cambia Immagine del profilo</button>
-
-		</div>
-
-		<div class="col-lg-9 col-md-10">
-			<table class="table table-user-information">
-				<tbody>
-				<tr>
-					<td>Email</td>
-					<td th:text="${user.email}"></td>
-				</tr>
-				<tr>
-					<td>Nickname</td>
-					<td th:text="${user.nickname}"></td>
-				</tr>
-				<tr>
-					<td>Sesso</td>
-					<td th:text="${user.gender}"></td>
-				</tr>
-				<tr>
-					<td>Età</td>
-					<td th:text="${user.age}"></td>
-				</tr>
-				<tr>
-					<td>Livello Istruzione</td>
-					<td th:text="${user.education}"></td>
-				</tr>
-				<tr>
-					<td>Ambito lavorativo</td>
-					<td th:text="${user.job}"></td>
-				</tr>
-				<tr th:if="not ${user.carFuel == ''}">
-				<tr>
-					<td>Auto</td>
-					<td th:text="'Anno di registrazione: ' + ${user.carYear}"></td>
-				</tr>
-				<tr>
-					<td></td>
-					<td th:text="'Carburante: ' + ${user.carFuel}"></td>
-				</tr>
-				</tr>
-				<tr>
-					<td>Servizio di car sharing</td>
-					<td th:if="${user.carSharing} != none" th:text="${user.carSharing}"></td>
-					<td th:if="${user.carSharing} == none" th:text="'Non usato'"></td>
-				</tr>
-				<tr>
-					<td>Bici</td>
-					<td th:if="${user.bikeUsage.owned} == true" th:text="'Posseduta'"></td>
-					<td th:if="${user.bikeUsage.owned} == false" th:text="'Non posseduta'"></td>
-				</tr>
-				<tr>
-					<td>Servizio di bike sharing</td>
-					<td th:if="${user.bikeUsage.sharing} == true" th:text="'Usato'"></td>
-					<td th:if="${user.bikeUsage.sharing} == false" th:text="'Non usato'"></td>
-				</tr>
-				<tr>
-					<td>Trasporto pubblico</td>
-					<td th:if="${user.pubTransport} != none" th:text="${user.pubTransport}"></td>
-					<td th:if="${user.pubTransport} == none" th:text="'Non usato'"></td>
-				</tr>
-				</tbody>
-			</table>
-		</div>
-	</div>
-
-</div>
-
-<div th:replace="fragments/footer"></div>
-
-<!-- change password modal -->
-<div id="change-password-modal" class="modal fade modal-over-navbar" role="dialog">
-	<div class="modal-dialog">
-
-		<!-- Modal content-->
-		<div class="modal-content">
-			<div class="modal-header">
-				<button type="button" class="close" data-dismiss="modal">&times;</button>
-				<h4 class="modal-title">Cambia password</h4>
-			</div>
-			<div class="modal-body">
-
-				<form role="form" method="POST" th:action="@{/change-password}">
-					<div class="form-group">
-						<input type="password" class="form-control" placeholder="Password attuale" name="old-password" autofocus="true" required="true"/>
-					</div>
-
-					<div class="form-group">
-						<input type="password" class="form-control" placeholder="Nuova password" name="new-password" required="true"/>
-					</div>
-
-					<div class="form-group">
-						<input type="password" class="form-control" placeholder="Ripeti nuova password" name="new-password-confirmed" required="true"/>
-					</div>
-
-					<div class="btn-group btn-group-justified" role="group" aria-label="...">
-						<div class="btn-group col-lg-6" role="group">
-							<button type="button" class="btn btn-default btn-sm" data-dismiss="modal">Annulla</button>
-						</div>
-						<div class="btn-group col-lg-6" role="group">
-							<button type="submit" class="btn btn-primary btn-sm">Conferma</button>
-						</div>
-					</div>
-				</form>
-
+			<div class="col-lg-9 col-md-10">
+				<table class="table table-user-information">
+					<tbody>
+					<tr>
+						<td>Email</td>
+						<td th:text="${user.email}"></td>
+					</tr>
+					<tr>
+						<td>Nickname</td>
+						<td th:text="${user.nickname}"></td>
+					</tr>
+					<tr>
+						<td>Sesso</td>
+						<td th:text="${user.gender}"></td>
+					</tr>
+					<tr>
+						<td>Età</td>
+						<td th:text="${user.age}"></td>
+					</tr>
+					<tr>
+						<td>Livello Istruzione</td>
+						<td th:text="${user.education}"></td>
+					</tr>
+					<tr>
+						<td>Ambito lavorativo</td>
+						<td th:text="${user.job}"></td>
+					</tr>
+					<tr th:if="not ${user.carFuel == ''}">
+					<tr>
+						<td>Auto</td>
+						<td th:text="'Anno di registrazione: ' + ${user.carYear}"></td>
+					</tr>
+					<tr>
+						<td></td>
+						<td th:text="'Carburante: ' + ${user.carFuel}"></td>
+					</tr>
+					</tr>
+					<tr>
+						<td>Servizio di car sharing</td>
+						<td th:if="${user.carSharing} != none" th:text="${user.carSharing}"></td>
+						<td th:if="${user.carSharing} == none" th:text="'Non usato'"></td>
+					</tr>
+					<tr>
+						<td>Bici</td>
+						<td th:if="${user.bikeUsage.owned} == true" th:text="'Posseduta'"></td>
+						<td th:if="${user.bikeUsage.owned} == false" th:text="'Non posseduta'"></td>
+					</tr>
+					<tr>
+						<td>Servizio di bike sharing</td>
+						<td th:if="${user.bikeUsage.sharing} == true" th:text="'Usato'"></td>
+						<td th:if="${user.bikeUsage.sharing} == false" th:text="'Non usato'"></td>
+					</tr>
+					<tr>
+						<td>Trasporto pubblico</td>
+						<td th:if="${user.pubTransport} != none" th:text="${user.pubTransport}"></td>
+						<td th:if="${user.pubTransport} == none" th:text="'Non usato'"></td>
+					</tr>
+					</tbody>
+				</table>
 			</div>
 		</div>
 
 	</div>
-</div>
 
-<!-- change nickname modal -->
-<div id="change-nickname-modal" class="modal fade modal-over-navbar" role="dialog">
-	<div class="modal-dialog">
+	<div th:replace="fragments/footer"></div>
 
-		<!-- Modal content-->
-		<div class="modal-content">
-			<div class="modal-header">
-				<button type="button" class="close" data-dismiss="modal">&times;</button>
-				<h4 class="modal-title">Cambia nickname</h4>
-			</div>
-			<div class="modal-body">
+	<!-- change password modal -->
+	<div id="change-password-modal" class="modal fade modal-over-navbar" role="dialog">
+		<div class="modal-dialog">
 
-				<form role="form" method="POST" th:action="@{/change-nickname}">
-					<div class="form-group">
-						<input type="text" class="form-control" placeholder="Nuovo nickname" name="new-nickname" autofocus="true" required="required"/>
-					</div>
+			<!-- Modal content-->
+			<div class="modal-content">
+				<div class="modal-header">
+					<button type="button" class="close" data-dismiss="modal">&times;</button>
+					<h4 class="modal-title">Cambia password</h4>
+				</div>
+				<div class="modal-body">
 
-					<div class="btn-group btn-group-justified" role="group" aria-label="...">
-						<div class="btn-group col-lg-6" role="group">
-							<button type="button" class="btn btn-default btn-sm" data-dismiss="modal">Annulla</button>
+					<form role="form" method="POST" th:action="@{/change-password}">
+						<div class="form-group">
+							<input type="password" class="form-control" placeholder="Password attuale" name="old-password" autofocus="true" required="true"/>
 						</div>
-						<div class="btn-group col-lg-6" role="group">
-							<button type="submit" class="btn btn-primary btn-sm">Conferma</button>
+
+						<div class="form-group">
+							<input type="password" class="form-control" placeholder="Nuova password" name="new-password" required="true"/>
 						</div>
-					</div>
 
-				</form>
+						<div class="form-group">
+							<input type="password" class="form-control" placeholder="Ripeti nuova password" name="new-password-confirmed" required="true"/>
+						</div>
 
+						<div class="btn-group btn-group-justified" role="group" aria-label="...">
+							<div class="btn-group col-lg-6" role="group">
+								<button type="button" class="btn btn-default btn-sm" data-dismiss="modal">Annulla</button>
+							</div>
+							<div class="btn-group col-lg-6" role="group">
+								<button type="submit" class="btn btn-primary btn-sm">Conferma</button>
+							</div>
+						</div>
+					</form>
+
+				</div>
 			</div>
+
 		</div>
-
 	</div>
-</div>
 
-<!-- change profile picture modal -->
-<div id="change-profile-picture-modal" class="modal fade modal-over-navbar" role="dialog">
-	<div class="modal-dialog">
+	<!-- change nickname modal -->
+	<div id="change-nickname-modal" class="modal fade modal-over-navbar" role="dialog">
+		<div class="modal-dialog">
 
-		<!-- Modal content-->
-		<div class="modal-content">
-			<div class="modal-header">
-				<button type="button" class="close" data-dismiss="modal">&times;</button>
-				<h4 class="modal-title">Cambia Immagine del profilo</h4>
+			<!-- Modal content-->
+			<div class="modal-content">
+				<div class="modal-header">
+					<button type="button" class="close" data-dismiss="modal">&times;</button>
+					<h4 class="modal-title">Cambia nickname</h4>
+				</div>
+				<div class="modal-body">
+
+					<form role="form" method="POST" th:action="@{/change-nickname}">
+						<div class="form-group">
+							<input type="text" class="form-control" placeholder="Nuovo nickname" name="new-nickname" autofocus="true" required="required"/>
+						</div>
+
+						<div class="btn-group btn-group-justified" role="group" aria-label="...">
+							<div class="btn-group col-lg-6" role="group">
+								<button type="button" class="btn btn-default btn-sm" data-dismiss="modal">Annulla</button>
+							</div>
+							<div class="btn-group col-lg-6" role="group">
+								<button type="submit" class="btn btn-primary btn-sm">Conferma</button>
+							</div>
+						</div>
+
+					</form>
+
+				</div>
 			</div>
-			<div class="modal-body">
 
-				<form role="form" method="POST" th:action="@{/change-profile-picture}" enctype="multipart/form-data" id="change-image-form">
-
-					<th:block th:include="fragments/common :: inputImagePreview"></th:block>
-
-					<div class="form-group btn-group btn-group-justified" role="group" aria-label="...">
-						<div class="btn-group col-lg-6" role="group">
-							<button type="button" class="btn btn-default btn-sm" data-dismiss="modal">Annulla</button>
-						</div>
-						<div class="btn-group col-lg-6" role="group">
-							<button type="submit" class="btn btn-primary btn-sm">Conferma</button>
-						</div>
-					</div>
-
-					<hr></hr>
-
-					<div class="form-group col-lg-12">
-						<div class="btn-group col-lg-6 col-lg-offset-3" role="group">
-							<button type="submit" class="btn btn-primary btn-xs btn-block col-lg-6 col-lg-offset-3" onclick="return clearImage();">Rimuovi immagine</button>
-						</div>
-					</div>
-
-					<hr></hr>
-				</form>
-
-			</div>
 		</div>
-
 	</div>
-</div>
 
-<!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
-<script src="https://code.jquery.com/jquery.js"></script>
-<!-- Include all compiled plugins (below), or include individual files as needed -->
-<script th:src="@{/js/bootstrap.min.js}"></script>
+	<!-- change profile picture modal -->
+	<div id="change-profile-picture-modal" class="modal fade modal-over-navbar" role="dialog">
+		<div class="modal-dialog">
 
-<script>
-    function clearImage(){
-        $("#change-image-form").reset();
-        return true;
-    }
-</script>
+			<!-- Modal content-->
+			<div class="modal-content">
+				<div class="modal-header">
+					<button type="button" class="close" data-dismiss="modal">&times;</button>
+					<h4 class="modal-title">Cambia Immagine del profilo</h4>
+				</div>
+				<div class="modal-body">
+
+					<form role="form" method="POST" th:action="@{/change-profile-picture}" enctype="multipart/form-data" id="change-image-form">
+
+						<th:block th:include="fragments/common :: inputImagePreview"></th:block>
+
+						<div class="form-group btn-group btn-group-justified" role="group" aria-label="...">
+							<div class="btn-group col-lg-6" role="group">
+								<button type="button" class="btn btn-default btn-sm" data-dismiss="modal">Annulla</button>
+							</div>
+							<div class="btn-group col-lg-6" role="group">
+								<button type="submit" class="btn btn-primary btn-sm">Conferma</button>
+							</div>
+						</div>
+
+						<hr></hr>
+
+						<div class="form-group col-lg-12">
+							<div class="btn-group col-lg-6 col-lg-offset-3" role="group">
+								<button type="submit" class="btn btn-primary btn-xs btn-block col-lg-6 col-lg-offset-3" onclick="return clearImage();">Rimuovi immagine</button>
+							</div>
+						</div>
+
+						<hr></hr>
+					</form>
+
+				</div>
+			</div>
+
+		</div>
+	</div>
+
+	<!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
+	<script src="https://code.jquery.com/jquery.js"></script>
+	<!-- Include all compiled plugins (below), or include individual files as needed -->
+	<script th:src="@{/js/bootstrap.min.js}"></script>
+
+	<script>
+		function clearImage(){
+			$("#change-image-form").reset();
+			return true;
+		}
+
+		$(document).ready(function(){
+		    $(".dropdown-toggle").dropdown();
+		})
+	</script>
 </body>
 </html>

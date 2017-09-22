@@ -57,6 +57,9 @@ public class UserController {
     @Value("#{'${user.pubTransport}'.split(',')}")
 	private List<String> pubTransports;
     
+//    @Value("#{'${topics}'.split(',')}")
+//	private List<String> topics;
+    
     // two phase registration
     // http://blog.codeleak.pl/2014/08/validation-groups-in-spring-mvc.html
     
@@ -347,6 +350,7 @@ public class UserController {
     	User currentUser = userService.findByEmail(securityService.findLoggedInUsername());
     	
     	model.addAttribute("user", currentUser);
+//    	model.addAttribute("topics", topics);
     	
         return "profile";
     }
