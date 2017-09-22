@@ -24,13 +24,19 @@ app.controller('HeaderCtrl', [ '$scope', '$location','$window',
 
 }]);
 
-app.controller('chatCtrl', ['$scope', '$location', '$interval', 'ChatSocket', '$routeParams', 'AddressResolver', 'ToolsResolver', '$timeout',
-	function($scope, $location, $interval, chatSocket,$routeParams, AddressResolver, ToolsResolver, $timeout) {
+app.controller('chatCtrl', ['$scope', '$location', '$interval', 'ChatSocket', '$routeParams', 'AddressResolver', 'ToolsResolver', '$timeout', '$anchorScroll',
+	function($scope, $location, $interval, chatSocket,$routeParams, AddressResolver, ToolsResolver, $timeout, $anchorScroll) {
+
         angular.extend($scope, {
             mapcenter: {
                 lat: 45.07,
                 lng: 7.69,
                 zoom: 13
+            },
+            legend: {
+                position: 'bottomright',
+                colors: ['#ff9900', '#00cc66', '#cc0000','#3366cc'],
+                labels: ['Cantiere','Incidente','Incendio','Altro']
             },
             markers: [],
             paths: {},
@@ -39,6 +45,7 @@ app.controller('chatCtrl', ['$scope', '$location', '$interval', 'ChatSocket', '$
                 tileLayer: "https://api.mapbox.com/styles/v1/mapbox/streets-v10/tiles/256/{z}/{x}/{y}?access_token=pk.eyJ1IjoiZGF2cjA5MTAiLCJhIjoiY2owemk4N2FmMDJ1ZzMzbno3YjZxZDN3YyJ9.eJdGDM0goIVXcFmMrQX8og",
             }
         });
+        //$scope.colors = ['#ff9900', '#00cc66', '#cc0000','#3366cc','#00ccff', '#cc33ff'];
 
         $scope.username     = '';
         $scope.participants = [];
@@ -50,6 +57,7 @@ app.controller('chatCtrl', ['$scope', '$location', '$interval', 'ChatSocket', '$
         $scope.infoMessage  = '';
         $scope.alerts       = [];
         $scope.alertTypes   = ToolsResolver.alertTypes;
+
         $scope.topic = $routeParams.topic;
         // alert input monitor variables
         $scope.newAlert     = {
@@ -180,8 +188,8 @@ app.controller('chatCtrl', ['$scope', '$location', '$interval', 'ChatSocket', '$
         }
 
         $scope.focusOnHelp = function() {
-            //$location.hash("suggestionsArea");
-            //$anchorScroll();
+            $location.hash("suggestionsArea");
+            $anchorScroll();
 
         }
 
@@ -225,7 +233,6 @@ app.controller('chatCtrl', ['$scope', '$location', '$interval', 'ChatSocket', '$
         }
 
         $scope.centerMapOnAlert = function(id) {
-            console.log("done! " + id);
             var alert = $scope.alerts[id];
             if (alert == null || alert == undefined)
                 return; // the alert is expired
