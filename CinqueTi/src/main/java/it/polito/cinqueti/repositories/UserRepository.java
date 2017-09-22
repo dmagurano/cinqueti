@@ -14,6 +14,8 @@ public interface UserRepository extends MongoRepository<User, String> {
 	
 	public User findByEmail(String email);
 	
+	public User findByNickname(String nickname);
+	
 	public List<User> findAll();
 	
 	public Page<User> findAll(Pageable p);

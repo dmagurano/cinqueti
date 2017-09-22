@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.Base64;
 import java.util.Collection;
 import java.util.List;
+
+import javax.persistence.Column;
 import javax.persistence.Lob;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;

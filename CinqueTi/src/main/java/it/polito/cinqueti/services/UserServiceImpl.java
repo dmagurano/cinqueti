@@ -135,4 +135,9 @@ public class UserServiceImpl implements UserService {
 	public void updateVerificationToken(VerificationToken token) {
 		verificationTokenRepository.save(token);
 	}
+
+	@Override
+	public User findByNickname(String nickname) {
+		return userRepository.findByNickname(nickname);
+	}
 }

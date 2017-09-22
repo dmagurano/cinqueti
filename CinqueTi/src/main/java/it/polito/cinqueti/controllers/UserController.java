@@ -162,6 +162,14 @@ public class UserController {
         	
             return "redirect:register-second-phase";
     	}
+    	else if(userService.findByNickname(user.getNickname()) != null){
+    		bindingResult.rejectValue("nickname", "user.registration.nicknameAlreadyInUse");
+            
+    		redirectAttributes.addFlashAttribute("org.springframework.validation.BindingResult.user", bindingResult);
+    		redirectAttributes.addAttribute("token", token);
+        	
+            return "redirect:register-second-phase";
+    	}
     	else if ( !educationLevels.contains(user.getEducation())){
     		bindingResult.rejectValue("education", "user.registration.invalidEducation");
             
@@ -367,6 +375,9 @@ public class UserController {
     	}
     	else if (newNickname.compareTo(currentUser.getNickname()) == 0){
     		redirectAttributes.addFlashAttribute("exceptionMessage", "Scegliere un nickname diverso da quello già in uso.");
+    	}
+    	else if(userService.findByNickname(newNickname) != null){
+    		redirectAttributes.addFlashAttribute("exceptionMessage", "Nickname utilizzato da un altro utente.");
     	}
     	else{
     		userService.updateUserNewNickname(currentUser, newNickname);

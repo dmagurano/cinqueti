@@ -22,6 +22,8 @@ public interface UserService {
 	boolean checkPassword(User user, String password);
 
     User findByEmail(String email);
+
+    User findByNickname(String nickname);
     
     List<User> findAll();
     
