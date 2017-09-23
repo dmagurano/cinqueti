@@ -1,8 +1,13 @@
 package it.polito.cinqueti.controllers;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.servlet.ServletContext;
+
+import org.apache.tomcat.util.http.fileupload.IOUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
@@ -16,6 +21,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.context.ServletContextAware;
 
 import static org.springframework.hateoas.mvc.ControllerLinkBuilder.linkTo;
 import static org.springframework.hateoas.mvc.ControllerLinkBuilder.methodOn;
@@ -29,13 +35,15 @@ import it.polito.cinqueti.services.UserService;
 
 
 @RestController
-public class AppRestController {
+public class AppRestController implements ServletContextAware {
 	
 	@Autowired
 	private UserService userService;
 	
 	@Autowired
 	private MessageService messageService;
+	
+	ServletContext servletContext;
 	
 	// read both topics and the default elementsPerPage from the application.properties file
 	@Value("#{'${topics}'.split(',')}")
@@ -47,6 +55,7 @@ public class AppRestController {
 	@Value("#{'${alerts.types}'.split(',')}")
 	private List<String> alertTypes;
 	
+	private byte[] defaultPicture = null;
 	
 	// method used to retrieve the (paginated and anonymized) list of users
 	@RequestMapping(value="/rest/users", method=RequestMethod.GET)
@@ -118,9 +127,26 @@ public class AppRestController {
 	
 	// TODO move to a better controller
 	@RequestMapping(value="/rest/users/{nickname}/image", method=RequestMethod.GET)
-	public String getUserImage(@PathVariable(required=true) String nickname)
+	public byte[] getUserImage(@PathVariable(required=true) String nickname)
 	{
-		return userService.findByNickname(nickname).generateBase64Image();
+		
+		try{
+			return userService.findByNickname(nickname).getImage();
+		}
+		catch (NullPointerException e)
+		{
+			if(defaultPicture == null)
+			{
+				InputStream inputStream = servletContext.getResourceAsStream("/static/assets/default-profile.jpg");
+				try {
+					IOUtils.readFully(inputStream, defaultPicture);
+				} catch (IOException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
+			}
+			return defaultPicture;
+		}
 	}
 	
 	// TODO move to a better controller
@@ -128,5 +154,10 @@ public class AppRestController {
 	public List<String> getAlertTypes()
 	{
 		return alertTypes;
+	}
+
+	@Override
+	public void setServletContext(ServletContext servletContext) {
+		this.servletContext = servletContext;
 	}
 }

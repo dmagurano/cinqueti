@@ -29,12 +29,12 @@
 					<ul ng-repeat="user in participants" id="usersList" class="list-unstyled">
 						<li  class="left clearfix"> 
 							<span class="chat-img pull-left">
-			 					<img src="http://icons.iconarchive.com/icons/custom-icon-design/pretty-office-8/128/User-blue-icon.png" alt="User Avatar" class="img-circle"/>
-
+			 					<!--<img src="http://icons.iconarchive.com/icons/custom-icon-design/pretty-office-8/128/User-blue-icon.png" alt="User Avatar" class="img-circle"/>-->
+								<img ng-src="https://localhost:8443/rest/users/{{user.nickname}}/image" class="img-circle" alt="..."/>
 							</span>
 			 				<div class="chat-body clearfix">
 								<div class="header_sec">
-				   					<strong class="primary-font">{{user}}</strong>
+				   					<strong class="primary-font">{{user.nickname}}</strong>
 								</div>
 							</div>
 						</li>

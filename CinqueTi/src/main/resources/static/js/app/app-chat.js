@@ -302,7 +302,7 @@ app.controller('chatCtrl', ['$scope', '$location', '$interval', 'ChatSocket', '$
                 $scope.username = frame.headers['user-name'];
 
                 chatSocket.subscribe("/topic/presence/" + $scope.topic , function(message) {
-                    /*var updatedList = JSON.parse(message.body).users;
+                    var updatedList = JSON.parse(message.body).users;
 
                     var joined = updatedList.filter(function(el) {
                         return $scope.participants.map(function (obj) { return obj.nickname;  }).indexOf(el) === -1;
@@ -310,19 +310,20 @@ app.controller('chatCtrl', ['$scope', '$location', '$interval', 'ChatSocket', '$
 
                     for (var i in joined)
                     {
-                        ProfilePictureResolver.get({nickname:joined[i]}, function (image) {
+                        $scope.participants.push({nickname: joined[i]});
+                        /*ProfilePictureResolver.get({nickname:joined[i]}, function (image) {
                             $scope.participants.push({
-                                nickname: joined[i],
-                                picture: image
+                                nickname: joined[i]
+                                //picture: image
                             });
-                        });
-                    }*/
+                        });*/
+                    }
 
                     //ProfilePictureResolver.get({nickname:})
 
                     //AddressResolver.query({location: queryAddress}, function(addresses)
 
-                    $scope.participants = JSON.parse(message.body).users;
+                    //$scope.participants = JSON.parse(message.body).users;
                 });
 
                 /* subscribing to the chat topic */
