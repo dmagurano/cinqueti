@@ -223,11 +223,11 @@ app.controller('chatCtrl', ['$scope', '$location', '$interval', 'ChatSocket', '$
                     $scope.addresses = addresses;
                     $scope.newAlert.alert.type = 'altro';
                     $scope.chosenAddress = addresses[0]; // set the first result as the default one
-                    if (addresses.length == 1)
+                    /*if (addresses.length == 1)
                     {
                         // just one result! Simply call the function in order to show the result to user
-                        $scope.chooseAlertInfo();
-                    }
+                        //$scope.chooseAlertInfo();
+                    }*/
                     showAlertTypeSelector();
                 }, function() {
                     $scope.infoMessage = 'Oh no! Non siamo riusciti a trovare nulla che assomigliasse all\'indirizzo \"' + queryAddress + '\". Controlla di averlo digitato correttamente.' +
