@@ -26,8 +26,10 @@ app.controller('CalculateController', ['$scope', 'PathsDataProvider', 'leafletBo
             //build destination query by replacing space for +
             var dst_addr = $scope.destination.replace(/ /g, "+");
 
-            PathsDataProvider.setSource(pathPrefix+src_addr+"&category=&outFields=*&forStorage=false&f=pjson");  //add ArcGis suffix
-            PathsDataProvider.setDestination(pathPrefix+dst_addr+"&category=&outFields=*&forStorage=false&f=pjson");
+            var postfix = "&category=&outFields=*&forStorage=false&f=pjson&searchExtent=7.465761,44.948028,7.875002,45.163394&sourceCountry=ITA";
+
+            PathsDataProvider.setSource(pathPrefix+src_addr+postfix);  //add ArcGis suffix
+            PathsDataProvider.setDestination(pathPrefix+dst_addr+postfix);
 
 
             //var self = this;
@@ -121,7 +123,7 @@ app.factory('PathsDataProvider', [ '$http', '$window',
                 return $http.get(source).then(function sourceSuccessCallback(srcData) {
 
                     //Check if the address exists
-                    if (srcData.length == 0){
+                    if (srcData.data.candidates.length == 0){
 
                         //$window.alert("Indirizzo sorgente non trovato");
                         return $http.promise.reject();
@@ -147,7 +149,7 @@ app.factory('PathsDataProvider', [ '$http', '$window',
 
                     //Check if the address exists
 
-                    if (dstData.length == 0){
+                    if (dstData.data.candidates.length == 0){
 
                         //$window.alert("Indirizzo destinazione non trovato");
                         return $http.promise.reject();

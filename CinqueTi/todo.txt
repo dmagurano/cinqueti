@@ -1,4 +1,4 @@
 Chat: impostare immagine del profilo nella chat
 Chat: andata ad altra chat e ritorno a quella di partenza non compaio nella lista degli utenti
 Chat: immagine del profilo nella lista degli utenti
-Calcolo percorsi: ricerca per "via boggio" non funzia, ricerca "via pier carlo boggio" funzia
+Calcolo percorsi: ricerca per "via boggio" non funzia, ricerca "via pier carlo boggio" o "boggio" funzia
