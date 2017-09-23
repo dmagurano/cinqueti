@@ -110,6 +110,10 @@ body {
 	max-height: 438px;
 }
 
+.suggestions {
+    max-height: 200px;
+}
+
 .dropdown-toggle, .lines, .dropdown-menu{
 	cursor: pointer;
 }

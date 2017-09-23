@@ -23,6 +23,7 @@ import static org.springframework.hateoas.mvc.ControllerLinkBuilder.methodOn;
 import it.polito.cinqueti.entities.BusLine;
 import it.polito.cinqueti.entities.BusLineStop;
 import it.polito.cinqueti.entities.BusStop;
+import it.polito.cinqueti.entities.DecodedAddress;
 import it.polito.cinqueti.entities.Edge;
 import it.polito.cinqueti.entities.Message;
 import it.polito.cinqueti.entities.MinPath;
@@ -131,7 +132,7 @@ public class LinesRestController {
 	}
 	
 	@RequestMapping(value="/rest/address", method=RequestMethod.GET)
-	public List<OSMDecodedAddress> getAddresses(@RequestParam String address)
+	public List<DecodedAddress> getAddresses(@RequestParam String address)
 	{
 		return lineService.getAddressInformation(address);
 	}

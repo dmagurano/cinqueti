@@ -63,10 +63,13 @@
 						       <div class="modal-body" id="modal-body">
 								   <div ng-if="addresses.length > 1">
 									   <p>Il tuo indirizzo ha restituito più risultati validi! Seleziona quello richiesto:</p>
-									   <div class="radio" ng-repeat="address in addresses">
-										   <label><input type="radio" name="chosenAddress" ng-model="$parent.$parent.chosenAddress" ng-value="address">{{address.display_name}}</label>
+									   <div class="pre-scrollable suggestions">
+										   <div class="radio" ng-repeat="address in addresses">
+										   		<label><input type="radio" name="chosenAddress" ng-model="$parent.$parent.chosenAddress" ng-value="address">{{address.attributes.ADDRESS}}, {{address.attributes.CITY}}</label>
+										   </div>
 									   </div>
 								   </div>
+								   <br>
 								   <div>
 									   <p>Cosa hai notato?</p>
 									   <div class="radio"  ng-repeat="atype in alertTypes">

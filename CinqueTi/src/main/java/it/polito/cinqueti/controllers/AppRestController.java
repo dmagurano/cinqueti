@@ -117,6 +117,13 @@ public class AppRestController {
 	}
 	
 	// TODO move to a better controller
+	@RequestMapping(value="/rest/users/{nickname}/image", method=RequestMethod.GET)
+	public String getUserImage(@PathVariable(required=true) String nickname)
+	{
+		return userService.findByNickname(nickname).generateBase64Image();
+	}
+	
+	// TODO move to a better controller
 	@RequestMapping(value="/rest/alerttypes", method=RequestMethod.GET)
 	public List<String> getAlertTypes()
 	{

@@ -6,10 +6,19 @@ import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
+import it.polito.cinqueti.entities.ArcGisQueryResult;
 import it.polito.cinqueti.entities.BusLine;
+import it.polito.cinqueti.entities.DecodedAddress;
+import it.polito.cinqueti.entities.DecodedAddressDetails;
 import it.polito.cinqueti.entities.OSMDecodedAddress;
 import it.polito.cinqueti.entities.OSMDecodedAddressDetails;
 import it.polito.cinqueti.repositories.LineRepository;
@@ -34,49 +43,46 @@ public class LineServiceImpl implements LineService {
 		
 		return lineRepository.findOne(id);
 	}
-
-	@Override
-	public List<OSMDecodedAddress> filterOSMResults(ArrayList<OSMDecodedAddress> results, String query) {
 	
-		ArrayList<OSMDecodedAddress> filtered = new ArrayList<OSMDecodedAddress>();
-		for (OSMDecodedAddress res: results) {
-			OSMDecodedAddressDetails details = res.getAddress();
-			// skip the addresses that are not in Turin county
-			if (details.getCounty().compareTo("TO") != 0)
-				continue;
-			// check if the string contains a town (and eventually save it)
-			String town = null;
-			for(String t: towns) {
-				if (query.toLowerCase().contains(t))
-				{
-					town = t;
-					break;
-				}
-			}
+	@Override
+	public List<DecodedAddress> getAddressInformation(String query) {
+		RestTemplate restTemplate = new RestTemplate();
+		String address = "https://geocode.arcgis.com/arcgis/rest/services/World/GeocodeServer/findAddressCandidates?SingleLine="
+				+query 
+				+ "&category=&outFields=ADDRESS,CITY,X,Y&forStorage=false&f=json&searchExtent=7.465761,44.948028,7.875002,45.163394&sourceCountry=ITA";
+		// since ArcGis supports only "plaintext" as Mime Type, we need to convert it to string
+		String json = restTemplate.getForObject(address, String.class);
+		
+		ObjectMapper mapper = new ObjectMapper();
+		ArcGisQueryResult res;
+		try {
+		    //convert JSON string to object
+		   res = mapper.readValue(json, new TypeReference<ArcGisQueryResult>(){});
+		   return filterResults(res.getCandidatesAsList(), query);
+		} catch (Exception e) {
+			return null; 
+		}
+	}
+
+	private List<DecodedAddress> filterResults(ArrayList<DecodedAddress> results, String query) {
+		ArrayList<DecodedAddress> filtered = new ArrayList<DecodedAddress>();
+		for (DecodedAddress res: results) {
+			DecodedAddressDetails details = res.getAddress();
 			
-			String loc = details.getLocation().toLowerCase();
-			//if town is not null we don't need to add results from turin
-			if (town != null) {
-				if (loc.contains(town) || town.contains(loc))
-					filtered.add(res);
+			String loc = details.getCity().toLowerCase();
+			if(loc.equals("torino"))
+			{
+				filtered.add(0,res);
 				continue;
 			}
-			// check if the result location is a valid city
-			if (loc.equals("torino") || towns.contains(loc))
-				filtered.add(res);
+			boolean isInQuery = query.toLowerCase().contains(loc);
+			boolean isInTowns = towns.contains(loc);
+			if (!isInQuery && !isInTowns)
+				continue;
+			filtered.add(res);
 		}
 		
 		return filtered;
-	}
-
-	@Override
-	public List<OSMDecodedAddress> getAddressInformation(String query) {
-		RestTemplate restTemplate = new RestTemplate();
-		OSMDecodedAddress[] resultsArray = restTemplate.getForObject(
-				"https://nominatim.openstreetmap.org/search?q=" + query + " torino&county=to&addressdetails=1&format=json", 
-				OSMDecodedAddress[].class);
-		ArrayList<OSMDecodedAddress> results = new ArrayList<OSMDecodedAddress>(Arrays.asList(resultsArray));
-		return filterOSMResults(results, query);
 	}
 
 }

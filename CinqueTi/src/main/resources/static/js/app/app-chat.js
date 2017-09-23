@@ -24,8 +24,8 @@ app.controller('HeaderCtrl', [ '$scope', '$location','$window',
 
     }]);
 
-app.controller('chatCtrl', ['$scope', '$location', '$interval', 'ChatSocket', '$routeParams', 'AddressResolver', 'ToolsResolver', '$timeout', '$anchorScroll',
-    function($scope, $location, $interval, chatSocket,$routeParams, AddressResolver, ToolsResolver, $timeout, $anchorScroll) {
+app.controller('chatCtrl', ['$scope', '$location', '$interval', 'ChatSocket', '$routeParams', 'AddressResolver', 'ToolsResolver', '$timeout', '$anchorScroll', 'ProfilePictureResolver',
+    function($scope, $location, $interval, chatSocket,$routeParams, AddressResolver, ToolsResolver, $timeout, $anchorScroll,ProfilePictureResolver) {
 
         angular.extend($scope, {
             mapcenter: {
@@ -169,17 +169,17 @@ app.controller('chatCtrl', ['$scope', '$location', '$interval', 'ChatSocket', '$
 
         $scope.chooseAlertInfo = function () {
             var address = $scope.chosenAddress;
-            $scope.newAlert.alert.lat = address.lat;
-            $scope.newAlert.alert.lng = address.lon;
-            $scope.newAlert.alert.address = address.display_name;
+            $scope.newAlert.alert.lat = address.attributes.Y;
+            $scope.newAlert.alert.lng = address.attributes.X;
+            $scope.newAlert.alert.address = address.address;
 
             // update text area with alert.address
             // if the input type is "keyboard" we have to replace only the user address between "[" "]"
             // if the input type is "modal" we have to concatenate the "[" "address" "]"
             if ($scope.newAlert.inputType === "keyboard")
-                $scope.newMessage = $scope.newMessage.replace(/\[.*?\]/g, "[" + address.display_name + "]");
+                $scope.newMessage = $scope.newMessage.replace(/\[.*?\]/g, "[" + address.address + "]");
             else
-                $scope.newMessage = $scope.newMessage + "[" + address.display_name + "] ";
+                $scope.newMessage = $scope.newMessage + "[" + address.address + "] ";
         }
 
         $scope.showAddressModal = function () {
@@ -302,6 +302,26 @@ app.controller('chatCtrl', ['$scope', '$location', '$interval', 'ChatSocket', '$
                 $scope.username = frame.headers['user-name'];
 
                 chatSocket.subscribe("/topic/presence/" + $scope.topic , function(message) {
+                    /*var updatedList = JSON.parse(message.body).users;
+
+                    var joined = updatedList.filter(function(el) {
+                        return $scope.participants.map(function (obj) { return obj.nickname;  }).indexOf(el) === -1;
+                    });
+
+                    for (var i in joined)
+                    {
+                        ProfilePictureResolver.get({nickname:joined[i]}, function (image) {
+                            $scope.participants.push({
+                                nickname: joined[i],
+                                picture: image
+                            });
+                        });
+                    }*/
+
+                    //ProfilePictureResolver.get({nickname:})
+
+                    //AddressResolver.query({location: queryAddress}, function(addresses)
+
                     $scope.participants = JSON.parse(message.body).users;
                 });
 
@@ -332,6 +352,7 @@ app.controller('chatCtrl', ['$scope', '$location', '$interval', 'ChatSocket', '$
                         //extract the icon name starting from the alert type position in alertTypes array
                         var alertIcon = "" + $scope.alertTypes.indexOf(alert.type) + ".png"
                         $scope.markers.push({
+                            id: alert.id,
                             getMessageScope: function() {return $scope; },
                             icon: {
                                 iconUrl: '../assets/alert-markers/' + alertIcon,
@@ -387,7 +408,7 @@ app.controller('chatCtrl', ['$scope', '$location', '$interval', 'ChatSocket', '$
 
             }, function(error) {
 
-
+                //TODO
             });
         };
 
@@ -560,6 +581,11 @@ app.factory('ToolsResolver', ['$resource', function ($resource) {
     return {
         alertTypes: alertTypes
     }
+}]);
+
+app.factory('ProfilePictureResolver', ['$resource', function ($resource) {
+    //return $resource('https://nominatim.openstreetmap.org/search?q=:location,torino&format=json');
+    return $resource('/rest/users/:nickname/image');
 }]);
 
 app.factory('ChatSocket', ['$rootScope', function($rootScope) {
