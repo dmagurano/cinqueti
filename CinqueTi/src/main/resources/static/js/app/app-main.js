@@ -5,22 +5,56 @@ app.controller('MainCtrl', [ '$scope', 'LinesDataProvider', 'leafletBoundsHelper
 
         this.lineID = $routeParams.lineID;
 
+        var lines_vect = [];
+
         var self = this;
 
+        var page = 0;
+        var per_page = 5;
 
-        //Use cache to store the lines when they are downloaded. This to avoid to download
+        this.pull_lines = function(res,page,per_page) {
+
+            if(res !== undefined){
+
+                if (res.length === 0){
+
+                    cache.put('lines',lines_vect);
+                    return;
+
+                }
+                else {
+                    lines_vect.push.apply(lines_vect, res);
+                    self.lines = lines_vect;
+
+                    LinesDataProvider.lines_request(page+1,per_page).then(function(res){
+                        self.pull_lines(res,page+1,per_page)
+                    });
+                }
+            }
+
+        };
+
+
+            //Use cache to store the lines when they are downloaded. This to avoid to download
         // them again when the view changes
 
         var cache = linesCache;
+        var completed_download = false;
+
 
 
         if(angular.isUndefined(cache.get('lines'))){
 
-            LinesDataProvider.lines_request().then(
-                function(res){
-                    self.lines = res;
-                    cache.put('lines',res);
-                });
+
+
+                LinesDataProvider.lines_request(page,per_page).then(
+                    function(res){
+
+                        self.pull_lines(res,page,per_page);
+                    });
+
+
+
         }else
             this.lines = cache.get('lines');
 
@@ -96,7 +130,7 @@ app.factory('LinesDataProvider', ['$resource', '$filter',
     function ($resource,$filter) {
 
         var lines_resource = $resource('/rest/lines/');
-        var lines = {};
+        var lines = [];
 
         var stops = {};
         var stops_resource = $resource('/rest/stops/').query(function(data){
@@ -106,13 +140,21 @@ app.factory('LinesDataProvider', ['$resource', '$filter',
         var stop_lines = $resource('/rest/stops/:stop');
 
         return {
-            lines_request : function(){
-                var data = lines_resource.query().$promise.then(function(d){
-                    lines = d;
-                    return lines;
+            lines_request : function(page, per_page){
+
+
+                var data = lines_resource.query({page: page, per_page: per_page}).$promise.then(function(d){
+                    //lines = d;
+                    lines.push.apply(lines, d);
+                    return d;
                 }).catch(function(error){
                     //lines = error;
                     bootstrap_alert_warning("Ci sono problemi. Riprovare più tardi");
+                    window.setTimeout(function() {
+                        $(".alert").fadeTo(500, 0).slideUp(500, function(){
+                            $(this).remove();
+                        });
+                    }, 5000);
                 });
                 return data;
             },

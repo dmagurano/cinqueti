@@ -6,12 +6,15 @@ import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
 import it.polito.cinqueti.entities.BusLine;
 import it.polito.cinqueti.entities.OSMDecodedAddress;
 import it.polito.cinqueti.entities.OSMDecodedAddressDetails;
+import it.polito.cinqueti.entities.User;
 import it.polito.cinqueti.repositories.LineRepository;
 
 @Service
@@ -77,6 +80,18 @@ public class LineServiceImpl implements LineService {
 				OSMDecodedAddress[].class);
 		ArrayList<OSMDecodedAddress> results = new ArrayList<OSMDecodedAddress>(Arrays.asList(resultsArray));
 		return filterOSMResults(results, query);
+	}
+
+	@Override
+	public Page<BusLine> findAll(Integer page, Integer per_page) {
+			// build a pageable object, used to specify the query paging params
+				PageRequest pageReq = new PageRequest(page,per_page);
+				// execute the query
+				Page<BusLine> pageRes = lineRepository.findAll(pageReq);
+				// if the user asks for a page X that is greater than the total number of pages in the db, return empty response
+				if (page > pageRes.getTotalPages())
+					return null;
+				return pageRes;
 	}
 
 }

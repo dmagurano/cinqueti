@@ -56,21 +56,49 @@ public class LinesRestController {
 	@Value("#{'${rest.elementsPerPage}'}")
 	private Integer elementsPerPage;
 	
-	// method used to retrieve the paginated list of lines
-	@RequestMapping(value="/rest/lines", method=RequestMethod.GET)
+	
+	// method used to retrieve the (paginated and anonymized) list of lines
+		@RequestMapping(value="/rest/lines", method=RequestMethod.GET)
+		public List<BusLine> getLines(
+				@RequestParam(required=false) Integer page, 
+				@RequestParam(required=false) Integer per_page
+				)
+		{
+			// if any param is missing, set it to the default value
+			Page<BusLine> res;
+			if (page == null)
+				page = new Integer(0);
+			if (per_page == null)
+				per_page = elementsPerPage;
+			// ask the service to find the paged list of users
+			res = lineService.findAll(page, per_page);
+			if (res == null)
+				return null;
+			// return the result. The conversion to json will be done automatically. 
+			// The User class is annotated with the JsonIgnore annotation on the attributes that should be excluded (like username, password etc)
+			// The assembler is required in order to generate the "self", "next", "first" REST urls. 
+			// This solution allows to navigate between the page with the given urls
+			return res.getContent();
+		}
+	
+	
+	
+	
+	// method used to retrieve the list of lines
+	/*@RequestMapping(value="/rest/lines", method=RequestMethod.GET)
 	public List<BusLine> getLines()
 	{	
-		/*List<BusLine> l = lineService.findAll();
-		List<BusLine> bl = new ArrayList<BusLine>();
-		int i = 0;
-		for(BusLine lin: l){
-			bl.add(lin);
-			i++;
-			if(i == 40)
-				break;
-		}*/
+//		List<BusLine> l = lineService.findAll();
+//		List<BusLine> bl = new ArrayList<BusLine>();
+//		int i = 0;
+//		for(BusLine lin: l){
+//			bl.add(lin);
+//			i++;
+//			if(i == 40)
+//				break;
+//		}
 		return lineService.findAll();
-	}
+	}*/
 	
 	@RequestMapping(value="/rest/stops", method=RequestMethod.GET)
 	public List<BusStop> getStps()
