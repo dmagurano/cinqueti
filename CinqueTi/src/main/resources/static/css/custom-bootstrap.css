@@ -136,3 +136,7 @@ body {
 .navbar-under-modal{
   z-index: 1000;
 }
+
+.map-under-dropdown-menu{
+	z-index: 0999;
+}
