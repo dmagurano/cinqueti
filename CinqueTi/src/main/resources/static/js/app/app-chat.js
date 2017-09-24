@@ -1,16 +1,5 @@
 var app = angular.module('App', ['ngRoute','ui-leaflet', 'ngResource'])
 
-app.config(function ($routeProvider,$locationProvider) {
-    $routeProvider
-        .when('/:topic', {
-            templateUrl:'/chatPage.html',
-            controller: 'chatCtrl'
-
-        })
-    // configure html5 to get links working on jsfiddle
-    //$locationProvider.html5Mode(true);
-});
-
 app.controller('HeaderCtrl', [ '$scope', '$location','$window',
     function HeaderCtrl($scope, $location,$window) {
         $scope.isActive = function (viewLocation) {
