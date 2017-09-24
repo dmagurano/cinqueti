@@ -274,6 +274,10 @@ app.controller('chatCtrl', ['$scope', '$location', '$interval', 'ChatSocket', '$
             $scope.alerts[id].myRate = rate;
         };
 
+        $scope.getPartecipantByNickname = function (nickname) {
+            var res = $scope.participants.filter(function (p) { return (p.nickname === nickname);  })
+            return res[0];
+        }
         $scope.enterKeyListener = function(keyEvent) {
             if (keyEvent.which === 13)
             {
@@ -292,25 +296,31 @@ app.controller('chatCtrl', ['$scope', '$location', '$interval', 'ChatSocket', '$
 
                 chatSocket.subscribe("/topic/presence/" + $scope.topic , function(message) {
                     var updatedList = JSON.parse(message.body).users;
-
-                    var joined = updatedList.filter(function(el) {
-                        return $scope.participants.map(function (obj) { return obj.nickname;  }).indexOf(el) === -1;
-                    });
-
-                    for (var i in joined)
+                    if (updatedList.length > $scope.participants.length)
                     {
-                        $scope.participants.push({nickname: joined[i]});
-                        /*ProfilePictureResolver.get({nickname:joined[i]}, function (image) {
-                            $scope.participants.push({
-                                nickname: joined[i]
-                                //picture: image
+                        // new user joined!
+                        var joined = updatedList.filter(function(el) {
+                            return $scope.participants.map(function (obj) { return obj.nickname;  }).indexOf(el) === -1;
+                        });
+
+                        for (var i in joined)
+                        {
+                            //$scope.participants.push({nickname: joined[i]});
+                            ProfilePictureResolver.getPicture(joined[i]).then(function (image) {
+                                $scope.participants.push({
+                                    nickname: joined[i],
+                                    picture: _arrayBufferToBase64(image.data)
+                                });
                             });
-                        });*/
+                        }
                     }
-
-                    //ProfilePictureResolver.get({nickname:})
-
-                    //AddressResolver.query({location: queryAddress}, function(addresses)
+                    else
+                    {
+                        // a user leaved the room
+                        $scope.participants = $scope.participants.filter(function (p) {
+                            return updatedList.indexOf(p.nickname) !== -1;
+                        })
+                    }
 
                     //$scope.participants = JSON.parse(message.body).users;
                 });
@@ -412,6 +422,16 @@ app.controller('chatCtrl', ['$scope', '$location', '$interval', 'ChatSocket', '$
 //    $scope.messages.unshift(message);
 //};
 
+function _arrayBufferToBase64( buffer ) {
+    var binary = '';
+    var bytes = new Uint8Array( buffer );
+    var len = bytes.byteLength;
+    for (var i = 0; i < len; i++) {
+        binary += String.fromCharCode( bytes[ i ] );
+    }
+    return window.btoa( binary );
+}
+
 function updateChat() {
     var chatdiv = $('.chat_area');
     chatdiv.scrollTop(chatdiv.get(0).scrollHeight);
@@ -451,14 +471,20 @@ function isToday (date) {
 
 app.directive('chatMessage', function($compile) {
 
-    var sent = 		'<li class="left clearfix admin_chat"><span class="chat-img1 pull-right"><img src="https://scontent-mxp1-1.xx.fbcdn.net/v/t1.0-9/995179_496393017119212_1942402182_n.jpg?oh=931db49c4f4f7c905efde31e3371f592&oe=59E4426F" alt="User Avatar" class="img-circle"/></span>' +
+    var sent = 		'<li class="left clearfix admin_chat"><span class="chat-img1 pull-right">' +
+        '<img ng-if="user.picture !== undefined" ng-src="data:image/JPG;base64,{{user.picture}}" alt="..." class="img-circle"/>' +
+        '<img ng-if="user.picture === undefined" ng-src="/rest/users/{{message.nickname}}/image" alt="..." class="img-circle"/>' +
+        '</span>' +
         '<div class="chat-body2 clearfix" ng-switch on="message.alertId">' +
         '<p ng-switch-when="null" ng-bind-html="formatChatMessage(message.message, message.alertId, 1)">'+'</p>'+
         //'<p ng-switch-default>ok'+'{{formatChatMessage(message.message)}}'+'</p>'+
         '<p ng-switch-default ng-click="centerMapOnAlert({id:message.alertId})" ng-bind-html="formatChatMessage(message.message, message.alertId, 0)">'+'</p>'
         '<div class="chat_time pull-left">{{message.date}}</div></div></li>';
 
-    var received = 	'<li class="left clearfix"><span class="chat-img1 pull-left"><img src="http://icons.iconarchive.com/icons/custom-icon-design/pretty-office-8/128/User-blue-icon.png" alt="User Avatar" class="img-circle"/></span>'+
+    var received = 	'<li class="left clearfix"><span class="chat-img1 pull-left">' +
+        '<img ng-if="user.picture !== undefined" ng-src="data:image/JPG;base64,{{user.picture}}" alt="..." class="img-circle"/>' +
+        '<img ng-if="user.picture === undefined" ng-src="/rest/users/{{message.nickname}}/image" alt="..." class="img-circle"/>' +
+        '</span>'+
         '<div class="chat-nickname">'+'{{message.nickname}}'+'</div>' +
         '<div class="chat-body1 clearfix" ng-switch on="message.alertId">'+
         '<p ng-switch-when="null" ng-bind-html="formatChatMessage(message.message, 1)">'+'</p>'+
@@ -470,7 +496,8 @@ app.directive('chatMessage', function($compile) {
         restrict: 'EA',
         scope: {
             message: '=message',
-            centerMapOnAlert: '&centerMapOnAlert'
+            centerMapOnAlert: '&centerMapOnAlert',
+            user: '=user'
         },
         controller: function($scope, $sce) {
             $scope.formatChatMessage = function(textMsg, id, old) {
@@ -573,9 +600,16 @@ app.factory('ToolsResolver', ['$resource', function ($resource) {
     }
 }]);
 
-app.factory('ProfilePictureResolver', ['$resource', function ($resource) {
-    //return $resource('https://nominatim.openstreetmap.org/search?q=:location,torino&format=json');
-    return $resource('/rest/users/:nickname/image');
+app.factory('ProfilePictureResolver', ['$http', function ($http) {
+    return {
+        getPicture: function(nickname) {
+            return $http.get('/rest/users/' + nickname + '/image', {
+                responseType:"arraybuffer"
+            });
+        }
+    }
+
+
 }]);
 
 app.factory('ChatSocket', ['$rootScope', function($rootScope) {

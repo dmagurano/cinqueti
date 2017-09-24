@@ -30,7 +30,8 @@
 						<li  class="left clearfix"> 
 							<span class="chat-img pull-left">
 			 					<!--<img src="http://icons.iconarchive.com/icons/custom-icon-design/pretty-office-8/128/User-blue-icon.png" alt="User Avatar" class="img-circle"/>-->
-								<img ng-src="https://localhost:8443/rest/users/{{user.nickname}}/image" class="img-circle" alt="..."/>
+								<!--<img ng-src="https://localhost:8443/rest/users/{{user.nickname}}/image" class="img-circle" alt="..."/>-->
+								<img ng-src="data:image/JPG;base64,{{user.picture}}" class="img-circle" alt="..."/>
 							</span>
 			 				<div class="chat-body clearfix">
 								<div class="header_sec">
@@ -48,7 +49,7 @@
 			<div class="row">
 				<div class="chat_area">
 					<ul id="chatMessages" class="list-unstyled">
-						<chat-message ng-repeat="message in messages" message="message" center-map-on-alert="centerMapOnAlert(id)" ></chat-message>
+						<chat-message ng-repeat="message in messages" message="message" user="getPartecipantByNickname(message.nickname)" center-map-on-alert="centerMapOnAlert(id)" ></chat-message>
 					</ul>
 				</div>
 				<!--chat_area-->

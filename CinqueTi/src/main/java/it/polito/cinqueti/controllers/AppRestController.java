@@ -1,13 +1,21 @@
 package it.polito.cinqueti.controllers;
 
+import java.awt.image.BufferedImage;
+import java.awt.image.DataBufferByte;
+import java.awt.image.WritableRaster;
+import java.io.BufferedReader;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.annotation.PostConstruct;
+import javax.imageio.ImageIO;
 import javax.servlet.ServletContext;
+import javax.servlet.http.HttpServletResponse;
 
-import org.apache.tomcat.util.http.fileupload.IOUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
@@ -35,7 +43,7 @@ import it.polito.cinqueti.services.UserService;
 
 
 @RestController
-public class AppRestController implements ServletContextAware {
+public class AppRestController {
 	
 	@Autowired
 	private UserService userService;
@@ -43,6 +51,7 @@ public class AppRestController implements ServletContextAware {
 	@Autowired
 	private MessageService messageService;
 	
+	@Autowired
 	ServletContext servletContext;
 	
 	// read both topics and the default elementsPerPage from the application.properties file
@@ -56,6 +65,15 @@ public class AppRestController implements ServletContextAware {
 	private List<String> alertTypes;
 	
 	private byte[] defaultPicture = null;
+	
+	@PostConstruct
+	public void init() {
+		try {
+			defaultPicture = extractBytes("/static/assets/default-profile.jpg");
+		} catch (IOException e) {
+			System.out.println("No default profile picture");
+		}
+	}
 	
 	// method used to retrieve the (paginated and anonymized) list of users
 	@RequestMapping(value="/rest/users", method=RequestMethod.GET)
@@ -129,24 +147,34 @@ public class AppRestController implements ServletContextAware {
 	@RequestMapping(value="/rest/users/{nickname}/image", method=RequestMethod.GET)
 	public byte[] getUserImage(@PathVariable(required=true) String nickname)
 	{
+		//response.setContentType("image/jpg");
+		//return userService.findByNickname(nickname).generateBase64Image();
 		
 		try{
-			return userService.findByNickname(nickname).getImage();
+			byte[] picture = userService.findByNickname(nickname).getImage();
+			if(picture == null)
+			{
+				return defaultPicture;
+			}
+			return picture;
+				
 		}
 		catch (NullPointerException e)
 		{
-			if(defaultPicture == null)
-			{
-				InputStream inputStream = servletContext.getResourceAsStream("/static/assets/default-profile.jpg");
-				try {
-					IOUtils.readFully(inputStream, defaultPicture);
-				} catch (IOException e1) {
-					// TODO Auto-generated catch block
-					e1.printStackTrace();
-				}
-			}
 			return defaultPicture;
 		}
+
+	}
+	
+	private byte[] extractBytes (String ImageName) throws IOException {
+		 // open image
+		InputStream  stream = AppRestController.class.getResourceAsStream(ImageName);
+		int bytesRead;
+		byte[] buffer = new byte[8192];
+		bytesRead = stream.read(buffer, 0, 8192);
+		//close the stream
+		stream.close();
+		return buffer;
 	}
 	
 	// TODO move to a better controller
@@ -156,8 +184,4 @@ public class AppRestController implements ServletContextAware {
 		return alertTypes;
 	}
 
-	@Override
-	public void setServletContext(ServletContext servletContext) {
-		this.servletContext = servletContext;
-	}
 }
