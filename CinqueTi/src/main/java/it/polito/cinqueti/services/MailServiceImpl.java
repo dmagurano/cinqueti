@@ -1,5 +1,11 @@
 package it.polito.cinqueti.services;
 
+import java.net.Inet4Address;
+import java.net.InetAddress;
+import java.net.NetworkInterface;
+import java.net.SocketException;
+import java.util.Enumeration;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
@@ -18,7 +24,9 @@ public class MailServiceImpl implements MailService{
 		
 		String emailText = "Per confermare il tuo account su CinqueTi clicca sul seguente link.";
 		
-		String confirmationUrl = "https://localhost:8443/"
+		String serverIpAddress = getServerIpAddress();
+		
+		String confirmationUrl = "https://" + serverIpAddress + ":8443/"
 				+ "register-second-phase?token=" + token;
 		
 		String recommendationText = "N.B. completa la registrazione prima di usare l'applicazione.";
@@ -38,6 +46,29 @@ public class MailServiceImpl implements MailService{
 		}
 		
 		return true;
+	}
+	
+	private String getServerIpAddress(){
+		
+		try {
+            for (Enumeration<NetworkInterface> en = NetworkInterface.getNetworkInterfaces(); en.hasMoreElements();) {
+                NetworkInterface intf = en.nextElement();
+                for (Enumeration<?> enumIpAddr = intf.getInetAddresses(); enumIpAddr.hasMoreElements();) {
+                    InetAddress inetAddress = (InetAddress) enumIpAddr.nextElement();
+                    
+                    if (!inetAddress.isLoopbackAddress()&&inetAddress instanceof Inet4Address) {
+                        String ipAddress=inetAddress.getHostAddress().toString();
+                        
+                        if (ipAddress.startsWith("192.168"))
+                        	return ipAddress;
+                    }
+                }
+            }
+        } catch (SocketException e) {
+            e.printStackTrace();
+        }
+		
+        return "localhost";
 	}
 
 }

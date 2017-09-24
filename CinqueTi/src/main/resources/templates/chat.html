@@ -33,5 +33,45 @@
 	<div ng-view="true"></div>
 	
 	<div th:replace="fragments/footer"></div>
+
+	<script>
+
+		function updateUrl(url){
+			var myArray = url.split("/");
+
+			myArray.splice(4, 0, "#!");
+
+			var newUrl = "";
+
+			for(var i in myArray)
+				newUrl += myArray[i] + "/";
+
+			return newUrl;
+		}
+
+		var url = window.location.href;
+
+		if ( url.indexOf("#!") === -1){
+			// reloading with "/chat/#!/X"
+
+			reloaded = true;
+
+			newUrl = updateUrl(url);
+
+			window.location.href = newUrl;
+		}
+		else{
+			// modify "/chat/X" to "/chat/#!/X"
+
+			$('.my-chat-anchor')
+			.each(function(){
+				console.log(this.href);
+
+				this.href = updateUrl(this.href);
+			})
+			.removeClass("my-chat-anchor");
+		}
+
+	</script>
 </body>
 </html>

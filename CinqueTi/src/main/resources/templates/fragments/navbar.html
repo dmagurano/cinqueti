@@ -6,7 +6,7 @@
 
 </div>
 
-<div class="navbar navbar-default" role="navigation" th:fragment="navbar(activeTab)">
+<div class="navbar navbar-default navbar-under-modal" role="navigation" th:fragment="navbar(activeTab)">
 	<div class="container">
 		<div class="navbar-header">
 			<button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
@@ -26,16 +26,9 @@
 					<a  class="dropdown-toggle" data-toggle="dropdown">Chat e segnalazioni
 						<b class="caret"></b>
 					</a>
-					<ul class="dropdown-menu">
-						<!-- 	            <li><a href="#">Action</a></li> -->
-						<!-- 	            <li><a href="#">Another action</a></li> -->
-						<!-- 	            <li><a href="#">Something else here</a></li> -->
-						<!--	           		<li th:each="topic : ${topics}"><a th:attr="
-                                                   ng-click='chatOpen(\''
-                                                   + ${topic} +
-                                                   '\')'"  th:text="${topic}"> </a> </li>-->
+					<ul class="dropdown-menu" id="topics-list">
 						<li th:each="topic : ${topics}">
-							<a th:attr="href='/chat/#!/' + ${topic} + ''   "  th:text="${topic}"> </a>
+							<a th:attr="href='/chat/' + ${topic} + ''"  th:text="${topic}" class="my-chat-anchor"> </a>
 						</li>
 					</ul>
 				</li>

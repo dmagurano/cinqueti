@@ -14,7 +14,7 @@ public class MainController {
         return "welcome";
     }
     
-    @RequestMapping(value = {"/chat"}, method = RequestMethod.GET)
+    @RequestMapping(value = {"/chat/**"}, method = RequestMethod.GET)
     public String chat(Model model) {
     	return "chat";
     }

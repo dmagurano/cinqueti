@@ -133,7 +133,6 @@ body {
 	z-index:9999;
 }
 
-/* modal over navbar */
-.modal-over-navbar{
-	z-index: 9995;
+.navbar-under-modal{
+  z-index: 1000;
 }
