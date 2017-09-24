@@ -4,7 +4,11 @@
 <title>Home</title>
     <th:block th:include="fragments/common :: commonHeadFragment"></th:block>
 
+	<!--  
+	already included in commonHeadFragment
     <link rel="stylesheet" href="/css/bootstrap.css"/>
+    -->
+    
     <link rel="stylesheet" href="/css/leaflet.css"/>
 
     <script src="/js/angular.js"></script>
@@ -28,6 +32,7 @@
     <script src="/js/percorsi.js"></script>
 </head>
 <body ng-app="App">
+	
 	<div class="header"></div>
 	
 	<div th:replace="fragments/navbar :: navbar(linee)"></div>

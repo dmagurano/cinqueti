@@ -140,3 +140,9 @@ body {
 .map-under-dropdown-menu{
 	z-index: 0999;
 }
+
+.my-footer{
+	background-color: #dce4ec; 
+	color: #949fa8;
+	margin-top: 20px;
+}
