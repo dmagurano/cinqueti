@@ -340,12 +340,14 @@ app.controller('chatCtrl', ['$scope', '$location', '$interval', 'ChatSocket', '$
                         for (var i in joined)
                         {
                             //$scope.participants.push({nickname: joined[i]});
-                            ProfilePictureResolver.getPicture(joined[i]).then(function (image) {
-                                $scope.participants.push({
-                                    nickname: joined[i],
-                                    picture: _arrayBufferToBase64(image.data)
+                            (function(i) {
+                                ProfilePictureResolver.getPicture(joined[i]).then(function (image) {
+                                    $scope.participants.push({
+                                        nickname: joined[i],
+                                        picture: _arrayBufferToBase64(image.data)
+                                    });
                                 });
-                            });
+                            })(i);
                         }
                     }
                     else
@@ -447,6 +449,10 @@ app.controller('chatCtrl', ['$scope', '$location', '$interval', 'ChatSocket', '$
         };
 
         initStompClient();
+
+        $scope.$on("$locationChangeStart", function () {
+            chatSocket.close();
+        })
     }]);
 
 //function parseMessage(mess){
@@ -646,11 +652,13 @@ app.factory('ProfilePictureResolver', ['$http', function ($http) {
 
 app.factory('ChatSocket', ['$rootScope', function($rootScope) {
     var stompClient;
+    var sockJS = null;
 
     var wrappedSocket = {
 
         init: function(url) {
-            stompClient = Stomp.over(new SockJS(url));
+            sockJS = new SockJS(url);
+            stompClient = Stomp.over(sockJS);
         },
         connect: function(successCallback, errorCallback) {
 
@@ -673,6 +681,9 @@ app.factory('ChatSocket', ['$rootScope', function($rootScope) {
         },
         send: function(destination, headers, object) {
             stompClient.send(destination, headers, object);
+        },
+        close: function () {
+            sockJS.close();
         }
     }
 

@@ -3,12 +3,14 @@ package it.polito.cinqueti.chat.model;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
+import java.util.TreeSet;
 
 //Incapsula una lista di stringhe
 
 public class Roster {
 
-	private List<String> users = new ArrayList<String>();
+	private Set<String> users = new TreeSet<String>();
 
 	public Roster(List<ChatUser> users) {
 		
@@ -18,11 +20,11 @@ public class Roster {
 		
 	}
 
-	public List<String> getUsers() {
+	public Set<String> getUsers() {
 		return users;
 	}
 
-	public void setUsers(List<String> users) {
+	public void setUsers(Set<String> users) {
 		this.users = users;
 	}
 }
