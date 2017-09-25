@@ -26,7 +26,7 @@
 					<a  class="dropdown-toggle" data-toggle="dropdown">Chat e segnalazioni
 						<b class="caret"></b>
 					</a>
-					<ul class="dropdown-menu" id="topics-list">
+					<ul class="dropdown-menu-over-leaflet-control-zoom dropdown-menu" id="topics-list">
 						<li th:each="topic : ${topics}">
 							<a th:attr="href='/chat/' + ${topic} + ''"  th:text="${topic}" class="my-chat-anchor"> </a>
 						</li>
