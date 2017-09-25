@@ -13,8 +13,8 @@ app.controller('HeaderCtrl', [ '$scope', '$location','$window',
 
     }]);
 
-app.controller('chatCtrl', ['$scope', '$location', '$interval', 'ChatSocket', '$routeParams', 'AddressResolver', 'ToolsResolver', '$timeout', '$anchorScroll', 'ProfilePictureResolver',
-    function($scope, $location, $interval, chatSocket,$routeParams, AddressResolver, ToolsResolver, $timeout, $anchorScroll,ProfilePictureResolver) {
+app.controller('chatCtrl', ['$scope', '$location', '$interval', 'ChatSocket', '$routeParams', 'AddressResolver', 'ToolsResolver', '$timeout', '$anchorScroll', 'ProfilePictureResolver','leafletData','$compile',
+    function($scope, $location, $interval, chatSocket,$routeParams, AddressResolver, ToolsResolver, $timeout, $anchorScroll,ProfilePictureResolver,leafletData,$compile) {
 
         angular.extend($scope, {
             mapcenter: {
@@ -225,7 +225,21 @@ app.controller('chatCtrl', ['$scope', '$location', '$interval', 'ChatSocket', '$
                     $scope.newAlert.reset();
                 }
             );
-        }
+        };
+
+        $scope.markerBlinking = function(marker, i) {
+            if (marker.opacity === 0.5)
+                marker.opacity = 1;
+            else
+                marker.opacity = 0.5
+
+            i--;
+            if (i != -1)
+                $timeout(function () {
+                    $scope.markerBlinking(marker, i);
+                }, 500)
+        };
+
 
         $scope.centerMapOnAlert = function(id) {
             var alert = $scope.alerts[id];
@@ -234,6 +248,13 @@ app.controller('chatCtrl', ['$scope', '$location', '$interval', 'ChatSocket', '$
             $scope.mapcenter.lat = alert.lat;
             $scope.mapcenter.lng = alert.lng;
             $scope.mapcenter.zoom = 15;
+            var marker = $scope.markers.filter(function(m){return m.id === id})[0];
+
+            marker.opacity = 0.5;
+            $timeout(function () {
+                $scope.markerBlinking(marker, 10);
+            },500);
+
         };
 
         $scope.quote = function (id) {
@@ -277,7 +298,7 @@ app.controller('chatCtrl', ['$scope', '$location', '$interval', 'ChatSocket', '$
         $scope.getPartecipantByNickname = function (nickname) {
             var res = $scope.participants.filter(function (p) { return (p.nickname === nickname);  })
             return res[0];
-        }
+        };
         $scope.enterKeyListener = function(keyEvent) {
             if (keyEvent.which === 13)
             {
@@ -286,6 +307,19 @@ app.controller('chatCtrl', ['$scope', '$location', '$interval', 'ChatSocket', '$
             }
         };
 
+        $scope.cancelModalAlert = function(){
+
+            $('#tagModal').modal('hide');
+        };
+
+        $scope.cancelAlertModal = function(){
+
+            $scope.newAlert.reset();
+
+            $('#alertsModal').modal('hide');
+
+            $scope.newMessage = $scope.newMessage.replace(/\[.*\]/,'');
+        }
 
         var initStompClient = function() {
             chatSocket.init('/transportsChat');
@@ -350,7 +384,7 @@ app.controller('chatCtrl', ['$scope', '$location', '$interval', 'ChatSocket', '$
                         alert.rates.avg = printRates(alert.rates);
                         $scope.alerts[alert.id] = alert;
                         //extract the icon name starting from the alert type position in alertTypes array
-                        var alertIcon = "" + $scope.alertTypes.indexOf(alert.type) + ".png"
+                        var alertIcon = "" + $scope.alertTypes.indexOf(alert.type) + ".png";
                         $scope.markers.push({
                             id: alert.id,
                             getMessageScope: function() {return $scope; },
@@ -384,7 +418,7 @@ app.controller('chatCtrl', ['$scope', '$location', '$interval', 'ChatSocket', '$
                     alert.rates.avg = printRates(alert.rates);
                     $scope.alerts[alert.id] = alert;
                     //extract the icon name starting from the alert type position in alertTypes array
-                    var alertIcon = "" + $scope.alertTypes.indexOf(alert.type) + ".png"
+                    var alertIcon = "" + $scope.alertTypes.indexOf(alert.type) + ".png";
                     $scope.markers.push({
                         id: alert.id,
                         getMessageScope: function() {return $scope; },
@@ -580,8 +614,6 @@ app.directive('chatAlert', function($compile, $timeout) {
                 return formattedTime;
             };
         }
-
-
     };
 
 });

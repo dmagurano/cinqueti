@@ -1,8 +1,8 @@
 
 	
 	<div class="container">
-		<div class="col-lg-12" id="chat-map">
-			<leaflet lf-center="mapcenter" defaults="defaults" markers="markers" paths="paths" bounds="bounds" legend="legend" height="300px"></leaflet>
+		<div class="col-lg-12" id="chat-map-div">
+			<leaflet id="chat-map" lf-center="mapcenter" defaults="defaults" markers="markers" paths="paths" bounds="bounds" legend="legend" height="300px"></leaflet>
 		</div>
 	</div>
 	<br></br>
@@ -82,7 +82,8 @@
 								   </div>
 						       </div>
 						       <div class="modal-footer">
-									<button type="button" class="btn btn-default" data-dismiss="modal" id="modal-select" ng-click="chooseAlertInfo()">Continua</button>
+								   <button type="button" class="btn btn-info" data-dismiss="modal" id="modal-back" ng-click="cancelAlertModal()">Annulla</button>
+								   <button type="button" class="btn btn-success" data-dismiss="modal" id="modal-select" ng-click="chooseAlertInfo()">Continua</button>
 						       </div>
 						    </div>
 					    </div>
@@ -100,7 +101,8 @@
 									</div>
 								</div>
 								<div class="modal-footer">
-									<button type="button" class="btn btn-default" data-dismiss="modal" id="modal-select-tag" ng-click="processModalAlert()">Continua</button>
+									<button type="button" class="btn btn-info" data-dismiss="modal" id="modal-cancel-tag" ng-click="cancelModalAlert()">Annulla</button>
+									<button type="button" class="btn btn-success" data-dismiss="modal" id="modal-select-tag" ng-click="processModalAlert()">Continua</button>
 								</div>
 							</div>
 						</div>
