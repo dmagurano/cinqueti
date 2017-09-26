@@ -24,10 +24,10 @@ app.controller('chatCtrl', ['$scope', '$location', '$interval', 'ChatSocket', '$
             },
             legend: {
                 position: 'bottomright',
-                colors: ['#ff9900', '#ff00bf', '#cc0000','#4169e1'],
+                colors: ['#ff9900', '#e0218a', '#cc0000','#4169e1'],
                 labels: ['Cantiere','Incidente','Incendio','Altro']
             },
-            markers: [],
+            markers: {},
             paths: {},
             bounds: {},
             defaults: {
@@ -124,6 +124,20 @@ app.controller('chatCtrl', ['$scope', '$location', '$interval', 'ChatSocket', '$
             //$("#textArea").focus();
         };
 
+        $scope.sendAlertUpdate = function(id) {
+            if (id === null || id === undefined)
+                return;
+            var messageToServer = JSON.stringify({
+                'alertId': id,
+                'type':'update'
+            });
+            chatSocket.send(
+                "/app/chat",
+                {},
+                messageToServer
+            );
+        };
+
         $scope.monitorTextInput = function () {
             var textValue = $scope.newMessage;
             // check if we already have an alert registered
@@ -158,6 +172,11 @@ app.controller('chatCtrl', ['$scope', '$location', '$interval', 'ChatSocket', '$
             }
         };
 
+        $scope.$on('leafletDirectiveMarker.chat-map.click', function (e, args) {
+            $scope.sendAlertUpdate(args.model.id);
+            console.log("FUNGE!");
+        });
+
         $scope.chooseAlertInfo = function () {
             var address = $scope.chosenAddress;
             $scope.newAlert.alert.lat = address.attributes.Y;
@@ -184,8 +203,8 @@ app.controller('chatCtrl', ['$scope', '$location', '$interval', 'ChatSocket', '$
             showAlertAddressSelector();
         }
 
-        $scope.focusOnHelp = function() {
-            $location.hash("suggestionsArea");
+        $scope.focusOnElement = function(elementId) {
+            $location.hash(elementId);
             $anchorScroll();
 
         }
@@ -267,13 +286,13 @@ app.controller('chatCtrl', ['$scope', '$location', '$interval', 'ChatSocket', '$
             $scope.mapcenter.lat = alert.lat;
             $scope.mapcenter.lng = alert.lng;
             $scope.mapcenter.zoom = 15;
-            var marker = $scope.markers.filter(function(m){return m.id === id})[0];
-
+            //var marker = $scope.markers.filter(function(m){return m.id === id})[0];
+            var marker = $scope.markers[id];
             marker.opacity = 0.5;
             $timeout(function () {
                 $scope.markerBlinking(marker, 10);
             },500);
-
+            $scope.focusOnElement('navbar-id');
         };
 
         $scope.quote = function (id) {
@@ -406,7 +425,7 @@ app.controller('chatCtrl', ['$scope', '$location', '$interval', 'ChatSocket', '$
                         $scope.alerts[alert.id] = alert;
                         //extract the icon name starting from the alert type position in alertTypes array
                         var alertIcon = "" + $scope.alertTypes.indexOf(alert.type) + ".png";
-                        $scope.markers.push({
+                        $scope.markers[alert.id] = {
                             id: alert.id,
                             getMessageScope: function() {return $scope; },
                             icon: {
@@ -417,7 +436,19 @@ app.controller('chatCtrl', ['$scope', '$location', '$interval', 'ChatSocket', '$
                             lat: alert.lat,
                             lng: alert.lng,
                             message: '<chat-alert alert="alerts[\'' + alert.id +'\']" quote="quote(id)" submit="sendRate(id,rate)"></chat-alert>'
-                        });
+                        };
+                        /*$scope.markers.push({
+                            id: alert.id,
+                            getMessageScope: function() {return $scope; },
+                            icon: {
+                                iconUrl: '../assets/alert-markers/' + alertIcon,
+                                //shadowUrl: '../assets/leaf-shadow.png',
+                                iconSize:     [32, 32],
+                                shadowSize:   [0, 0]},
+                            lat: alert.lat,
+                            lng: alert.lng,
+                            message: '<chat-alert alert="alerts[\'' + alert.id +'\']" quote="quote(id)" submit="sendRate(id,rate)"></chat-alert>'
+                        });*/
                     });
                 });
 
@@ -440,7 +471,7 @@ app.controller('chatCtrl', ['$scope', '$location', '$interval', 'ChatSocket', '$
                     $scope.alerts[alert.id] = alert;
                     //extract the icon name starting from the alert type position in alertTypes array
                     var alertIcon = "" + $scope.alertTypes.indexOf(alert.type) + ".png";
-                    $scope.markers.push({
+                    $scope.markers[alert.id] = {
                         id: alert.id,
                         getMessageScope: function() {return $scope; },
                         icon: {
@@ -451,7 +482,7 @@ app.controller('chatCtrl', ['$scope', '$location', '$interval', 'ChatSocket', '$
                         lat: alert.lat,
                         lng: alert.lng,
                         message: '<chat-alert alert="alerts[\'' + alert.id +'\']" quote="quote(id)" submit="sendRate(id,rate)"></chat-alert>'
-                    });
+                    };
                 } );
 
                 /* sending user join message */
@@ -472,7 +503,7 @@ app.controller('chatCtrl', ['$scope', '$location', '$interval', 'ChatSocket', '$
         $scope.$on("$locationChangeStart", function () {
             // closing websocket
             chatSocket.close();
-        })
+        });
     }]);
 
 //function parseMessage(mess){

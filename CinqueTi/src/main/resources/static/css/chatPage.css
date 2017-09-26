@@ -288,6 +288,10 @@ label {
     margin-bottom: 0px;
 }
 
+.leaflet-popup-content {
+    width: 275px;
+}
+
 .leaflet-popup-content p {
     margin: 1px !important;
 }

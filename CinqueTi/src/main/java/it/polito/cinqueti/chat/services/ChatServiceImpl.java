@@ -17,10 +17,12 @@ import it.polito.cinqueti.chat.model.ChatRate;
 import it.polito.cinqueti.chat.model.Roster;
 import it.polito.cinqueti.chat.model.UserDirectory;
 import it.polito.cinqueti.entities.Alert;
+import it.polito.cinqueti.entities.DecodedAddress;
 import it.polito.cinqueti.entities.Message;
 import it.polito.cinqueti.entities.Rate;
 import it.polito.cinqueti.repositories.AlertRepository;
 import it.polito.cinqueti.repositories.MessageRepository;
+import it.polito.cinqueti.services.LineService;
 
 @Service
 public class ChatServiceImpl implements ChatService {
@@ -36,6 +38,9 @@ public class ChatServiceImpl implements ChatService {
 	
 	@Autowired
 	private AlertRepository alertRepository;
+	
+	@Autowired
+	private LineService lineService;
 	
 	@Value("#{'${alerts.expireAfter.minutes}'}")
 	private Integer expireAfter;
@@ -59,9 +64,30 @@ public class ChatServiceImpl implements ChatService {
 		String chatMessagesList = "/topic/chat/"+ topic;
 		String alertTopic = "/topic/chat/alerts";
 		
+		if(msg.getType().equals("update"))
+		{
+			retireAlertIfExpired(msg.getAlertId());
+			return;
+		}
 		Alert alert = msg.extractAlert();
 		if (alert != null){
 			// case 1: new alert
+			// check address validity
+			boolean isValid = false;
+			List<DecodedAddress> results = lineService.getAddressInformation(alert.getAddress());
+			for(DecodedAddress res: results)
+			{
+				if(res.getDisplay_name().equals(alert.getAddress()))
+				{
+					if(res.getAddress().getLat().equals(alert.getLat()) && res.getAddress().getLon().equals(alert.getLng()))
+					{
+						isValid = true;
+						break;
+					}
+				}
+			}
+			if (!isValid)
+				return;
 			// save the alert into the db
 			alertRepository.save(alert);
 			// the alert object has been updated: it contains the alertId assigned by mongo

@@ -66,7 +66,7 @@
 									   <p>Il tuo indirizzo ha restituito più risultati validi! Seleziona quello richiesto:</p>
 									   <div class="pre-scrollable suggestions">
 										   <div class="radio" ng-repeat="address in addresses">
-										   		<label><input type="radio" name="chosenAddress" ng-model="$parent.$parent.chosenAddress" ng-value="address">{{address.attributes.ADDRESS}}, {{address.attributes.CITY}}</label>
+										   		<label><input type="radio" name="chosenAddress" ng-model="$parent.$parent.chosenAddress" ng-value="address">{{address.address}}</label>
 										   </div>
 									   </div>
 								   </div>
