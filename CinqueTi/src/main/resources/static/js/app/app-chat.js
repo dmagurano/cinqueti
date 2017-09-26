@@ -102,14 +102,16 @@ app.controller('chatCtrl', ['$scope', '$location', '$interval', 'ChatSocket', '$
                     'lat': $scope.newAlert.alert.lat,
                     'lng': $scope.newAlert.alert.lng,
                     'address': $scope.newAlert.alert.address,
-                    'type':$scope.newAlert.alert.type
+                    'type':$scope.newAlert.alert.type,
+                    'quote': false
                 });
                 $scope.newAlert.reset();
             }
             else {
                 messageToServer = JSON.stringify({
                     'message': $scope.newMessage,
-                    'alertId': $scope.alertRef.id
+                    'alertId': $scope.alertRef.id,
+                    'quote': true
                 });
                 $scope.alertRef.reset();
             }
@@ -240,6 +242,23 @@ app.controller('chatCtrl', ['$scope', '$location', '$interval', 'ChatSocket', '$
                 }, 500)
         };
 
+        $scope.dancing = function() {
+            for (var i in $scope.markers)
+            {
+
+                (function(i) {
+                    var ops = i % 2;
+                    if (ops == 0)
+                    {
+                        $scope.markers[i].opacity = 0.5;
+                        $scope.markerBlinking($scope.markers[i],30);
+                    }
+                    else
+                        $scope.markerBlinking($scope.markers[i],29);
+
+                })(i);
+            }
+        };
 
         $scope.centerMapOnAlert = function(id) {
             var alert = $scope.alerts[id];
@@ -516,9 +535,9 @@ app.directive('chatMessage', function($compile) {
         '<img ng-if="user.picture === undefined" ng-src="/rest/users/{{message.nickname}}/image" alt="..." class="img-circle"/>' +
         '</span>' +
         '<div class="chat-body2 clearfix" ng-switch on="message.alertId">' +
-        '<p ng-switch-when="null" ng-bind-html="formatChatMessage(message.message, message.alertId, 1)">'+'</p>'+
+        '<p ng-switch-when="null" ng-bind-html="formatChatMessage(message.message, message.alertId, message.quote, 1)">'+'</p>'+
         //'<p ng-switch-default>ok'+'{{formatChatMessage(message.message)}}'+'</p>'+
-        '<p ng-switch-default ng-click="centerMapOnAlert({id:message.alertId})" ng-bind-html="formatChatMessage(message.message, message.alertId, 0)">'+'</p>'
+        '<p ng-switch-default ng-click="centerMapOnAlert({id:message.alertId})" ng-bind-html="formatChatMessage(message.message, message.alertId, message.quote, 0)">'+'</p>'
         '<div class="chat_time pull-left">{{message.date}}</div></div></li>';
 
     var received = 	'<li class="left clearfix"><span class="chat-img1 pull-left">' +
@@ -527,8 +546,8 @@ app.directive('chatMessage', function($compile) {
         '</span>'+
         '<div class="chat-nickname">'+'{{message.nickname}}'+'</div>' +
         '<div class="chat-body1 clearfix" ng-switch on="message.alertId">'+
-        '<p ng-switch-when="null" ng-bind-html="formatChatMessage(message.message, 1)">'+'</p>'+
-        '<p ng-switch-default ng-bind-html="formatChatMessage(message.message, 0)">'+'</p>'+
+        '<p ng-switch-when="null" ng-bind-html="formatChatMessage(message.message, message.alertId, message.quote, 1)">'+'</p>'+
+        '<p ng-switch-default ng-bind-html="formatChatMessage(message.message, message.alertId, message.quote, 0)">'+'</p>'+
         '<div class="chat_time pull-right">{{message.date}}</div>' +
         '</div></li>';
 
@@ -540,8 +559,10 @@ app.directive('chatMessage', function($compile) {
             user: '=user'
         },
         controller: function($scope, $sce) {
-            $scope.formatChatMessage = function(textMsg, id, old) {
-                if (old == 0)
+            $scope.formatChatMessage = function(textMsg, id, quoting, old) {
+                if (quoting === true)
+                    textMsg = textMsg.replace("[", "<span class=\"label label-info\">");
+                else if (old === 0)
                     textMsg = textMsg.replace("[", "<span class=\"label label-danger\">");
                 else
                     textMsg = textMsg.replace("[", "<span class=\"label label-warning\">");

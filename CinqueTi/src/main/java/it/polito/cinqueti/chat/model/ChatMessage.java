@@ -16,6 +16,7 @@ public class ChatMessage {
 		private String address;
 		private String type;
 		private String alertId;
+		private boolean quote;
 			
 		public ChatMessage() {
 		}
@@ -36,6 +37,18 @@ public class ChatMessage {
 			this.lat = lat;
 			this.lng = lng;
 			this.type = type;
+		}
+		
+		public ChatMessage(String username, String nickname, String message, Date date, Double lat, Double lng,
+				String address, String type, boolean quote) {
+			this.username = username;
+			this.nickname = nickname;
+			this.message = message;
+			this.date = date;
+			this.lat = lat;
+			this.lng = lng;
+			this.type = type;
+			this.quote = quote;
 		}
 		
 		public Alert extractAlert() {
@@ -122,6 +135,15 @@ public class ChatMessage {
 
 		public void setAlertId(String alertId) {
 			this.alertId = alertId;
+		}
+
+		public boolean isQuote() {
+			return quote;
+		}
+
+		public ChatMessage setQuote(boolean quote) {
+			this.quote = quote;
+			return this;
 		}
 
 		@Override

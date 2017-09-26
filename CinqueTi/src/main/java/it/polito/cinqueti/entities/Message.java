@@ -24,6 +24,7 @@ public class Message {
 	private Date timestamp;
 	
 	private String alertId;
+	private boolean quote;
 
 
 	public Message() {
@@ -35,6 +36,15 @@ public class Message {
 		this.userEmail = userEmail;
 		this.nickname = nickname;
 		this.timestamp = timestamp;
+	}
+	
+	public Message(String text, String topic, String userEmail, String nickname, Date timestamp, boolean quote) {
+		this.text = text;
+		this.topic = topic;
+		this.userEmail = userEmail;
+		this.nickname = nickname;
+		this.timestamp = timestamp;
+		this.quote = quote;
 	}
 	
 	@JsonIgnore
@@ -92,4 +102,13 @@ public class Message {
 	public void setAlertId(String alertId) {
 		this.alertId = alertId;
 	}
+
+	public boolean isQuote() {
+		return quote;
+	}
+
+	public void setQuote(boolean quote) {
+		this.quote = quote;
+	}
+	
 }

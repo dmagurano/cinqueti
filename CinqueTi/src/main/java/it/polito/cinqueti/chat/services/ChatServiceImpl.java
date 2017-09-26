@@ -69,12 +69,19 @@ public class ChatServiceImpl implements ChatService {
 		}
 	    
 	    Message mess = new Message(msg.getMessage(), topic, msg.getUsername(), msg.getNickname(), msg.getDate());
-	    
+	    // set as default false in quote properties (overriden if the message has a valid ref
+	    mess.setQuote(false);
+	    msg.setQuote(false);
 	    if (msg.getAlertId() != null)	// case 2: reference to existing alert
 	    {
 	    	// check if the alert is still alive
 	    	if (!retireAlertIfExpired(msg.getAlertId()))
-	    		mess.setAlertId(msg.getAlertId()); // valid reference if the alert is not expired
+	    	{
+	    		// valid reference if the alert is not expired
+	    		mess.setAlertId(msg.getAlertId()); 
+	    		mess.setQuote(true);
+	    		msg.setQuote(true);
+	    	}
 	    }
 	    else if (alert != null)	// 	new alert
 	    {
@@ -150,7 +157,7 @@ public class ChatServiceImpl implements ChatService {
 			cm.setDate(m.getTimestamp())
 			  .setMessage(m.getText())
 			  .setNickname(m.getNickname())
-			  .setUsername(m.getUserEmail());
+			  .setUsername(m.getUserEmail()).setQuote(m.isQuote());
 			if (alertRepository.findById(m.getAlertId()) != null)
 				cm.setAlertId(m.getAlertId());
 			return cm;
