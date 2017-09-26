@@ -222,6 +222,22 @@ app.factory('PathsDataProvider', [ '$http', '$window',
                         }
                         else{
                             if ( previousMode != edge.mode || previousLine != edge.edgeLine){
+
+                                var line_marker = {
+                                    lat: parseFloat(edge.latSrc),
+                                    lng: parseFloat(edge.lonSrc),
+                                    focus: false,
+                                    draggable: false,
+                                    icon:{
+                                        iconUrl: '../assets/circle-128.png',
+                                        iconSize: [16, 16],
+                                        shadowSize: [0, 0]
+                                    }
+                                }
+
+                                markers[edge.edgeLine] = line_marker;
+
+
                                 polylines.push(curPolyline);
 
                                 previousMode = edge.mode;
