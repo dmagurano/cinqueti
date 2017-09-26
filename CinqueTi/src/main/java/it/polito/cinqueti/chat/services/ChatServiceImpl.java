@@ -64,7 +64,7 @@ public class ChatServiceImpl implements ChatService {
 		String chatMessagesList = "/topic/chat/"+ topic;
 		String alertTopic = "/topic/chat/alerts";
 		
-		if(msg.getType().equals("update"))
+		if(msg.getType() != null && msg.getType().equals("update"))
 		{
 			retireAlertIfExpired(msg.getAlertId());
 			return;

@@ -13,8 +13,8 @@ app.controller('HeaderCtrl', [ '$scope', '$location','$window',
 
     }]);
 
-app.controller('chatCtrl', ['$scope', '$location', '$interval', 'ChatSocket', '$routeParams', 'AddressResolver', 'ToolsResolver', '$timeout', '$anchorScroll', 'ProfilePictureResolver','leafletData','$compile',
-    function($scope, $location, $interval, chatSocket,$routeParams, AddressResolver, ToolsResolver, $timeout, $anchorScroll,ProfilePictureResolver,leafletData,$compile) {
+app.controller('chatCtrl', ['$scope', '$location', '$interval', 'ChatSocket', '$routeParams', 'AddressResolver', 'ToolsResolver', '$timeout', '$anchorScroll', 'ProfilePictureResolver','$compile',
+    function($scope, $location, $interval, chatSocket,$routeParams, AddressResolver, ToolsResolver, $timeout, $anchorScroll,ProfilePictureResolver,$compile) {
 
         angular.extend($scope, {
             mapcenter: {
