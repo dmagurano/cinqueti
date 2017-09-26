@@ -24,7 +24,7 @@ app.controller('chatCtrl', ['$scope', '$location', '$interval', 'ChatSocket', '$
             },
             legend: {
                 position: 'bottomright',
-                colors: ['#ff9900', '#a6d785', '#cc0000','#4169e1'],
+                colors: ['#ff9900', '#ff00bf', '#cc0000','#4169e1'],
                 labels: ['Cantiere','Incidente','Incendio','Altro']
             },
             markers: [],
@@ -470,6 +470,7 @@ app.controller('chatCtrl', ['$scope', '$location', '$interval', 'ChatSocket', '$
         initStompClient();
 
         $scope.$on("$locationChangeStart", function () {
+            // closing websocket
             chatSocket.close();
         })
     }]);
