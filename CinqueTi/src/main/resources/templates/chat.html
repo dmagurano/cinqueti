@@ -3,20 +3,25 @@
 <head>
 	<th:block th:include="fragments/common :: commonHeadFragment"></th:block>
 
-	<script src="/js/sockjs.js"></script>
-	<script src="/js/stomp.js"></script>
+	<script src="/js/app/libs/sockjs.js"></script>
+	<script src="/js/app/libs/stomp.js"></script>
 	<link th:href="@{/css/chatPage.css}" rel="stylesheet" />
 	<link th:href="@{/css/rating.css}" rel="stylesheet" />
 	
-	<script src="/js/angular.js"></script>
-    <script src="/js/leaflet.js"></script>
-    <script src="/js/angular-simple-logger.min.js"></script>
-    <script src="/js/angular-resource.js"></script>
-    <script src="/js/angular-route.js"></script>
-    <script src="/js/ui-leaflet.js"></script>
+	<script src="/js/app/libs/angular.js"></script>
+    <script src="/js/app/libs/leaflet.js"></script>
+    <script src="/js/app/libs/angular-simple-logger.min.js"></script>
+    <script src="/js/app/libs/angular-resource.js"></script>
+    <script src="/js/app/libs/angular-route.js"></script>
+    <script src="/js/app/libs/ui-leaflet.js"></script>
 	<script src="//code.angularjs.org/1.2.20/angular-sanitize.min.js"></script>
 
-    <script src="/js/app/app-chat.js"></script>
+	<script src="/js/app/app-chat.js"></script>
+	<script src="/js/app/controllers/chat-controller.js"></script>
+	<script src="/js/app/directives/chat-alert-directive.js"></script>
+	<script src="/js/app/directives/chat-message-directive.js"></script>
+	<script src="/js/app/services/chat-service.js"></script>
+
 	<!-- map -->
 	<link rel="stylesheet" href="https://unpkg.com/leaflet@1.0.3/dist/leaflet.css"
    integrity="sha512-07I2e+7D8p6he1SIM+1twR5TIrhUQn9+I6yjqD53JQjFiMf8EtC93ty0/5vJTZGF8aAocvHYNEDJajGdNx1IsQ=="

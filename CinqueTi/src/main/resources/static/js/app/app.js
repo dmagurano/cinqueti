@@ -1,10 +1,3 @@
-/*
- TODO
- different colour for on foot or by bus (better: different colour for each line)
- update table containing path details
- make edges follow the roads
- */
-
 var app = angular.module('App', ['ngRoute', 'ngResource', 'ui-leaflet'])
 
 app.config(function ($routeProvider, $locationProvider) {
