@@ -2,7 +2,24 @@ app.controller('CalculateController', ['$scope', 'PathsDataProvider', 'leafletBo
     function ($scope, PathsDataProvider, leafletBoundsHelpers) {
 
         var self = $scope;
-        initialize_map($scope);
+        angular.extend(self, {
+            turin: {
+                lat: 45.07,
+                lng: 7.69,
+                zoom: 13
+            },
+            bounds: {},
+            paths: {},
+            markers: {},
+            defaults: {
+                tileLayer: "https://api.mapbox.com/styles/v1/mapbox/streets-v10/tiles/256/{z}/{x}/{y}?access_token=pk.eyJ1IjoiZGF2cjA5MTAiLCJhIjoiY2owemk4N2FmMDJ1ZzMzbno3YjZxZDN3YyJ9.eJdGDM0goIVXcFmMrQX8og",
+            },
+            legend: {
+                position: 'bottomleft',
+                colors: [ 'blue', 'orange'],
+                labels: [ 'A piedi', 'Bus' ]
+            }
+        });
 
         $scope.pathDetailsVisibility = true;
         $scope.pathDetails = PathsDataProvider.getPathDetails();
@@ -12,7 +29,11 @@ app.controller('CalculateController', ['$scope', 'PathsDataProvider', 'leafletBo
 
 
             //Refresh the map otherwise precedent informations will be present (e.g. popup line)
-            initialize_map(self);
+            angular.extend(self, {
+                bounds: {},
+                paths: {},
+                markers: {}
+            });
 
             //Use Nominatim service to get lat and long for the address
             //var pathPrefix = "https://nominatim.openstreetmap.org/search?q=";

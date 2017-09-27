@@ -49,6 +49,7 @@ public class MailServiceImpl implements MailService{
 	}
 	
 	private String getServerIpAddress(){
+		// try to get ip address in lan or return "localhost"
 		
 		try {
             for (Enumeration<NetworkInterface> en = NetworkInterface.getNetworkInterfaces(); en.hasMoreElements();) {

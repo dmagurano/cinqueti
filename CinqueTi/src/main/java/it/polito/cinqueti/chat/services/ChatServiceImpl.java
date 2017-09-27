@@ -48,28 +48,34 @@ public class ChatServiceImpl implements ChatService {
 	public void updateUsersList (String topic){
 		
 		String topicUsersList = "/topic/presence/"+  topic;
-		
+		// extract the list of user in the chat room 'topic' and send the updated list to its users
 		messagingTemplate.convertAndSend(topicUsersList,new Roster(users.getUsers().stream()
 																	.filter(u -> u.getTopicname().equals(topic))
 																	.collect(Collectors.toList())));
-					
 	}
 	
 	public void sendMessage (String topic, ChatMessage msg) {
 		String chatMessagesList = "/topic/chat/"+ topic;
 		String alertTopic = "/topic/chat/alerts";
 		
+		// case 0: the message is sent by the client because an alert popup is opened
+		// it's type should be 'update'
 		if(msg.getType() != null && msg.getType().equals("update"))
 		{
+			// check alert validy and refresh its last access timestamp
 			retireAlertIfExpired(msg.getAlertId());
-			return;
+			return; // done
 		}
+		// the message is not an update
+		// let's try to extract an alert from it (if no alert is contained, the variable will be null)
 		Alert alert = msg.extractAlert();
 		if (alert != null){
 			// case 1: new alert
-			// check address validity
+			// check address validity (no malicius data could be saved in db!)
 			boolean isValid = false;
+			// query the ArcGis server with the address providen by the alert
 			List<DecodedAddress> results = lineService.getAddressInformation(alert.getAddress());
+			// search for a result with the same display_name, lat and lng
 			for(DecodedAddress res: results)
 			{
 				if(res.getDisplay_name().equals(alert.getAddress()))
@@ -82,15 +88,18 @@ public class ChatServiceImpl implements ChatService {
 				}
 			}
 			if (!isValid)
-				return;
+				// no match found, reject the alert request
+				return; 
+			// no danger!
 			// save the alert into the db
 			alertRepository.save(alert);
 			// the alert object has been updated: it contains the alertId assigned by mongo
 			messagingTemplate.convertAndSend(alertTopic, alert);
+			// we need also to process the ChatMessage as a normal message
 		}
-	    
+	    // convert the ChatMessage msg into a Message object in order to update the db
 	    Message mess = new Message(msg.getMessage(), topic, msg.getUsername(), msg.getNickname(), msg.getDate());
-	    // set as default false in quote properties (overriden if the message has a valid ref
+	    // set as default false in quote properties (overriden if the message has a valid ref)
 	    mess.setQuote(false);
 	    msg.setQuote(false);
 	    if (msg.getAlertId() != null)	// case 2: reference to existing alert
@@ -116,6 +125,9 @@ public class ChatServiceImpl implements ChatService {
 	    messagingTemplate.convertAndSend(chatMessagesList, msg);
 	}
 	
+	// check if the alert is still active
+	// if not remove
+	// otherwise update the last access ts
 	// return: true if the alert is expired, false otherwise
 	public boolean retireAlertIfExpired(String id) {
 		String alertTopic = "/topic/chat/alerts";
@@ -123,13 +135,13 @@ public class ChatServiceImpl implements ChatService {
     	Alert dbAlert = alertRepository.findById(id);
     	boolean expired = false;
     	if (dbAlert == null)
-    		expired = true; // already expired
+    		expired = true; // already expired and deleted
     	else 
     	{
     		Long minutesBetween = ((new Date()).getTime() - dbAlert.getLastAccessTimestamp().getTime()) / (60*1000) % 60;
     		if (minutesBetween > expireAfter)
     		{
-    			expired = true; // expired right now
+    			expired = true; // expired right now, delete it
     			alertRepository.deleteAlertById(id);
     		}
     	}
@@ -143,8 +155,6 @@ public class ChatServiceImpl implements ChatService {
     	dbAlert.setLastAccess();
 		alertRepository.save(dbAlert);
     	return false;
-
-    		
 	}
 	
 	public void sendRate (ChatRate chatRate) {
@@ -154,16 +164,19 @@ public class ChatServiceImpl implements ChatService {
 			// it's alive! Rate it
 			Rate rate = new Rate(chatRate.getUsername(), chatRate.getValue());
 			alertRepository.updateUserRate(chatRate.getAlertId(), rate);
+			// no update is sent to the users in order to avoid heavy load
 		}
 	}
 	
+	// push last 10 messages to the user
 	public void retrieveLastMessages (String topic, String user) {
 		String chatMessagesList = "/queue/"+ topic;
 		List<Message> msgs= new ArrayList<Message>();
+		// retrieve last 10 msg from db
 		msgs = messageRepo.findTop10ByTopicOrderByTimestampDesc(topic);
-		
+		// reverse for user visualization
 		Collections.reverse(msgs);
-		
+		// transform each Message into a ChatMessage
 		List<ChatMessage> chmsgs = msgs.stream().map(m -> {
 			ChatMessage cm = new ChatMessage();
 			cm.setDate(m.getTimestamp())
@@ -174,10 +187,11 @@ public class ChatServiceImpl implements ChatService {
 				cm.setAlertId(m.getAlertId());
 			return cm;
 		}).collect(Collectors.toList());
-		
+		// send the list to a specific user
 		messagingTemplate.convertAndSendToUser(user, chatMessagesList, chmsgs);
 	}
 
+	// send active alerts to a new user
 	public void retrieveAlerts(String user){
 		String chatMessagesList = "/queue/alerts";
 		
@@ -188,9 +202,6 @@ public class ChatServiceImpl implements ChatService {
 			Alert alert = it.next();
 			// calc the difference in minutes
 			Long minutesBetween = ((new Date()).getTime() - alert.getLastAccessTimestamp().getTime()) / (60 * 1000) % 60;
-			// TODO remove next comment
-			// optional: for debug purpose use the next line to get 5 seconds interval
-//			Long minutesBetween = ((new Date()).getTime() - alert.getLastAccessTimestamp().getTime()) / (1000) % 60;
 			if (minutesBetween > expireAfter)
 			{
 				// delete the item from db and then remove it from list
@@ -198,9 +209,12 @@ public class ChatServiceImpl implements ChatService {
 				it.remove();
 			}
 			else
-			{	// update the lastAccessTimestamp and sync to db
-				alert.setLastAccess();
-				alertRepository.save(alert);
+			{	// (NOT NEEDED?) update the lastAccessTimestamp and sync to db
+				/*alert.setLastAccess();
+				alertRepository.save(alert);*/
+				
+				// add to the alert the rate given by the current user, if any
+				// used by client for real time avg
 				for (Rate rate: alert.getRates())
 				{
 					if (rate.getEmail().equals(user))
@@ -211,7 +225,7 @@ public class ChatServiceImpl implements ChatService {
 				}
 			}
 		}	
-		
+		// send the remaining alerts to user
 		messagingTemplate.convertAndSendToUser(user, chatMessagesList, alerts);
 	}
 }

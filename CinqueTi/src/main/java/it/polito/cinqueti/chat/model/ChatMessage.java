@@ -51,6 +51,8 @@ public class ChatMessage {
 			this.quote = quote;
 		}
 		
+		// parse an Alert starting from current message info
+		// if any info is missing, return null
 		public Alert extractAlert() {
 			if (lat == null || lng == null || type == null || address == null)
 				return null;

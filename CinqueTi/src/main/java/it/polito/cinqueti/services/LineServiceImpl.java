@@ -40,6 +40,7 @@ public class LineServiceImpl implements LineService {
 		return lineRepository.findOne(id);
 	}
 	
+	// query the ArcGis rest api and return the parsed information
 	@Override
 	public List<DecodedAddress> getAddressInformation(String query) {
 		RestTemplate restTemplate = new RestTemplate();
@@ -52,28 +53,35 @@ public class LineServiceImpl implements LineService {
 		ObjectMapper mapper = new ObjectMapper();
 		ArcGisQueryResult res;
 		try {
-		    //convert JSON string to object
+		   // convert JSON string to java object
 		   res = mapper.readValue(json, new TypeReference<ArcGisQueryResult>(){});
+		   // return only valid results
 		   return filterResults(res.getCandidatesAsList(), query);
 		} catch (Exception e) {
 			return null; 
 		}
 	}
 
+	// find the addresses of supported city
 	private List<DecodedAddress> filterResults(ArrayList<DecodedAddress> results, String query) {
 		ArrayList<DecodedAddress> filtered = new ArrayList<DecodedAddress>();
 		for (DecodedAddress res: results) {
+			// extract address details
 			DecodedAddressDetails details = res.getAddress();
-			
 			String loc = details.getCity().toLowerCase();
 			if(loc.equals("torino"))
 			{
+				// best result
+				// push to head
 				filtered.add(0,res);
 				continue;
 			}
+			// check if the query address contains the result city 
 			boolean isInQuery = query.toLowerCase().contains(loc);
+			// check if the result city is supported by our service
 			boolean isInTowns = towns.contains(loc);
 			if (!isInQuery && !isInTowns)
+				// invalid res, skip it
 				continue;
 			filtered.add(res);
 		}
