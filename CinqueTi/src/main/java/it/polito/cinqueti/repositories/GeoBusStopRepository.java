@@ -6,8 +6,6 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
 
 import com.vividsolutions.jts.geom.Geometry;
-import com.vividsolutions.jts.geom.Point;
-
 import it.polito.cinqueti.entities.GeoBusStop;
 
 public interface GeoBusStopRepository extends CrudRepository<GeoBusStop, String> {

@@ -5,7 +5,6 @@ import java.util.Base64;
 import java.util.Collection;
 import java.util.List;
 
-import javax.persistence.Column;
 import javax.persistence.Lob;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
@@ -97,9 +96,6 @@ public class User implements UserDetails {
 	@NotNull(groups = {ThirdPhaseValidation.class})
 	@Valid
 	private Bike bikeUsage;
-
-	//@Valid
-	//private Car ownCar;
 	
 	//optional
 	private String carFuel;
@@ -119,7 +115,6 @@ public class User implements UserDetails {
 	
 	public User() {
 		setEnabled(false);
-		//ownCar = new Car();
 		bikeUsage = new Bike();
 	}
 
@@ -291,16 +286,7 @@ public class User implements UserDetails {
 	public void setEnabled(boolean enabled) {
 		this.enabled = enabled;
 	}
-	/*
-	public Car getOwnCar() {
-		return ownCar;
-	}
-
-	public void setOwnCar(Car ownCar) {
-		this.ownCar = ownCar;
-	}
-	*/
-
+	
 	public String getCarFuel() {
 		return carFuel;
 	}

@@ -1,5 +1,5 @@
 app.controller('CalculateController', ['$scope', 'PathsDataProvider', 'leafletBoundsHelpers',
-    function ($scope, PathsDataProvider, leafletBoundsHelpers,leafletData) {
+    function ($scope, PathsDataProvider, leafletBoundsHelpers) {
 
         var self = $scope;
         initialize_map($scope);
@@ -30,9 +30,6 @@ app.controller('CalculateController', ['$scope', 'PathsDataProvider', 'leafletBo
 
             PathsDataProvider.setSource(pathPrefix+src_addr+postfix);  //add ArcGis suffix
             PathsDataProvider.setDestination(pathPrefix+dst_addr+postfix);
-
-
-            //var self = this;
 
             PathsDataProvider.getPath().then(function (PathInfo){
 
@@ -70,8 +67,8 @@ app.controller('CalculateController', ['$scope', 'PathsDataProvider', 'leafletBo
     }
 ]);
 
-app.factory('PathsDataProvider', [ '$http', '$window',
-    function ($http, $window) {
+app.factory('PathsDataProvider', [ '$http',
+    function ($http) {
 
         var source,destination;
 
@@ -125,7 +122,6 @@ app.factory('PathsDataProvider', [ '$http', '$window',
                     //Check if the address exists
                     if (srcData.data.candidates.length == 0){
 
-                        //$window.alert("Indirizzo sorgente non trovato");
                         return $http.promise.reject();
 
                     }
@@ -150,8 +146,6 @@ app.factory('PathsDataProvider', [ '$http', '$window',
                     //Check if the address exists
 
                     if (dstData.data.candidates.length == 0){
-
-                        //$window.alert("Indirizzo destinazione non trovato");
                         return $http.promise.reject();
                     }
                     else {
@@ -365,8 +359,6 @@ app.factory('PathsDataProvider', [ '$http', '$window',
                 }).catch(function errorCallback(error){
 
                     //Handle the error by showing an alert box 'Nessun risultato'
-                    //$window.alert("Nessun risultato");
-                    //showAlertTypeSelector();
                     bootstrap_alert_warning("Nessun risultato trovato!");
                     window.setTimeout(function() {
                         $(".alert").fadeTo(500, 0).slideUp(500, function(){

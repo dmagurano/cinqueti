@@ -1,12 +1,9 @@
 package it.polito.cinqueti.chat.model;
 
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
-
-//Incapsula una lista di stringhe
 
 public class Roster {
 

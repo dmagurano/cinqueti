@@ -48,15 +48,10 @@ public class ChatServiceImpl implements ChatService {
 	public void updateUsersList (String topic){
 		
 		String topicUsersList = "/topic/presence/"+  topic;
-	
-		/*
-		 * Added a filter to select users registered to the topic, before was sending all users to everyone
-		 * 'https://www.sitepoint.com/java-8-streams-filter-map-reduce/'
-		 */
 		
 		messagingTemplate.convertAndSend(topicUsersList,new Roster(users.getUsers().stream()
 																	.filter(u -> u.getTopicname().equals(topic))
-																	.collect(Collectors.toList()))); //Prendo l'elenco degli utenti
+																	.collect(Collectors.toList())));
 					
 	}
 	
@@ -167,15 +162,6 @@ public class ChatServiceImpl implements ChatService {
 		List<Message> msgs= new ArrayList<Message>();
 		msgs = messageRepo.findTop10ByTopicOrderByTimestampDesc(topic);
 		
-//		List<StaffPublic> result = staff.stream().map(temp -> {
-//            StaffPublic obj = new StaffPublic();
-//            obj.setName(temp.getName());
-//            obj.setAge(temp.getAge());
-//            if ("mkyong".equals(temp.getName())) {
-//                obj.setExtra("this field is for mkyong only!");
-//            }
-//            return obj;
-//        }).collect(Collectors.toList());
 		Collections.reverse(msgs);
 		
 		List<ChatMessage> chmsgs = msgs.stream().map(m -> {
@@ -190,14 +176,6 @@ public class ChatServiceImpl implements ChatService {
 		}).collect(Collectors.toList());
 		
 		messagingTemplate.convertAndSendToUser(user, chatMessagesList, chmsgs);
-				
-//		// Generate an iterator. Start just after the last element.
-//		ListIterator<Message> li = msgs.listIterator(msgs.size());
-//		// Iterate in reverse.
-//		while(li.hasPrevious()) {
-//		  Message mess = li.previous();
-//		  messagingTemplate.convertAndSendToUser(user, chatMessagesList, new ChatMessage(mess.getUserEmail(), mess.getNickname(), mess.getText(), mess.getTimestamp()));
-//		}
 	}
 
 	public void retrieveAlerts(String user){

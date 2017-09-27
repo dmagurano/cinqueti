@@ -6,12 +6,23 @@ app.controller('HeaderCtrl', [ '$scope', '$location','$window',
             return viewLocation === $location.path();
         };
         // TODO remove this
+        /*
         $scope.chatOpen = function (topic) {
             $window.location.href = "/chat/#!/" + topic;
         };
-
+        */
 
     }]);
+
+app.config(function ($routeProvider,$compileProvider) {
+    $routeProvider
+        .when('/:topic', {
+            templateUrl:'/chatPage.html',
+            controller: 'chatCtrl'
+
+        });
+    $compileProvider.aHrefSanitizationWhitelist(/^\s*(https?|file|ftp|blob):|data:image\//);
+});
 
 app.controller('chatCtrl', ['$scope', '$location', '$interval', 'ChatSocket', '$routeParams', 'AddressResolver', 'ToolsResolver', '$timeout', '$anchorScroll', 'ProfilePictureResolver','$compile',
     function($scope, $location, $interval, chatSocket,$routeParams, AddressResolver, ToolsResolver, $timeout, $anchorScroll,ProfilePictureResolver,$compile) {
@@ -64,30 +75,13 @@ app.controller('chatCtrl', ['$scope', '$location', '$interval', 'ChatSocket', '$
             id: null,
             reset: function() {this.quoting = false; this.id = null; $scope.newAlert.searchOff = false;}
         };
-//        $scope.$watch(function(){
-//            return $location.hash();
-//          },
-//          function(topic){
-//            $scope.topic = topic;
-//          }
-//        );
 
         $scope.$watch('messages', function() {
-            //serve affinche venga chiamata la funzione dopo il
-            //render dell'interfaccia
+            // call updateChat() after ui render
             $scope.$evalAsync(function() {
                 updateChat();
             });
         },true);
-        /*
-         $scope.$watch('alerts', function() {
-         //serve affinche venga chiamata la funzione dopo il
-         //render dell'interfaccia
-         $scope.$evalAsync(function() {
-         updateChat();
-         });
-         },true);
-         */
 
         $scope.sendMessage = function() {
             var messageToServer;
@@ -121,7 +115,6 @@ app.controller('chatCtrl', ['$scope', '$location', '$interval', 'ChatSocket', '$
                 messageToServer
             );
             $scope.newMessage = '';
-            //$("#textArea").focus();
         };
 
         $scope.sendAlertUpdate = function(id) {
@@ -233,11 +226,6 @@ app.controller('chatCtrl', ['$scope', '$location', '$interval', 'ChatSocket', '$
                     $scope.addresses = addresses;
                     $scope.newAlert.alert.type = 'altro';
                     $scope.chosenAddress = addresses[0]; // set the first result as the default one
-                    /*if (addresses.length == 1)
-                    {
-                        // just one result! Simply call the function in order to show the result to user
-                        //$scope.chooseAlertInfo();
-                    }*/
                     showAlertTypeSelector();
                 }, function() {
                     $scope.infoMessage = 'Oh no! Non siamo riusciti a trovare nulla che assomigliasse all\'indirizzo \"' + queryAddress + '\". Controlla di averlo digitato correttamente.' +
@@ -286,7 +274,6 @@ app.controller('chatCtrl', ['$scope', '$location', '$interval', 'ChatSocket', '$
             $scope.mapcenter.lat = alert.lat;
             $scope.mapcenter.lng = alert.lng;
             $scope.mapcenter.zoom = 15;
-            //var marker = $scope.markers.filter(function(m){return m.id === id})[0];
             var marker = $scope.markers[id];
             marker.opacity = 0.5;
             $timeout(function () {
@@ -377,7 +364,6 @@ app.controller('chatCtrl', ['$scope', '$location', '$interval', 'ChatSocket', '$
 
                         for (var i in joined)
                         {
-                            //$scope.participants.push({nickname: joined[i]});
                             (function(i) {
                                 ProfilePictureResolver.getPicture(joined[i]).then(function (image) {
                                     $scope.participants.push({
@@ -395,8 +381,6 @@ app.controller('chatCtrl', ['$scope', '$location', '$interval', 'ChatSocket', '$
                             return updatedList.indexOf(p.nickname) !== -1;
                         })
                     }
-
-                    //$scope.participants = JSON.parse(message.body).users;
                 });
 
                 /* subscribing to the chat topic */
@@ -430,25 +414,12 @@ app.controller('chatCtrl', ['$scope', '$location', '$interval', 'ChatSocket', '$
                             getMessageScope: function() {return $scope; },
                             icon: {
                                 iconUrl: '../assets/alert-markers/' + alertIcon,
-                                //shadowUrl: '../assets/leaf-shadow.png',
                                 iconSize:     [32, 32],
                                 shadowSize:   [0, 0]},
                             lat: alert.lat,
                             lng: alert.lng,
                             message: '<chat-alert alert="alerts[\'' + alert.id +'\']" quote="quote(id)" submit="sendRate(id,rate)"></chat-alert>'
                         };
-                        /*$scope.markers.push({
-                            id: alert.id,
-                            getMessageScope: function() {return $scope; },
-                            icon: {
-                                iconUrl: '../assets/alert-markers/' + alertIcon,
-                                //shadowUrl: '../assets/leaf-shadow.png',
-                                iconSize:     [32, 32],
-                                shadowSize:   [0, 0]},
-                            lat: alert.lat,
-                            lng: alert.lng,
-                            message: '<chat-alert alert="alerts[\'' + alert.id +'\']" quote="quote(id)" submit="sendRate(id,rate)"></chat-alert>'
-                        });*/
                     });
                 });
 
@@ -476,7 +447,6 @@ app.controller('chatCtrl', ['$scope', '$location', '$interval', 'ChatSocket', '$
                         getMessageScope: function() {return $scope; },
                         icon: {
                             iconUrl: '../assets/alert-markers/' + alertIcon,
-                            //shadowUrl: '../assets/leaf-shadow.png',
                             iconSize:     [32, 32],
                             shadowSize:   [0, 0]},
                         lat: alert.lat,
@@ -487,10 +457,6 @@ app.controller('chatCtrl', ['$scope', '$location', '$interval', 'ChatSocket', '$
 
                 /* sending user join message */
                 chatSocket.send( "/app/join", {}, JSON.stringify({'name': $scope.username,'topicName': $scope.topic}) );
-
-                // chatSocket.subscribe("/user/exchange/amq.direct/errors", function(message) {
-                //     toaster.pop('error', "Error", message.body);
-                // });
 
             }, function(error) {
 
@@ -505,13 +471,6 @@ app.controller('chatCtrl', ['$scope', '$location', '$interval', 'ChatSocket', '$
             chatSocket.close();
         });
     }]);
-
-//function parseMessage(mess){
-//    var message = (JSON.parse(mess.body));
-//    var date = new Date(message.date);
-//    message.date = isToday(date) ? date.toLocaleTimeString() : date.toLocaleString();
-//    $scope.messages.unshift(message);
-//};
 
 function _arrayBufferToBase64( buffer ) {
     var binary = '';
@@ -568,7 +527,6 @@ app.directive('chatMessage', function($compile) {
         '</span>' +
         '<div class="chat-body2 clearfix" ng-switch on="message.alertId">' +
         '<p ng-switch-when="null" ng-bind-html="formatChatMessage(message.message, message.alertId, message.quote, 1)">'+'</p>'+
-        //'<p ng-switch-default>ok'+'{{formatChatMessage(message.message)}}'+'</p>'+
         '<p ng-switch-default ng-click="centerMapOnAlert({id:message.alertId})" ng-bind-html="formatChatMessage(message.message, message.alertId, message.quote, 0)">'+'</p>'
         '<div class="chat_time pull-left">{{message.date}}</div></div></li>';
 
@@ -628,28 +586,6 @@ app.directive('chatAlert', function($compile, $timeout) {
             submit: '&'
         },
         replace: 'true',
-        /*
-        template: "<div><b>" + "{{alert.type.toUpperCase()}}" + "</b>"
-        + " <button ng-click=\"quote({id: alert.id})\">Citami</button><br>"
-        + "{{alert.address}}" + "<br>"
-        + "attivo dal " + "{{printDateTime(alert.recvTimestamp)}}" + "<br>"
-        + "segnalato da " + "{{alert.nickname}}" + "<br>"
-        + "valutazione " + "{{alert.rates.avg}}"
-        + "	<div class=\"stars\" id=\"rating-in-" + "{{alert.id}}" + "\">"
-        + "	<form action=\"\">"
-        + "			<input class=\"star star-5\" id=\"star-5\" type=\"radio\" name=\"star\" value=\"5\" ng-click=\"submit({id: alert.id,rate: 5})\"/>"
-        + "			<label class=\"star star-5\" for=\"star-5\"></label>"
-        + "			<input class=\"star star-4\" id=\"star-4\" type=\"radio\" name=\"star\" value=\"4\" ng-click=\"submit({id: alert.id,rate: 4})\"/>"
-        + "			<label class=\"star star-4\" for=\"star-4\"></label>"
-        + "			<input class=\"star star-3\" id=\"star-3\" type=\"radio\" name=\"star\" value=\"3\" ng-click=\"submit({id: alert.id,rate: 3})\"/>"
-        + "			<label class=\"star star-3\" for=\"star-3\"></label>"
-        + "			<input class=\"star star-2\" id=\"star-2\" type=\"radio\" name=\"star\" value=\"2\" ng-click=\"submit({id: alert.id,rate: 2})\"/>"
-        + "			<label class=\"star star-2\" for=\"star-2\"></label>"
-        + "			<input class=\"star star-1\" id=\"star-1\" type=\"radio\" name=\"star\" value=\"1\" ng-click=\"submit({id: alert.id,rate: 1})\"/>"
-        + "			<label class=\"star star-1\" for=\"star-1\"></label>"
-        + "		</form>"
-        + "	</div>"
-        +"<br></div>",*/
         templateUrl: "/directives/alert.html",
         controller: function($scope) {
 

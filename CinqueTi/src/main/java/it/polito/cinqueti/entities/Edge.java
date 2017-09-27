@@ -90,6 +90,4 @@ public class Edge {
 	public void setLonDst(double lonDst) {
 		this.lonDst = lonDst;
 	}
-	
-	
 }

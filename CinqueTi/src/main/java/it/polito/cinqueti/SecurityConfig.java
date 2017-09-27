@@ -41,15 +41,12 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 	
 	@Override
 	protected void configure(HttpSecurity http) throws Exception {
-		//url
 		 http
          .authorizeRequests()
-//             .antMatchers("/","/css/**","/fonts/**","/js/**","/assets/**", "/register", "/welcome","/webjars/**", "/rest/**").permitAll()
          	 .antMatchers("/profile/**","/chat/**").authenticated()
              .anyRequest().permitAll()
              .and()
          .formLogin()
-         	 //.defaultSuccessUrl("/",true)
              .loginPage("/login")
              .permitAll()
              .and()

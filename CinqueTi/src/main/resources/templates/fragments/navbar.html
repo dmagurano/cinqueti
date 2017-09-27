@@ -21,7 +21,6 @@
 			<ul class="nav navbar-nav navbar-left" ng-controller="HeaderCtrl">
 				<li ng-class="{ active: isActive('/')}"><a href="/#!/">Informazioni Linee</a></li>
 				<li ng-class="{ active: isActive('/calculate')}"><a href="/#!/calculate">Calcolo Percorsi</a></li>
-				<!--         	<li th:class="${activeTab == 'chat'}? 'active' : null"><a href="">Chat e segnalazioni</a></li> -->
 				<li th:class="${activeTab == 'chat'}? 'active dropdown' : 'dropdown'">
 					<a  class="dropdown-toggle" data-toggle="dropdown">Chat e segnalazioni
 						<b class="caret"></b>
@@ -35,20 +34,6 @@
 			</ul>
 
 			<div class="navbar-collapse collapse row" sec:authorize="isAnonymous()" th:if="${showLogin} == null">
-				<!--             <div class="col-md-6 col-md-offset-4"> -->
-				<!--                 <form class="navbar-form navbar-right" role="form" method="POST" th:action="@{/login}"> -->
-				<!--                     <div class="form-group"> -->
-				<!--                         <input type="text" class="form-control input-sm" placeholder="Email address" name="username" required="true" autofocus="true"/> -->
-				<!--                     </div> -->
-				<!--                     <div class="form-group"> -->
-				<!--                         <input type="password" class="form-control input-sm" placeholder="Password" name="password" required="true"/> -->
-				<!--                     </div> -->
-				<!--                     <button type="submit" class="btn btn-primary btn-sm">Sign in</button> -->
-				<!--                 </form> -->
-				<!--             </div> -->
-				<!--             <div class=""> -->
-				<!--                 <a class="navbar-brand" th:href="@{/register}">Sign Up</a> -->
-				<!--             </div> -->
 				<ul class="nav navbar-nav navbar-right">
 
 					<li class="dropdown">
@@ -65,7 +50,6 @@
 											<div class="form-group">
 												<label class="sr-only" for="exampleInputPassword2">Password</label>
 												<input name="password" type="password" class="form-control" id="exampleInputPassword2" placeholder="Password" required="true"/>
-												<!--                                              <div class="help-block text-right"><a href="">Forget the password ?</a></div> -->
 											</div>
 											<div class="form-group">
 												<button type="submit" class="btn btn-primary btn-block">Accedi</button>
@@ -86,21 +70,8 @@
 					</li>
 				</ul>
 			</div>
-			<!--         <div class="navbar-collapse collapse navbar-right" sec:authorize="isAuthenticated()"> -->
-			<!--             <a class="navbar-brand" th:href="@{/logout}"  >Logout</a> -->
-			<!--         </div> -->
 
 			<ul class="nav navbar-nav navbar-right">
-				<!--                 <li th:if="${#authorization.expression('!isAuthenticated()')}"> -->
-				<!--                     <a href="/login" th:href="@{/login}"> -->
-				<!--                         <span class="glyphicon glyphicon-log-in" aria-hidden="true"></span>&nbsp;Sign in -->
-				<!--                     </a> -->
-				<!--                 </li> -->
-				<!--                 <li th:if="${#authorization.expression('!isAuthenticated()')}"> -->
-				<!--                     <a href="/register" th:href="@{/register}"> -->
-				<!--                         Sign Up -->
-				<!--                     </a> -->
-				<!--                 </li> -->
 				<li sec:authorize="isAuthenticated()">
 					<a href="/profile">
 						<span class="glyphicon glyphicon-user" aria-hidden="true"></span>

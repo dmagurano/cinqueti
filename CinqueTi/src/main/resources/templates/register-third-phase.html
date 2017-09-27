@@ -36,7 +36,7 @@
 						<div th:classappend="${#fields.hasErrors('carYear')}? 'has-error'">		        	
 							<label for="carYear" class="radio-inline col-lg-6">Anno Immatricolazione</label>
 							<div class="form-group col-lg-6">
-					        	<input type="number" value="" class="form-control col-lg-6" placeholder="1900-2017" id="registrationYear" min="1900" max="2017" th:field="*{carYear}"/>
+					        	<input type="number" value="" class="form-control col-lg-6" placeholder="1900-2017" id="carYear" min="1900" max="2017" th:field="*{carYear}"/>
 					        </div>
 					        <span class="help-block" th:if="${#fields.hasErrors('carYear')}" th:errors="*{carYear}"></span>
 				        </div>
@@ -44,7 +44,7 @@
 				        <div th:classappend="${#fields.hasErrors('carFuel')}? 'has-error'">
 			        		<label for="carFuel" class="radio-inline col-lg-6">Carburante</label>
 							<div class="form-group col-lg-6">
-				           		<select class="form-control col-lg-6" id="fuelType" th:field="*{carFuel}">
+				           		<select class="form-control col-lg-6" id="carFuel" th:field="*{carFuel}">
 					           		<option value="" selected="selected">Scegli</option>
 					           		
 					           		<option th:each="fuelType : ${fuelTypes}" th:value="${fuelType}">

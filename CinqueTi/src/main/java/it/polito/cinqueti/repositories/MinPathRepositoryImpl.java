@@ -44,6 +44,7 @@ public class MinPathRepositoryImpl implements MinPathRepositoryCustom {
 		minP.setIdSource(best_doc.getString("idSource"));
 		minP.setIdDestination(best_doc.getString("idDestination"));
 		
+		@SuppressWarnings("unchecked")
 		List<Document> edges_docs = (List<Document>) best_doc.get("edges");
  	    List<Edge> edges = new ArrayList<Edge>();
  	    for(Document d: edges_docs)

@@ -35,7 +35,6 @@ public class ChatController implements ApplicationListener<ApplicationEvent> {
 	
 	
 	  @MessageMapping("/join") 
-	  //@SendTo("/topic/presence")
 	  public void join(
 			  MessageHeaders hs,
 			  @Payload JoinMessage msg, Principal principal) {
@@ -63,7 +62,6 @@ public class ChatController implements ApplicationListener<ApplicationEvent> {
 	  }
 	  
 	  @MessageMapping("/chat") 
-	  //@SendTo("/topic/chat")
 	  public void sendMessage(
 			  MessageHeaders hs, 						
 			  ChatMessage chatMessage) {
@@ -79,7 +77,6 @@ public class ChatController implements ApplicationListener<ApplicationEvent> {
 	  }
 	  
 	  @MessageMapping("/rate") 
-	  //@SendTo("/topic/chat")
 	  public void rateAlert(
 			  MessageHeaders hs, 						
 			  ChatRate chatRate) {

@@ -9,8 +9,6 @@ import it.polito.cinqueti.entities.Alert;
 import it.polito.cinqueti.entities.Rate;
 
 public class AlertRepositoryImpl implements AlertRepositoryCustom {
-	//@Autowired
-	//MongoOperations mongoOperations;
 	
 	@Autowired
 	AlertRepository alertRepository;

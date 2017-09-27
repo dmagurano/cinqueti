@@ -29,9 +29,7 @@
 					<ul ng-repeat="user in participants" id="usersList" class="list-unstyled">
 						<li  class="left clearfix"> 
 							<span class="chat-img pull-left">
-			 					<!--<img src="http://icons.iconarchive.com/icons/custom-icon-design/pretty-office-8/128/User-blue-icon.png" alt="User Avatar" class="img-circle"/>-->
-								<!--<img ng-src="https://localhost:8443/rest/users/{{user.nickname}}/image" class="img-circle" alt="..."/>-->
-								<img ng-src="data:image/JPG;base64,{{user.picture}}" class="img-circle" alt="..."/>
+			 					<img ng-src="data:image/JPG;base64,{{user.picture}}" class="img-circle" alt="..."/>
 							</span>
 			 				<div class="chat-body clearfix">
 								<div class="header_sec">
@@ -109,7 +107,6 @@
 					</div>
 					<div class="clearfix"></div>
 					<div class="chat_bottom">
-						<!--<a class="pull-left upload_btn"><i class="fa fa-cloud-upload" aria-hidden="true"></i>Add Image</a>-->
 						<div class="pull-right btn-group row">
 							<div class="col-md-3"></div>
 							<div class="col-md-3"><a id="alertBtn" ng-click="showAddressModal()" class="btn btn-info">Segnala</a></div>
@@ -136,10 +133,6 @@
 
 		</div>
 	</div>
-	<!--<button id="helpBtn" title="Aiuto" class="btn btn-info btn-circle btn-lg"><i class="glyphicon glyphicon-question-sign" style="vertical-align:middle"></i></button>-->
-	<!--
-	<a id="helpBtn" class="btn btn-info btn-md help-btn" role="button" data-toggle="tooltip" data-placement="left" ng-click="focusOnHelp()">Aiuto</a>
-	-->
 
 
 	

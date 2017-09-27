@@ -4,10 +4,7 @@ import java.io.Serializable;
 
 import javax.persistence.*;
 
-import org.hibernate.annotations.Type;
-
 import com.vividsolutions.jts.geom.Geometry;
-import com.vividsolutions.jts.geom.Point;
 
 @Entity
 @Table(name="geobusstop")
@@ -15,9 +12,6 @@ public class GeoBusStop implements Serializable{
 	
 	// NOTE: no foreign key depency in the db
 	
-	/**
-	 * 
-	 */
 	private static final long serialVersionUID = 1L;
 
 	@Id

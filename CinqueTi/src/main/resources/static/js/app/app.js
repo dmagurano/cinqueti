@@ -24,10 +24,8 @@ app.config(function ($routeProvider, $locationProvider) {
             controller: 'MainCtrl',
             controllerAs: 'ctrl'
         })
-    //.otherwise({ redirectTo: "/" });
+    .otherwise({ redirectTo: "/" });
 
-    // configure html5 to get links working on jsfiddle
-    //$locationProvider.html5Mode(true);
 });
 
 app.controller('HeaderCtrl', [ '$scope', '$location', '$window',
@@ -36,9 +34,10 @@ app.controller('HeaderCtrl', [ '$scope', '$location', '$window',
             return viewLocation === $location.path();
         };
         // TODO remove this
+        /*
         $scope.chatOpen = function (topic) {
             $window.location.href = "/chat/#!/" + topic;
         }
-
+        */
 
     }]);

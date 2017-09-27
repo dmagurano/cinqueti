@@ -30,7 +30,6 @@ import it.polito.cinqueti.entities.MinPath;
 import it.polito.cinqueti.entities.Topic;
 import it.polito.cinqueti.entities.User;
 import it.polito.cinqueti.errorhandlers.ResourceNotFoundException;
-import it.polito.cinqueti.entities.OSMDecodedAddress;
 import it.polito.cinqueti.services.BusStopService;
 import it.polito.cinqueti.services.LineService;
 import it.polito.cinqueti.services.MessageService;
@@ -51,9 +50,7 @@ public class LinesRestController {
 	private PathService pathService;
 	
 	
-	// read both topics and the default elementsPerPage from the application.properties file
-	@Value("#{'${topics}'.split(',')}")
-	private List<String> topics;
+	// read the default elementsPerPage from the application.properties file
 	@Value("#{'${rest.elementsPerPage}'}")
 	private Integer elementsPerPage;
 	
@@ -81,25 +78,6 @@ public class LinesRestController {
 			// This solution allows to navigate between the page with the given urls
 			return res.getContent();
 		}
-	
-	
-	
-	
-	// method used to retrieve the list of lines
-	/*@RequestMapping(value="/rest/lines", method=RequestMethod.GET)
-	public List<BusLine> getLines()
-	{	
-//		List<BusLine> l = lineService.findAll();
-//		List<BusLine> bl = new ArrayList<BusLine>();
-//		int i = 0;
-//		for(BusLine lin: l){
-//			bl.add(lin);
-//			i++;
-//			if(i == 40)
-//				break;
-//		}
-		return lineService.findAll();
-	}*/
 	
 	@RequestMapping(value="/rest/stops", method=RequestMethod.GET)
 	public List<BusStop> getStps()
@@ -153,15 +131,9 @@ public class LinesRestController {
 			@RequestParam("dstLat") Double dstLat,
 			@RequestParam("dstLong") Double dstLong)
 	{
-		//return pathService.getPath(45.067397, 7.646947, 45.062079, 7.678479);
 		
 		return pathService.getPath(srcLat, srcLong, dstLat, dstLong);
 		
 	}
-	
-	@RequestMapping(value="/rest/address", method=RequestMethod.GET)
-	public List<DecodedAddress> getAddresses(@RequestParam String address)
-	{
-		return lineService.getAddressInformation(address);
-	}
+		
 }

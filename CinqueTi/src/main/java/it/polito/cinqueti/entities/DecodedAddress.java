@@ -32,37 +32,5 @@ public class DecodedAddress {
 		this.address = address;
 	}
 	public DecodedAddress() {}
-	/*
-
-	private String address;
 	
-	private Float score;
-
-	
-
-	public String getAddress() {
-		return address;
-	}
-
-	public void setAddress(String address) {
-		this.address = address;
-	}
-
-	public Float getScore() {
-		return score;
-	}
-
-	public void setScore(Float score) {
-		this.score = score;
-	}
-
-	public DecodedAddress(String address, Float score) {
-		super();
-
-		this.address = address;
-		this.score = score;
-	}
-	
-	public DecodedAddress() {}
-	*/
 }

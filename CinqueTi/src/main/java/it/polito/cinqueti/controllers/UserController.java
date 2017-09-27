@@ -57,9 +57,6 @@ public class UserController {
     @Value("#{'${user.pubTransport}'.split(',')}")
 	private List<String> pubTransports;
     
-//    @Value("#{'${topics}'.split(',')}")
-//	private List<String> topics;
-    
     // two phase registration
     // http://blog.codeleak.pl/2014/08/validation-groups-in-spring-mvc.html
     
@@ -346,10 +343,6 @@ public class UserController {
         if (error != null)
             model.addAttribute("error", "Your username and password is invalid.");
 
-        // not used, as after logout user is redirected to home page
-        //if (logout != null)
-        //    model.addAttribute("message", "You have been logged out successfully.");
-
         return "login";
     }
     
@@ -358,7 +351,6 @@ public class UserController {
     	User currentUser = userService.findByEmail(securityService.findLoggedInUsername());
     	
     	model.addAttribute("user", currentUser);
-//    	model.addAttribute("topics", topics);
     	
         return "profile";
     }

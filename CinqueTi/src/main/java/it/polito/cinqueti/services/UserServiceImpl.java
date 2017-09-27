@@ -32,8 +32,7 @@ public class UserServiceImpl implements UserService {
 	public void saveUser(User user){
     	List<String> roles = new ArrayList<String>();
     	roles.add("ROLE_USER");
-    	
-        //user.setPassword(bCryptPasswordEncoder.encode(user.getPassword()));
+
         user.setAuthorities(roles);
         
         userRepository.save(user);
@@ -107,15 +106,6 @@ public class UserServiceImpl implements UserService {
 	public VerificationToken getVerificationToken(String token) {
 		return verificationTokenRepository.findByToken(token);
 	}
-
-	/*
-	@Override
-	public User getUser(String verificationToken) {
-		String userId = verificationTokenRepository.findByToken(verificationToken).getUser().getId();
-		
-		return userRepository.findById(userId);
-	}
-	*/
 
 	@Override
 	public void saveVerificationToken(User user, String token) {

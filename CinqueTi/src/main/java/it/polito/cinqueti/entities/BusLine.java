@@ -5,10 +5,6 @@ import java.util.List;
 
 import javax.persistence.*;
 
-import org.springframework.hateoas.ResourceSupport;
-
-import com.fasterxml.jackson.annotation.JsonCreator;
-
 @Entity
 @Table(name="busline")
 public class BusLine{

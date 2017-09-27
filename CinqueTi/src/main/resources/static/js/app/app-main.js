@@ -35,13 +35,10 @@ app.controller('MainCtrl', [ '$scope', 'LinesDataProvider', 'leafletBoundsHelper
         };
 
 
-            //Use cache to store the lines when they are downloaded. This to avoid to download
+        //Use cache to store the lines when they are downloaded. This to avoid to download
         // them again when the view changes
 
         var cache = linesCache;
-        var completed_download = false;
-
-
 
         if(angular.isUndefined(cache.get('lines'))){
 
@@ -90,7 +87,7 @@ app.controller('MainCtrl', [ '$scope', 'LinesDataProvider', 'leafletBoundsHelper
         };
 
         $scope.$on('leafletDirectiveMarker.click', function(e, args) {
-            clickedBusStopId = args.model.id;
+            var clickedBusStopId = args.model.id;
 
                 LinesDataProvider.queryBusStop.query({stop: clickedBusStopId},function(busStopLines){
 
@@ -110,11 +107,6 @@ app.controller('MainCtrl', [ '$scope', 'LinesDataProvider', 'leafletBoundsHelper
 
 
         $scope.buttonClick = function(direction){
-
-            /*//Clear map
-            $scope.paths = {};
-            $scope.markers = {};*/
-
             var PathInfo = LinesDataProvider.loadPath($routeParams.lineID,direction);
             $scope.paths = PathInfo.paths;
             $scope.markers = PathInfo.markers;
@@ -170,7 +162,6 @@ app.factory('LinesDataProvider', ['$resource', '$filter',
 
                 var direction = "going";
                 var requestedDirection = reqDir;
-                var goingPhase = true;
                 var firstElement = true;
                 var firstBusId;
                 var lastProcessedBusId;
@@ -262,9 +253,9 @@ app.factory('LinesDataProvider', ['$resource', '$filter',
                     // https://github.com/pointhi/leaflet-color-markers
                     var iconUrl;
                     if (direction == "going")
-                        iconUrl = 'https://cdn.rawgit.com/pointhi/leaflet-color-markers/master/img/marker-icon-green.png';
+                        iconUrl = '../assets/marker-icon-green.png';
                     else
-                        iconUrl = 'https://cdn.rawgit.com/pointhi/leaflet-color-markers/master/img/marker-icon-blue.png';
+                        iconUrl = '../assets/marker-icon-blue.png';
 
                     var marker = {
                         lat: point.lat,
@@ -303,26 +294,3 @@ app.factory('LinesDataProvider', ['$resource', '$filter',
         };
     }
 ]);
-
-app.directive('myDirective', function () {
-  /*
-  return {
-
-  };
-  */
-});
-
-/*
-app.filter('linesFilter', function () {
-	  return function (items,searchLine) {
-	    var filtered = [];
-	    
-	    for (var i = 0; i < items.length; i++) {
-	      var item = items[i];
-	      if (searchLine === item.line) {
-	        filtered.push(item);
-	      }
-	    }
-	    return filtered;
-	  };
-});*/

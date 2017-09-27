@@ -9,7 +9,9 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 @Entity
 @Table(name="buslinestop")
 public class BusLineStop implements Serializable {
-	
+
+	private static final long serialVersionUID = 1L;
+
 	@Column(nullable=false)
 	private Short seqencenumber;
 
