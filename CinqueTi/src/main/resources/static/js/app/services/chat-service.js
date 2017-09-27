@@ -1,3 +1,4 @@
+// convert a byte array image to a base64-encoded image
 function _arrayBufferToBase64( buffer ) {
     var binary = '';
     var bytes = new Uint8Array( buffer );
@@ -12,7 +13,7 @@ function updateChat() {
     var chatdiv = $('.chat_area');
     chatdiv.scrollTop(chatdiv.get(0).scrollHeight);
 }
-
+// calc the avg rate
 function printRates(rates) {
     var sum = 0
     if(rates.length === 0)

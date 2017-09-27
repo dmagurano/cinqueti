@@ -28,6 +28,7 @@ app.directive('chatMessage', function($compile) {
             user: '=user'
         },
         controller: function($scope, $sce) {
+            // replace "[ ... ]" with the right label tag
             $scope.formatChatMessage = function(textMsg, id, quoting, old) {
                 if (quoting === true)
                     textMsg = textMsg.replace("[", "<span class=\"label label-info with-hand\">");
@@ -43,6 +44,7 @@ app.directive('chatMessage', function($compile) {
         replace: 'true',
         compile: function(tElem, tAttr) {
             return function(scope, el, attr, ctrl, trans) {
+                // compile a different template based on user source
                 if (scope.message.username != scope.$parent.$parent.username) {
                     var mess = $compile(received)(scope);
                     el.append(mess);
