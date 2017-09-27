@@ -18,7 +18,6 @@ app.config(function ($routeProvider, $locationProvider) {
             controllerAs: 'ctrl'
         })
     .otherwise({ redirectTo: "/" });
-
 });
 
 app.controller('HeaderCtrl', [ '$scope', '$location', '$window',
@@ -26,11 +25,5 @@ app.controller('HeaderCtrl', [ '$scope', '$location', '$window',
         $scope.isActive = function (viewLocation) {
             return viewLocation === $location.path();
         };
-        // TODO remove this
-        /*
-        $scope.chatOpen = function (topic) {
-            $window.location.href = "/chat/#!/" + topic;
-        }
-        */
-
-    }]);
+    }
+]);

@@ -42,20 +42,14 @@ app.controller('MainCtrl', [ '$scope', 'LinesDataProvider', 'leafletBoundsHelper
 
         if(angular.isUndefined(cache.get('lines'))){
 
-
-
             LinesDataProvider.lines_request(page,per_page).then(
                 function(res){
 
                     self.pull_lines(res,page,per_page);
                 });
 
-
-
         }else
             this.lines = cache.get('lines');
-
-
 
         // updates route
         this.goToLink = function(line) {
@@ -101,19 +95,13 @@ app.controller('MainCtrl', [ '$scope', 'LinesDataProvider', 'leafletBoundsHelper
                 popup.setContent("<span style='color: #2795e7;'><strong>"+"FERMATA  "+"</strong></span><strong>" + clickedBusStopId + "</strong>" + busStopLinesHTML);
 
             });
-
-
         });
-
 
         $scope.buttonClick = function(direction){
             var PathInfo = LinesDataProvider.loadPath($routeParams.lineID,direction);
             $scope.paths = PathInfo.paths;
             $scope.markers = PathInfo.markers;
             $scope.bounds = leafletBoundsHelpers.createBoundsFromArray(PathInfo.bounds);
-
         }
-
-
     }
 ]);

@@ -53,5 +53,4 @@ app.directive('chatMessage', function($compile) {
             }
         }
     };
-
 });

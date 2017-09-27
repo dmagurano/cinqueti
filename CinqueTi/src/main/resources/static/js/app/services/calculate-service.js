@@ -28,9 +28,7 @@ app.factory('PathsDataProvider', [ '$http',
                         });
                     }, 5000);
             });
-
         }
-
 
         return {
             setSource: function(src){
@@ -59,7 +57,6 @@ app.factory('PathsDataProvider', [ '$http',
                     else {
 
                         //Parse response to get source lat and long
-
                         //Get only first element
 
                         srcLat = srcData.data.candidates[0].location.y;
@@ -68,12 +65,9 @@ app.factory('PathsDataProvider', [ '$http',
                         return $http.get(destination);
                     }
 
-
-
                 }).then(function destinationSuccessCallback(dstData){
 
                     //Get lat and long for destination address
-
                     //Check if the address exists
 
                     if (dstData.data.candidates.length == 0){
@@ -278,14 +272,10 @@ app.factory('PathsDataProvider', [ '$http',
                         [min_lat, min_lng]
                     ];
 
-
                     PathInfo.polylines = polylines;
                     PathInfo.markers = markers;
 
                     return PathInfo;
-
-
-
 
                 }).catch(function errorCallback(error){
 
@@ -297,13 +287,8 @@ app.factory('PathsDataProvider', [ '$http',
                         });
                     }, 5000);
                 });
-
-
             },
-
             getSuggestions: getSuggestions
-
-
         };
     }
 ]);
@@ -363,5 +348,4 @@ function initialize_map(self){
             labels: [ 'A piedi', 'Bus' ]
         }
     });
-
 }

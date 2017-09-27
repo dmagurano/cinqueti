@@ -7,6 +7,7 @@ app.config(function ($routeProvider,$compileProvider) {
             controller: 'chatCtrl'
 
         });
+        
     $compileProvider.aHrefSanitizationWhitelist(/^\s*(https?|file|ftp|blob):|data:image\//);
 });
 
@@ -15,11 +16,5 @@ app.controller('HeaderCtrl', [ '$scope', '$location','$window',
         $scope.isActive = function (viewLocation) {
             return viewLocation === $location.path();
         };
-        // TODO remove this
-        /*
-        $scope.chatOpen = function (topic) {
-            $window.location.href = "/chat/#!/" + topic;
-        };
-        */
-
-    }]);
+    }
+]);

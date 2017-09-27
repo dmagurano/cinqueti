@@ -157,8 +157,6 @@ app.factory('LinesDataProvider', ['$resource', '$filter',
                     markers["busStop"+stop.id] = marker;
                 }
 
-
-
                 PathInfo.bounds = [
                                     [max_lat, max_lng],
                                     [min_lat, min_lng]
