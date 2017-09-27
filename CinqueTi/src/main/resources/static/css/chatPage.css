@@ -38,6 +38,10 @@
     cursor: pointer;
 }
 
+.leaflet-right .leaflet-control {
+    zoom: 0.8;
+}
+
 .legend {
     padding: 6px 8px;
     width: 100px;
