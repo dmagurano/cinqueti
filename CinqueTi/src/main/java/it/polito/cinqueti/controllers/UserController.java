@@ -88,8 +88,8 @@ public class UserController {
 	        	return "redirect:register-first-phase";
 			}
 			
+			// generate random token
 			token = UUID.randomUUID().toString();
-			
     		userService.saveVerificationToken(user, token);
     		
     		if (mailService.sendConfirmationEmail(user.getEmail(), token) == false){
@@ -214,6 +214,8 @@ public class UserController {
     		databaseUser.setJob(user.getJob());
     		
     		databaseToken.setUser(databaseUser);
+    		
+    		// updating verification token on database
             userService.updateVerificationToken(databaseToken);
         	
         	redirectAttributes.addAttribute("token", token);
@@ -332,7 +334,9 @@ public class UserController {
     		databaseUser.setPubTransport(user.getPubTransport());
     		databaseUser.setEnabled(true);
         	
+    		// saving user
         	userService.saveUser(databaseUser);
+        	// removing verification token
             userService.removeVerificationToken(databaseToken);
         	
             // auto login for registered user
@@ -356,7 +360,7 @@ public class UserController {
     		String logout) {
     	
         if (error != null)
-            model.addAttribute("error", "Your username and password is invalid.");
+            model.addAttribute("error", "Credenziali non valide.");
 
         return "login";
     }
