@@ -37,15 +37,18 @@ public class MinPathRepositoryImpl implements MinPathRepositoryCustom {
 		// compose the final filter
 		Bson resFilter = Filters.and(Filters.or(sFilters), Filters.or(dFilters));
 		
-		
+		//Get the document that represent the best path
 		Document best_doc = mc.find(resFilter).sort(sort).limit(1).into(new ArrayList<Document>()).get(0);
 	
 		MinPath minP = new MinPath();
 		minP.setIdSource(best_doc.getString("idSource"));
 		minP.setIdDestination(best_doc.getString("idDestination"));
 		
+		//Get all edges involved in the best path
 		@SuppressWarnings("unchecked")
 		List<Document> edges_docs = (List<Document>) best_doc.get("edges");
+		
+		//build the Edge objects to add to the MinPath object
  	    List<Edge> edges = new ArrayList<Edge>();
  	    for(Document d: edges_docs)
  	    {

@@ -26,27 +26,27 @@ public class PathServiceImpl implements PathService {
 	@Autowired
 	private GeoBusStopRepository geoBusStopRepository;
 	
-	private int ratio = 250;
+	private int ratio = 250; //used to search around 250 meters bus stops
 	
 	@Override
 	public List<Edge> getPath(Double sLat, Double sLng, Double dLat, Double dLng) {
 		
-		//0) check the validity of the params
+		//0) check the validity of the passed parameters
 		if (sLng < -180.0 || sLng > 180.0 || sLat < -90.0 || sLat > 90.0 
 				|| dLng < -180.0 || dLng > 180.0 || dLat < -90.0 || dLat > 90.0)
 			return null;
 		
-		//1) search the stops around the src
+		//1) search the stops around the source point
 		String wktPoint = new String("POINT(" + sLng + " " + sLat + ")");
 		Geometry point = wktToGeometry(wktPoint);
 		List<GeoBusStop> src_gstops = geoBusStopRepository.getStopAroundSrc(point, ratio);
 		
-		//2) search the stops around the dst
+		//2) search the stops around the destination point
 		wktPoint = new String("POINT(" + dLng + " " + dLat + ")");
  		point = wktToGeometry(wktPoint);
  		List<GeoBusStop> dst_gstops = geoBusStopRepository.getStopAroundDestination(point, ratio);
 		
- 		//3) search the best path
+ 		//3) search the best path and return all the edges of this path
  		
  		List<Bson> sFilters = new ArrayList<Bson>();
  	    for (GeoBusStop s: src_gstops)
@@ -61,7 +61,7 @@ public class PathServiceImpl implements PathService {
 		
 	}
 	
-	
+	//Function for convertion
 	private Geometry wktToGeometry(String wktPoint) {
         WKTReader fromText = new WKTReader();
         Geometry geom = null;

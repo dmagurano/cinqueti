@@ -81,16 +81,21 @@ public class LineServiceImpl implements LineService {
 		return filtered;
 	}
 
+	//Used to get all lines by means of pagination
 	@Override
 	public Page<BusLine> findAll(Integer page, Integer per_page) {
-			// build a pageable object, used to specify the query paging params
-				PageRequest pageReq = new PageRequest(page,per_page);
-				// execute the query
-				Page<BusLine> pageRes = lineRepository.findAll(pageReq);
-				// if the user asks for a page X that is greater than the total number of pages in the db, return empty response
-				if (page > pageRes.getTotalPages())
-					return null;
-				return pageRes;
+		
+		// build a pageable object, used to specify the query paging parameters
+		PageRequest pageReq = new PageRequest(page,per_page);
+		
+		// execute the query
+		Page<BusLine> pageRes = lineRepository.findAll(pageReq);
+		
+		//if the user asks for a page X that is greater than the total number 
+		//of pages in the db, return empty response
+		if (page > pageRes.getTotalPages())
+			return null;
+		return pageRes;
 	}
 
 }
