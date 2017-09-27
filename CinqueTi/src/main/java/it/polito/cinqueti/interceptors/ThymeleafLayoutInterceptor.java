@@ -20,6 +20,8 @@ public class ThymeleafLayoutInterceptor extends HandlerInterceptorAdapter {
         return viewName.startsWith("redirect:") || viewName.startsWith("forward:");
     }
     
+    // add chat topics to all views
+    // except redirected or forwarded views
     @Override
     public void postHandle(
     		HttpServletRequest request, 
@@ -35,7 +37,6 @@ public class ThymeleafLayoutInterceptor extends HandlerInterceptorAdapter {
         if (isRedirectOrForward(originalViewName))
             return;
       
-    	// here add all attributes in common in each page
     	modelAndView.getModelMap().addAttribute("topics", topics);
     }    
 }

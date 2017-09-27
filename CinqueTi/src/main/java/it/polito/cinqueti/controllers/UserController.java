@@ -10,8 +10,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
-import org.springframework.validation.FieldError;
-import org.springframework.validation.ObjectError;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -63,6 +61,7 @@ public class UserController {
     @RequestMapping(value = {"/register-first-phase"}, method = RequestMethod.GET)
     public String getRegister(Model model) {
     	if (!model.containsAttribute("org.springframework.validation.BindingResult.user"))
+        	// the request is not a redirect
     		model.addAttribute("user", new User());
     	
         return "register-first-phase";
@@ -82,6 +81,7 @@ public class UserController {
             return "redirect:register-first-phase";
     	}
     	else{
+    		// email already in user or in verificationToken collection
 			if (userService.emailIsTaken(user.getEmail())){
 				redirectAttributes.addFlashAttribute("exceptionMessage", "Indirizzo email già in uso. Cambiare indirizzo email.");
 	        	
@@ -93,6 +93,7 @@ public class UserController {
     		userService.saveVerificationToken(user, token);
     		
     		if (mailService.sendConfirmationEmail(user.getEmail(), token) == false){
+    			// if sending the email fails, we clear verificationToken
     			userService.removeVerificationToken(userService.getVerificationToken(token));
     			
             	redirectAttributes.addFlashAttribute("exceptionMessage", "Ci sono stati dei problemi "
@@ -115,6 +116,7 @@ public class UserController {
     		RedirectAttributes redirectAttributes){
     	
     	if (!model.containsAttribute("org.springframework.validation.BindingResult.user")){
+        	// the request is not a redirect
     		VerificationToken databaseToken = getDatabaseToken(token);
     		
     		if (databaseToken == null){
@@ -130,7 +132,8 @@ public class UserController {
     	
     	model.addAttribute("token", token);
 
-    	fillSecondPhaseModel(model);
+    	model.addAttribute("educationLevels", educationLevels);
+    	model.addAttribute("jobs", jobs);
     	
     	return "register-second-phase";
     }
@@ -160,6 +163,7 @@ public class UserController {
             return "redirect:register-second-phase";
     	}
     	else if(userService.findByNickname(user.getNickname()) != null){
+    		// new nickname is used by another user
     		bindingResult.rejectValue("nickname", "user.registration.nicknameAlreadyInUse");
             
     		redirectAttributes.addFlashAttribute("org.springframework.validation.BindingResult.user", bindingResult);
@@ -168,6 +172,7 @@ public class UserController {
             return "redirect:register-second-phase";
     	}
     	else if ( !educationLevels.contains(user.getEducation())){
+    		// invalid education
     		bindingResult.rejectValue("education", "user.registration.invalidEducation");
             
     		redirectAttributes.addFlashAttribute("org.springframework.validation.BindingResult.user", bindingResult);
@@ -176,6 +181,7 @@ public class UserController {
         	return "redirect:register-second-phase";
     	}
     	else if ( !jobs.contains(user.getJob())){
+    		// invalid job
     		bindingResult.rejectValue("job", "user.registration.invalidJob");
             
     		redirectAttributes.addFlashAttribute("org.springframework.validation.BindingResult.user", bindingResult);
@@ -187,6 +193,7 @@ public class UserController {
     		byte[] image = parseImage(file);
     		
     		if (image == null){
+        		// file is not an image
                 bindingResult.rejectValue("image", "user.registration.invalidImage");
                 
         		redirectAttributes.addFlashAttribute("org.springframework.validation.BindingResult.user", bindingResult);
@@ -195,6 +202,7 @@ public class UserController {
             	return "redirect:register-second-phase";
     		}
     		else{
+    			// file is an image or is empty
     			if (image.length > 0)
             		databaseUser.setImage(image);
     		}
@@ -221,6 +229,7 @@ public class UserController {
     		Model model){
     	
     	if (!model.containsAttribute("org.springframework.validation.BindingResult.user")){
+        	// the request is not a redirect
 	    	User databaseUser = getDatabaseToken(token).getUser();
 	    	
 	    	if (databaseUser == null){
@@ -234,7 +243,9 @@ public class UserController {
     	
     	model.addAttribute("token", token);
 
-    	fillThirdPhaseModel(model);
+    	model.addAttribute("fuelTypes", fuelTypes);
+    	model.addAttribute("passTypes", pubTransports);
+    	model.addAttribute("carSharingServices", carSharingServices);
     	
     	return "register-third-phase";
     }
@@ -263,6 +274,7 @@ public class UserController {
             return "redirect:register-third-phase";
     	}
     	else if( !(user.getCarYear() == null && user.getCarFuel().isEmpty()) ){
+    		// car attributes are present, validating
     		boolean valid = true;
     		
     		if (user.getCarYear() == null){    		
@@ -295,6 +307,7 @@ public class UserController {
     	}
     	
     	if ( !carSharingServices.contains(user.getCarSharing()) ){
+    		//invalid car sharing service
             bindingResult.rejectValue("carSharing", "user.registration.invalidCarSharing");
             
     		redirectAttributes.addFlashAttribute("org.springframework.validation.BindingResult.user", bindingResult);
@@ -303,6 +316,7 @@ public class UserController {
         	return "redirect:register-third-phase";
     	}
     	else if ( !pubTransports.contains(user.getPubTransport()) ){
+    		//invalid public transport
             bindingResult.rejectValue("pubTransport", "user.registration.invalidPubTransport");
             
     		redirectAttributes.addFlashAttribute("org.springframework.validation.BindingResult.user", bindingResult);
@@ -321,6 +335,7 @@ public class UserController {
         	userService.saveUser(databaseUser);
             userService.removeVerificationToken(databaseToken);
         	
+            // auto login for registered user
         	securityService.autologin(databaseUser.getUsername(), databaseUser.getConfirmedPassword());
         	
         	redirectAttributes.addFlashAttribute("successMessage", "Registrazione completata con successo.");
@@ -362,6 +377,7 @@ public class UserController {
     	
     	User currentUser = userService.findByEmail(securityService.findLoggedInUsername());
     	
+    	// validating nickname
     	if (newNickname.length() == 0){
     		redirectAttributes.addFlashAttribute("exceptionMessage", "Il nickname deve essere di almeno 1 carattere.");
     	}
@@ -389,6 +405,7 @@ public class UserController {
     	
     	User currentUser = userService.findByEmail(securityService.findLoggedInUsername());
     	
+    	// validating old and new password
     	if (oldPassword.length() == 0 || newPassword.length() == 0 || newPasswordConfirmed.length() == 0){
     		redirectAttributes.addFlashAttribute("exceptionMessage", "Le password non possono essere vuote.");
     	}
@@ -420,14 +437,17 @@ public class UserController {
     	
     	User currentUser = userService.findByEmail(securityService.findLoggedInUsername());
     	
+    	// validating image
     	byte[] image = parseImage(file);
 		
 		if (image == null){
+			// invalid image
 			redirectAttributes.addFlashAttribute("exceptionMessage", "Immagine non valida.");
             
         	return "redirect:profile";
 		}
 		else{
+			// valid or empty image
 			if (image.length > 0)
 	        	currentUser.setImage(image);
 			else
@@ -442,6 +462,7 @@ public class UserController {
     }
     
     private VerificationToken getDatabaseToken(String token){
+    	// retrieve token from database
     	VerificationToken databaseToken = userService.getVerificationToken(token);
     	
     	if ( databaseToken == null)
@@ -460,6 +481,7 @@ public class UserController {
     	String mimeType = null;
     	byte[] image = null;
     	
+    	// file is empty
     	if (multipartFile.isEmpty())
     		return new byte[0];
     	
@@ -477,16 +499,5 @@ public class UserController {
 		}
     	
     	return image;
-    }
-    
-    private void fillSecondPhaseModel(Model model){
-    	model.addAttribute("educationLevels", educationLevels);
-    	model.addAttribute("jobs", jobs);
-    }
-    
-    private void fillThirdPhaseModel(Model model){
-    	model.addAttribute("fuelTypes", fuelTypes);
-    	model.addAttribute("passTypes", pubTransports);
-    	model.addAttribute("carSharingServices", carSharingServices);
     }
 }

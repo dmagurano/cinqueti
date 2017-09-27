@@ -24,7 +24,9 @@ public class MailConfig {
 	
 	@Bean
 	public JavaMailSender getJavaMailSender() {
+		// bean used to send confirmation email in registration phase
 	    JavaMailSenderImpl mailSender = new JavaMailSenderImpl();
+	    
 	    mailSender.setHost("smtp.gmail.com");
 	    mailSender.setPort(587);
 	     

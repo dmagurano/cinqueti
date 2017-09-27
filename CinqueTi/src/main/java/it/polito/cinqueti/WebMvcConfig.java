@@ -15,6 +15,7 @@ public class WebMvcConfig extends WebMvcConfigurerAdapter {
 
 	@Override
 	public void addInterceptors(InterceptorRegistry registry) {
+		// adding interceptor in order to pass to all pages the chat topics
 		registry.addInterceptor(thymeleafLayoutInterceptor);
 	}
 }
