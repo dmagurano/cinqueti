@@ -40,6 +40,7 @@ public class UserServiceImpl implements UserService {
     
 	@Override
     public boolean emailIsTaken(String email) {
+		// check if email is present in user
         User user = this.findByEmail(email);
         
         if (user != null) {
@@ -48,7 +49,8 @@ public class UserServiceImpl implements UserService {
         else{
         	user = new User();
         	user.setEmail(email);
-        	
+
+    		// check if email is present in verificationToken
         	VerificationToken databaseToken = verificationTokenRepository.findByEmail(email);
         	
         	if (databaseToken != null)
