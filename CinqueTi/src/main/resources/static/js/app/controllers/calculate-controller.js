@@ -21,10 +21,12 @@ app.controller('CalculateController', ['$scope', 'PathsDataProvider', 'leafletBo
             }
         });
 
-        $scope.pathDetailsVisibility = true;
-        $scope.pathDetails = PathsDataProvider.getPathDetails();
-        $scope.source = '';
-        $scope.destination = '';
+        $scope.pathDetailsVisibility = true; //Show the box for path details
+        $scope.pathDetails = PathsDataProvider.getPathDetails();  //Show the path details
+        $scope.source = '';  //scope variable that will fill with the source address by the user
+        $scope.destination = '';   //scope variable that will fill with the destination address by the user
+        
+        //Calculate and show the best path from source to destination
         this.calculate = function(){
 
 
@@ -35,10 +37,10 @@ app.controller('CalculateController', ['$scope', 'PathsDataProvider', 'leafletBo
                 markers: {}
             });
 
-            //Use Nominatim service to get lat and long for the address
+            //If you want to use Nominatim service to get lat and long for the address
             //var pathPrefix = "https://nominatim.openstreetmap.org/search?q=";
 
-            //Use ArcGis service to get lat ando long for the address
+            //Use ArcGis service to get latitude and longitude for the address
             var pathPrefix = "https://geocode.arcgis.com/arcgis/rest/services/World/GeocodeServer/findAddressCandidates?SingleLine=";
 
 
@@ -49,14 +51,15 @@ app.controller('CalculateController', ['$scope', 'PathsDataProvider', 'leafletBo
             //build destination query by replacing space for +
             var dst_addr = $scope.destination.replace(/ /g, "+");
 
+            //The searchExtent parameter limits the search around the Torino area (e.g. Torino,Grugliasco, Rivoli ecc.)
             var postfix = "&category=&outFields=*&forStorage=false&f=pjson&searchExtent=7.465761,44.948028,7.875002,45.163394&sourceCountry=ITA";
 
-            PathsDataProvider.setSource(pathPrefix+src_addr+postfix);  //add ArcGis suffix
-            PathsDataProvider.setDestination(pathPrefix+dst_addr+postfix);
+            PathsDataProvider.setSource(pathPrefix+src_addr+postfix);  //set address source 
+            PathsDataProvider.setDestination(pathPrefix+dst_addr+postfix);	//set destination address
 
             PathsDataProvider.getPath().then(function (PathInfo){
 
-                var polylines = PathInfo.polylines;
+                var polylines = PathInfo.polylines;  //The path is a set of polyline objects
 
                 $scope.paths = {};
                 for (var i = 0; i < polylines.length; i++)
@@ -71,13 +74,14 @@ app.controller('CalculateController', ['$scope', 'PathsDataProvider', 'leafletBo
 
         }
 
-        //Use to show suggestions while user typing a character, contacting the arcgis service
+        //Use to show suggestions while typing a character, contacting the arcgis service
         $scope.getSrcSuggestions = function(){
             if($scope.source === undefined || $scope.source === '')
                 return;
             PathsDataProvider.getSuggestions($scope.source.replace(/ /g,"%2C")).then(function(sugs){
 
-                $scope.srcSuggestions = sugs;
+                $scope.srcSuggestions = sugs;  //Fill the suggestions box with the suggestions
+                							   //for source address
             })
         }
 
@@ -87,7 +91,8 @@ app.controller('CalculateController', ['$scope', 'PathsDataProvider', 'leafletBo
                 return;
             PathsDataProvider.getSuggestions($scope.destination.replace(/ /g,"%2C")).then(function(sugs){
 
-                $scope.dstSuggestions = sugs;
+                $scope.dstSuggestions = sugs;	//Fill the suggestions box with the suggestions
+				   								//for destination address
             })
         }
 

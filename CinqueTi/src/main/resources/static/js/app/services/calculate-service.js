@@ -5,7 +5,7 @@ app.factory('PathsDataProvider', [ '$http',
 
         var currentPath = [];
 
-        //Used for get suggestions while user typing the address
+        //Used for get suggestions while typing the address
 
         function getSuggestions(srcAddress){
 
@@ -42,7 +42,7 @@ app.factory('PathsDataProvider', [ '$http',
             },
             getPath: function() {
 
-                var markers = {};
+                var markers = {}; //The best path's markers
                 var srcLat, srcLong, dstLat, dstLong;
 
                 //Get lat and long for source address
@@ -106,7 +106,7 @@ app.factory('PathsDataProvider', [ '$http',
                     var polylines = [];
                     var myline;
 
-
+                    //Build polyline objects
                     for (var i = 0; i < bestPath.length; i++){
                         var edge = bestPath[i];
 
@@ -140,6 +140,9 @@ app.factory('PathsDataProvider', [ '$http',
                             curPolyline = createPolyline(edge.mode, edge.edgeLine);
                         }
                         else{
+                        	
+                        	//Check if the mode (walking on foot or bus line) is changed.
+                        	//In this case push polyline object
                             if ( previousMode != edge.mode || previousLine != edge.edgeLine){
 
                                 var line_marker = {
@@ -281,6 +284,8 @@ app.factory('PathsDataProvider', [ '$http',
 
                     //Handle the error by showing an alert box 'Nessun risultato'
                     bootstrap_alert_warning("Nessun risultato trovato!");
+                    
+                    //Delete the alert after 5 seconds
                     window.setTimeout(function() {
                         $(".alert").fadeTo(500, 0).slideUp(500, function(){
                             $(this).remove();
@@ -293,6 +298,7 @@ app.factory('PathsDataProvider', [ '$http',
     }
 ]);
 
+//Function for creating polyline object
 function createPolyline(mode,line){
     polyline = {
         type: "polyline",

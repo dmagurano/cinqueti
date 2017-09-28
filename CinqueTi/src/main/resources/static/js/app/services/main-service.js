@@ -31,6 +31,7 @@ app.factory('LinesDataProvider', ['$resource', '$filter',
                 return data;
             },
 
+            //return all bus stops for line with the passed id
             query : function (id) {
                 for (var i=0; i < lines.length; i++ ) {
                     if (lines[i].line == id)
@@ -41,7 +42,10 @@ app.factory('LinesDataProvider', ['$resource', '$filter',
                 var PathInfo = new Object();
 
                 var direction = "going";
-                var requestedDirection = reqDir;
+                var requestedDirection = reqDir; //Indicate the path that should be shown:
+                      							//-all: both going and return path
+                								//-going: only going path
+                								//-return: only return path
                 var firstElement = true;
                 var firstBusId;
                 var lastProcessedBusId;
@@ -72,6 +76,7 @@ app.factory('LinesDataProvider', ['$resource', '$filter',
 
                 var stops_res = this.query(id);
 
+                //Build the path showing markers for all line bus stops
                 for(var i = 0; i<stops_res.length; i++){
 
                     var stop = stops_res[i];
@@ -103,6 +108,7 @@ app.factory('LinesDataProvider', ['$resource', '$filter',
                     point.lat = stop.lat;
                     point.lng = stop.lng;
 
+                    //In this case show both going and return path
                     if (requestedDirection === "all"){
                         if (direction === "going"){
                             paths.going_path.latlngs.push(point);
@@ -130,7 +136,7 @@ app.factory('LinesDataProvider', ['$resource', '$filter',
                     if (point.lng > max_lng)
                         max_lng = point.lng;
 
-                    // https://github.com/pointhi/leaflet-color-markers
+               
                     var iconUrl;
                     if (direction == "going")
                         iconUrl = '../assets/marker-icon-green.png';

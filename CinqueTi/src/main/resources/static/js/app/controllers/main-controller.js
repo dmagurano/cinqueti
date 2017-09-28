@@ -1,9 +1,10 @@
 app.controller('MainCtrl', [ '$scope', 'LinesDataProvider', 'leafletBoundsHelpers', '$routeParams', '$location', 'linesCache',
     function ($scope, LinesDataProvider, leafletBoundsHelpers, $routeParams, $location, linesCache) {
 
-        document.getElementById("direction-buttons").style.visibility = "hidden";
+        document.getElementById("direction-buttons").style.visibility = "hidden"; //Hide the going and return button
+        													//until the path will be shown
 
-        this.lineID = $routeParams.lineID;
+        this.lineID = $routeParams.lineID;  //Set the line Id if present when clicking on element of lines list
 
         var lines_vect = [];
 
@@ -12,10 +13,12 @@ app.controller('MainCtrl', [ '$scope', 'LinesDataProvider', 'leafletBoundsHelper
         var page = 0;
         var per_page = 5;
 
+        //Pull the lines by means of request for page
         this.pull_lines = function(res,page,per_page) {
 
             if(res !== undefined){
 
+            	//If there aren't results stop the requests
                 if (res.length === 0){
 
                     cache.put('lines',lines_vect);
@@ -35,7 +38,7 @@ app.controller('MainCtrl', [ '$scope', 'LinesDataProvider', 'leafletBoundsHelper
         };
 
 
-        //Use cache to store the lines when they are downloaded. This to avoid to download
+        //Use cache to store the lines when they are download. This to avoid to download
         // them again when the view changes
 
         var cache = linesCache;
@@ -68,7 +71,7 @@ app.controller('MainCtrl', [ '$scope', 'LinesDataProvider', 'leafletBoundsHelper
 
         if ($routeParams.lineID) {
 
-            var PathInfo = LinesDataProvider.loadPath($routeParams.lineID,'all');
+            var PathInfo = LinesDataProvider.loadPath($routeParams.lineID,'all'); //Load all details from this line
             $scope.paths = PathInfo.paths;
             $scope.markers = PathInfo.markers;
             $scope.bounds = leafletBoundsHelpers.createBoundsFromArray(PathInfo.bounds);
